@@ -1,0 +1,35 @@
+{
+    "format_version": 2,
+    "header": {
+      "name": "NextMinecraftDatbase",
+      "description": "by Reversed Codes",
+      "uuid": "81863c75-e613-46ae-bec4-5862d2585537",
+      "version": [1, 0, 0],
+      "min_engine_version": [1, 19, 50]
+    },
+    "modules": [
+      {
+        "description": "",
+        "type": "data",
+        "uuid": "efc2a51b-dfc9-4a27-b368-5769c0e181a1",
+        "version": [1, 0, 1]
+      },
+      {
+        "language": "javascript",
+        "type": "script",
+        "uuid": "7c7e693f-99f4-41a9-95e0-1f57b37e1e12",
+        "version": "1.1.1-beta",
+        "entry": "scripts/main.js"
+      }
+    ],
+    "dependencies": [
+      {
+        "module_name": "@minecraft/server",
+        "version": "1.4.0-beta"
+      },
+      {
+        "module_name": "@minecraft/server-ui",
+        "version": "1.2.0-beta"
+      }
+    ]
+}
