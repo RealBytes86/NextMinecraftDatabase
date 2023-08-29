@@ -7,6 +7,10 @@ class NextMDB {
     constructor(collection) {
         this.name = collection;
     }
+    
+    collection() {
+
+    }
 
     create() {
         if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
@@ -53,7 +57,6 @@ class NextMDB {
     }
 
 }
-
 
 /**
  * @param {String} jsonString 
