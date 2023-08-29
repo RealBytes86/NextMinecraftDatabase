@@ -78,7 +78,10 @@ class Collection {
 
 
 class dataCluster {
-
+    constructor() {
+        this.minCount = 0;
+        this.maxCount = 5000;
+    }
 }
 
 
