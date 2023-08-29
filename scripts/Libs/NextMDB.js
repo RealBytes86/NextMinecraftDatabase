@@ -63,7 +63,7 @@ class Collection {
         this.name = name;
     }
 
-    findDocument() {
+    findDocument(document) {
 
     }
 
