@@ -67,10 +67,10 @@ class Collection {
 
     }
 
-    createDocument() { 
+    insertDocument() { 
 
     }
-    
+
     existsDocument() {
 
     }
