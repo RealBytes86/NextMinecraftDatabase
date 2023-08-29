@@ -76,6 +76,12 @@ class Collection {
     }
 }
 
+
+class dataCluster {
+
+}
+
+
 /**
  * @param {String} jsonString 
  * @returns {Object}
