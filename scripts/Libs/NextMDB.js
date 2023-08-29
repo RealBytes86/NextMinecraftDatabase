@@ -1,5 +1,7 @@
 import { world } from "@minecraft/server";
 
+const cache = [];
+
 export class NextMDB {
     /**
      * @param {string} collection 
@@ -20,7 +22,8 @@ export class NextMDB {
         if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
             return  { response: "exists",  status: "no" };
         } else {
-            world.scoreboard.addObjective(this.name, this.name);
+            const name = `${this.name}#1`;
+            world.scoreboard.addObjective(name, name);
             return { response: "created",  status: "ok" };
         }
     }
@@ -50,11 +53,12 @@ export class NextMDB {
                 deleteCount++;
             } catch 
             {
-                noDeleteCount ++;
+                noDeleteCount++;
             }
             try 
             {
-                world.scoreboard.addObjective(this.name, this.name);
+                const name = `${this.name}#1`;
+                world.scoreboard.addObjective(name, name);
                 deleteCount++;
             } catch 
             {
@@ -80,19 +84,21 @@ class Collection {
 
     }
 
-    insertDocument() { 
+    insertDocument(document, json) { 
 
     }
 
-    existsDocument() {
-
+    existsDocument(document) {
+        
     }
 }
 
-function dataCluster() { 
-    const minCount = 0;
-    const maxCount = 5000;
+function search() {
+    
+}
 
+function dataCluster() {
+    const MAX_DOCUMENT_IN_COLLECTION = 5000;
 }
 
 /**
@@ -102,9 +108,9 @@ function dataCluster() {
 function getJson(jsonString) {
     try {
         const jsonParse = JSON.parse(jsonString);
-        return { json: jsonParse,}
+        return { json: jsonParse, isValid: true };
     }catch {
-        return { json: null }
+        return { json: null, isValid: false };
     }
 }
 
