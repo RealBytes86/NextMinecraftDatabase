@@ -1,6 +1,6 @@
 import { world } from "@minecraft/server";
 
-class NextMDB {
+export class NextMDB {
     /**
      * @param {string} collection 
      */
@@ -9,6 +9,13 @@ class NextMDB {
         this.collection = new Collection(collection);
     }
 
+    size() {
+        return 0;
+    }
+
+    /**
+    * @returns {object}
+    */
     create() {
         if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
             return  { response: "exists",  status: "no" };
@@ -18,6 +25,9 @@ class NextMDB {
         }
     }
 
+    /**
+    * @returns {object}
+    */
     delete() {
         if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
             world.scoreboard.removeObjective(this.name);
@@ -27,6 +37,9 @@ class NextMDB {
         }
     }
 
+    /**
+    * @returns {object}
+    */
     reset() {
         if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
             let deleteCount = 0;
@@ -76,14 +89,11 @@ class Collection {
     }
 }
 
+function dataCluster() { 
+    const minCount = 0;
+    const maxCount = 5000;
 
-class dataCluster {
-    constructor() {
-        this.minCount = 0;
-        this.maxCount = 5000;
-    }
 }
-
 
 /**
  * @param {String} jsonString 
