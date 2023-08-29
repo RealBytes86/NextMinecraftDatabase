@@ -6,10 +6,7 @@ class NextMDB {
      */
     constructor(collection) {
         this.name = collection;
-    }
-    
-    collection() {
-
+        this.collection = new Collection(collection);
     }
 
     create() {
@@ -56,6 +53,27 @@ class NextMDB {
         }
     }
 
+}
+
+class Collection {
+    /**
+     * @param {String} name 
+     */
+    constructor(name) {
+        this.name = name;
+    }
+
+    findDocument() {
+
+    }
+
+    createDocument() { 
+
+    }
+    
+    existsDocument() {
+
+    }
 }
 
 /**
