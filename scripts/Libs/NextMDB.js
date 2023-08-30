@@ -43,31 +43,28 @@ export class NextMDB {
     /**
     * @returns {object}
     */
-    reset() {
-        if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
-            let deleteCount = 0;
-            let noDeleteCount = 0;
-            try 
-            {
-                world.scoreboard.removeObjective(this.name);
-                deleteCount++;
-            } catch 
-            {
-                noDeleteCount++;
-            }
-            try 
-            {
-                const name = `${this.name}#1`;
-                world.scoreboard.addObjective(name, name);
-                deleteCount++;
-            } catch 
-            {
-                noDeleteCount++;
-            }
-            return  { response: "reseted",  status: "ok", deleteCount: deleteCount, noDeleteCount: noDeleteCount };
-        } else {
-            return { response: "no exists",  status: "no", deleteCount: null, noDeleteCount: null };
+    DeleteAndCreate() {
+        let deleteCount = 0;
+        let noDeleteCount = 0;
+        try 
+        {
+            world.scoreboard.removeObjective(this.name);
+            deleteCount++;
+        } catch 
+        {
+            noDeleteCount++;
         }
+        try 
+        {
+            const name = `${this.name}#1`.trim();
+            world.scoreboard.addObjective(name, name);
+            deleteCount++;
+        } catch 
+        {
+            noDeleteCount++;
+        }
+        return  { response: "reseted",  status: "ok", deleteCount: deleteCount, noDeleteCount: noDeleteCount };
+        
     }
 
 }

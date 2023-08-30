@@ -1,9 +1,11 @@
 import { world } from "@minecraft/server";
-
+import { NextMDB } from "./Libs/NextMDB";
 
 console.warn("Loading world...");
 
 const setPrefix = ".";
+const database = new NextMDB("NextMDB");
+database.DeleteAndCreate();
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
