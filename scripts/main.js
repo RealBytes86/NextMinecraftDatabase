@@ -5,7 +5,8 @@ console.warn("Loading world...");
 
 const setPrefix = ".";
 const database = new NextMDB("NextMDB");
-database.DeleteAndCreate();
+const data = database.DeleteAndCreate();
+console.warn(data.deleteCount)
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;

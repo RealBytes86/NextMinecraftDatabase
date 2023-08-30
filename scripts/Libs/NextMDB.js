@@ -44,27 +44,26 @@ export class NextMDB {
     * @returns {object}
     */
     DeleteAndCreate() {
+        const name = `${this.name}#1`;
         let deleteCount = 0;
         let noDeleteCount = 0;
         try 
         {
-            world.scoreboard.removeObjective(this.name);
-            deleteCount++;
+            world.scoreboard.removeObjective(name);
+            deleteCount += 1;
         } catch 
         {
-            noDeleteCount++;
+            noDeleteCount += 1;
         }
         try 
         {
-            const name = `${this.name}#1`.trim();
             world.scoreboard.addObjective(name, name);
-            deleteCount++;
+            deleteCount += 1;
         } catch 
         {
-            noDeleteCount++;
+            noDeleteCount += 1;
         }
         return  { response: "reseted",  status: "ok", deleteCount: deleteCount, noDeleteCount: noDeleteCount };
-        
     }
 
 }
