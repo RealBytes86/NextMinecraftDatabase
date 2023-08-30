@@ -13,6 +13,8 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
+            const data = Array.from(world.scoreboard.getParticipants(), (data) => data.type == "FakePlayer")
+            console.warn(data)
             ctx.sender.sendMessage("§aTest Erfolgreich!");
             return;
         }
