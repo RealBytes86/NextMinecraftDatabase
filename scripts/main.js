@@ -1,7 +1,8 @@
 import { system, world, ScoreboardIdentity } from "@minecraft/server";
 import { NextMDB, SecurityNextMDB } from "./Libs/NextMDB";
 
-const security = new SecurityNextMDB("StayCationPack12");
+const security = new SecurityNextMDB();
+security.key = "StayCationPack12";
 
 console.warn("Loading world...");
 
