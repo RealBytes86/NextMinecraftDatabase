@@ -327,6 +327,7 @@ function aesDecrypt(ciphertext, key) {
     const roundKeys = keyExpansion(keyBytes);
 
     addRoundKey(state, roundKeys, 10);
+
     for(let round = 9; round > 0; round--) {
         inverseShiftRows(state);
         inverseSubBytes(state);
@@ -337,6 +338,7 @@ function aesDecrypt(ciphertext, key) {
     inverseShiftRows(state);
     inverseSubBytes(state);
     addRoundKey(state, roundKeys, 0);
+    
     const plaintext = bytesToString(ciphertextBytes);
 
     return plaintext;
