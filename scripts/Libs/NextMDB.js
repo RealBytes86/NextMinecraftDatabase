@@ -1,6 +1,9 @@
-import { world } from "@minecraft/server";
+import { world, system, MinecraftDimensionTypes } from "@minecraft/server";
 
 const cache = [];
+const overworld = world.getDimension(MinecraftDimensionTypes.overworld);
+const nether = world.getDimension(MinecraftDimensionTypes.nether);
+const end = world.getDimension(MinecraftDimensionTypes.theEnd);
 
 export class NextMDB {
     /**
@@ -8,6 +11,7 @@ export class NextMDB {
      */
     constructor(collection) {
         this.name = collection;
+        this.display = new Display(collection);
         this.collection = new Collection(collection);
     }
 
@@ -43,7 +47,7 @@ export class NextMDB {
     /**
     * @returns {object}
     */
-    DeleteAndCreate() {
+    deleteAndcreate() {
         const name = `${this.name}#1`;
         let deleteCount = 0;
         let noDeleteCount = 0;
@@ -65,6 +69,42 @@ export class NextMDB {
         }
         return  { response: "reseted",  status: "ok", deleteCount: deleteCount, noDeleteCount: noDeleteCount };
     }
+} 
+
+class Display {
+    constructor(name) {
+        this.name = name;
+    }
+
+    list() {
+        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay list "${this.name}"`));
+        return { response: "setdisplay list", status: "ok" };
+    }
+
+    sidebar() { 
+        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay sidebar "${this.name}"`));
+        return { response: "setdisplay sidebar", status: "ok" };
+    }
+
+    belowname() {
+        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay belowname "${this.name}"`));
+        return { response: "setdisplay belowname", status: "ok" };
+    }
+
+    noList() {
+        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay list`));
+        return { response: "setdisplay no list", status: "ok" };
+    }
+
+    nodSidebar() { 
+        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay sidebar`));
+        return { response: "setdisplay no sidebar", status: "ok" };
+    }
+
+    nodBelowname() {
+        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay belowname`));
+        return { response: "setdisplay no belowname", status: "ok" };
+    }
 
 }
 
@@ -84,19 +124,40 @@ class Collection {
 
     }
 
+    updateDocument(document, json) { 
+
+    }
+
     existsDocument(document) {
         
     }
 }
 
+class Docuemnt {
 
-function search() {
+}
+
+class Cluster {
+    constructor() {
+        this.MAX_DOCUMENT_IN_COLLECTION = 5000;
+    }
     
-}
+    create() { 
+        
+    }
 
-function dataCluster() {
-    const MAX_DOCUMENT_IN_COLLECTION = 5000;
-}
+    search() {
+
+    }
+
+    save() {
+
+    }
+
+    size() {
+
+    }
+} 
 
 /**
  * @param {String} jsonString 
