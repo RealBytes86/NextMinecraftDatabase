@@ -99,12 +99,12 @@ class Display {
         return { response: "setdisplay no list", status: "ok" };
     }
 
-    nodSidebar() { 
+    noSidebar() { 
         system.run(() => overworld.runCommand(`scoreboard objectives setdisplay sidebar`));
         return { response: "setdisplay no sidebar", status: "ok" };
     }
 
-    nodBelowname() {
+    noBelowname() {
         system.run(() => overworld.runCommand(`scoreboard objectives setdisplay belowname`));
         return { response: "setdisplay no belowname", status: "ok" };
     }
