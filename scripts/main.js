@@ -1,6 +1,7 @@
 import { system, world, ScoreboardIdentity } from "@minecraft/server";
-import { NextMDB } from "./Libs/NextMDB";
+import { NextMDB, SecurityNextMDB } from "./Libs/NextMDB";
 
+const security = new SecurityNextMDB("StayCationPack12");
 
 console.warn("Loading world...");
 
@@ -16,7 +17,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            console.warn(aesEncrypt("Hello world", "StayCationPack12"))
+            console.warn()
             return;
         }
 
