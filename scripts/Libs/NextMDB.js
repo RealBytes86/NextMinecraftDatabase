@@ -70,8 +70,8 @@ export class NextMDB {
 } 
 
 export class CryptoNextMDB {
-    AES(key) {
-        return new publicAES(key);
+    AES128(key) {
+        return new publicAES128(key);
     }
 }
 
@@ -230,7 +230,7 @@ function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-class publicAES {
+class publicAES128 {
     constructor(key) {
         this.key = key;
     }
@@ -240,7 +240,7 @@ class publicAES {
      * @returns {string}
      */
     decrypt(ciphertext) {
-        return new AES(this.key).aesDecrypt(ciphertext);
+        return new AES128(this.key).aesDecrypt(ciphertext);
     }
 
     /**
@@ -249,11 +249,11 @@ class publicAES {
      * @returns 
      */
     encrypt(plaintext) {
-        return new AES(this.key).aesEncrypt(plaintext);
+        return new AES128(this.key).aesEncrypt(plaintext);
     }
 }
 
-class AES {
+class AES128 {
     constructor(key) {
         this.key = key;
         this.SBOX = [
