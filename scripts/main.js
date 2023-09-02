@@ -7,7 +7,6 @@ console.warn("Loading world...");
 const setPrefix = ".";
 const database = new NextMDB("NextMDB");
 database.deleteAndcreate()
-database.display.sidebar();
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
@@ -17,17 +16,15 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            const participants = world.scoreboard.getParticipants();
-            const data = Array.from(participants, {length: 5000}, (_, index) => participants[index].displayName); 
-            console.warn(data)
+            console.warn(aesEncrypt("Hello world", "StayCationPack12"))
             return;
         }
 
         if(commandName == "test2") {
 
-            for(let i = 0; i <= 5000; i++) {
+            for(let i = 0; i <= 10000; i++) {
                 const names = `ID: ${i}`
-                system.run(() => world.scoreboard.getObjective("NextMDB#1").setScore(names, i));
+                system.run(() => world.scoreboard.getObjective(database.name).setScore(names, i));
             }
         }
     }
