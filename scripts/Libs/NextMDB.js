@@ -72,6 +72,9 @@ export class NextMDB {
 } 
 
 class Display {
+    /**
+     * @param {string} name 
+     */
     constructor(name) {
         this.name = name;
     }
