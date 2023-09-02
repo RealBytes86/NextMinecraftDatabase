@@ -26,8 +26,7 @@ export class NextMDB {
         if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
             return  { response: "exists",  status: "no" };
         } else {
-            const name = `${this.name}#1`;
-            world.scoreboard.addObjective(name, name);
+            world.scoreboard.addObjective(this.name, this.name);
             return { response: "created",  status: "ok" };
         }
     }
@@ -48,12 +47,11 @@ export class NextMDB {
     * @returns {object}
     */
     deleteAndcreate() {
-        const name = `${this.name}#1`;
         let deleteCount = 0;
         let noDeleteCount = 0;
         try 
         {
-            world.scoreboard.removeObjective(name);
+            world.scoreboard.removeObjective(this.name);
             deleteCount += 1;
         } catch 
         {
@@ -61,7 +59,7 @@ export class NextMDB {
         }
         try 
         {
-            world.scoreboard.addObjective(name, name);
+            world.scoreboard.addObjective(this.name, this.name);
             deleteCount += 1;
         } catch 
         {
@@ -84,7 +82,7 @@ class Display {
         return { response: "setdisplay list", status: "ok" };
     }
 
-    sidebar() { 
+    sidebar() {
         system.run(() => overworld.runCommand(`scoreboard objectives setdisplay sidebar "${this.name}"`));
         return { response: "setdisplay sidebar", status: "ok" };
     }

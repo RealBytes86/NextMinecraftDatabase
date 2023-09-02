@@ -8,6 +8,7 @@ const setPrefix = ".";
 const database = new NextMDB("NextMDB");
 database.deleteAndcreate()
 database.display.sidebar();
+
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
     if(messsage.startsWith(setPrefix)) {
