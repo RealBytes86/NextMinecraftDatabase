@@ -2,7 +2,7 @@ import { system, world } from "@minecraft/server";
 import { NextMDB, CryptoNextMDB } from "./Libs/NextMDB";
 
 const security = new CryptoNextMDB();
-const aes = security.AES128("HelloWorldHello1");
+const XOR = security.XOR("HelloWorldHello1");
 
 console.warn("Loading world...");
 
