@@ -18,7 +18,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            console.warn(aes.encrypt("HelloWorld! Hello World!"));
+            console.warn(XOR.decrypt(XOR.encrypt("HelloWorld! Hello World!")));
             return;
         }
 

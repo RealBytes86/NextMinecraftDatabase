@@ -240,7 +240,7 @@ class XOR {
      * @returns {string}
      */
     decrypt(ciphertext) {
-        return new XOREncryption(this.key).Encrypt(ciphertext);
+        return new XOREncryption(this.key).Decrypt(ciphertext);
     }
 
     /**
@@ -249,7 +249,7 @@ class XOR {
      * @returns 
      */
     encrypt(plaintext) {
-        return new XOREncryption(this.key).Decrypt(plaintext);
+        return new XOREncryption(this.key).Encrypt(plaintext);
     }
 }
 
