@@ -18,10 +18,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            const encrypt = XOR.encrypt(args.join(" "))
-            ctx.sender.sendMessage(encrypt)
-            ctx.sender.sendMessage("-------------------------------------------------")
-            ctx.sender.sendMessage(XOR.decrypt(encrypt))
             return;
         }
 
