@@ -2,7 +2,7 @@ import { system, world } from "@minecraft/server";
 import { NextMDB, CryptoNextMDB } from "./Libs/NextMDB";
 
 const security = new CryptoNextMDB();
-const aes = security.AES128("0123451234512345");
+const aes = security.AES128("HelloWorldHello1");
 
 console.warn("Loading world...");
 
@@ -18,7 +18,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            console.warn(aes.encrypt("Hello {} World!"));
+            console.warn(aes.encrypt("HelloWorld! Hello World!"));
             return;
         }
 
