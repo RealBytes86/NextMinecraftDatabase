@@ -2,7 +2,7 @@ import { system, world } from "@minecraft/server";
 import { NextMDB, CryptoNextMDB } from "./Libs/NextMDB";
 
 const security = new CryptoNextMDB();
-const XOR = security.XOR("HelloWorldHello1");
+const XOR = security.XOR("2828282828282318");
 
 console.warn("Loading world...");
 
@@ -18,7 +18,10 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            console.warn(XOR.decrypt(XOR.encrypt("HelloWorld! Hello World!")));
+            const encrypt = XOR.encrypt(args.join(" "))
+            ctx.sender.sendMessage(encrypt)
+            ctx.sender.sendMessage("-------------------------------------------------")
+            ctx.sender.sendMessage(XOR.decrypt(encrypt))
             return;
         }
 

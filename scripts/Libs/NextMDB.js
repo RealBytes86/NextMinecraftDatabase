@@ -253,6 +253,7 @@ class XOR {
     }
 }
 
+//Not 100% sure
 class XOREncryption {
     constructor(key) {
         this.key = key;
