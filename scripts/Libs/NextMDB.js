@@ -1,18 +1,16 @@
-import { world, system, MinecraftDimensionTypes } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 
-const cache = [];
-const overworld = world.getDimension(MinecraftDimensionTypes.overworld);
-const nether = world.getDimension(MinecraftDimensionTypes.nether);
-const end = world.getDimension(MinecraftDimensionTypes.theEnd);
+const cache = new Map();
+const overworld = world.getDimension("minecraft:overworld");
 
 export class NextMDB {
     /**
      * @param {string} collection 
      */
     constructor(collection) {
-        this.name = collection;
-        this.display = new Display(collection);
-        this.collection = new Collection(collection);
+        this.name = collection
+        this.display = new Display(this.name);
+        this.collection = new Collection(this.name);
     }
 
     size() {
@@ -76,12 +74,27 @@ export class CryptoNextMDB {
 }
 
 class RegisterNextMDB {
-    constructor() {
-        this.register = world.scoreboard.getObjective("RegisterNextMDB");
+    constructor(key) {
+        this.key = key;
+        this.register = world.scoreboard.getObjective(new CryptoNextMDB().XOR(key).encrypt("root@nextmdb"));
     }
 
-    create(name) {
-        
+    getName() {
+        return this.register.displayName;
+    }
+
+    create() {
+        const xor = new CryptoNextMDB().XOR(this.key);
+        this.register.setScore(xor.encrypt(JSON.stringify({
+            document: {
+                name: "root",
+                id: this.register.getParticipants().length + 1,
+            },
+            data: {
+                password: null,
+                register: [],
+            }
+        })), 0);
     }
 }
 
@@ -185,7 +198,6 @@ class Cluster {
     }
     
     create() {
-
     }
 
     search() {

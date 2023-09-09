@@ -1,14 +1,12 @@
 import { system, world } from "@minecraft/server";
 import { NextMDB, CryptoNextMDB } from "./Libs/NextMDB";
 
-const security = new CryptoNextMDB();
-const XOR = security.XOR("2828282828282318");
-
 console.warn("Loading world...");
 
 const setPrefix = ".";
-const database = new NextMDB("NextMDB");
+const database = new NextMDB("NextMDB", "1100110011001100");
 database.deleteAndcreate()
+database.display.sidebar();
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
