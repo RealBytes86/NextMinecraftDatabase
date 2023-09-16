@@ -178,7 +178,6 @@ function loadRegisterDatabase() {
     })
 }
 
-////////////////////////////////////////////////////////////////////////
 function InitializationIsReady() {
     if(ready == false) throw new Error("Initialization is not ready");
 }
@@ -192,7 +191,7 @@ function notification(boolean) {
         })
     }
 }
-////////////////////////////////////////////////////////////////////////
+
 
 /**
  * @param {String} jsonString 
