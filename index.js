@@ -1,1 +1,7 @@
 
+class test {
+
+    constructor() {
+
+    }
+}

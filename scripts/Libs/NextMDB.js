@@ -11,6 +11,7 @@ export class NextMDB {
      * @returns {Collection}
      */
     Collection(name) {
+        InitializationIsReady()
         if(typeof name == "string") {
             return new Collection(name)
         } else {
@@ -18,24 +19,25 @@ export class NextMDB {
         }
     }
 
-    createCollection() { 
-
+    createCollection() {
+        InitializationIsReady()
     }
 
-    resetCollection() { 
-
+    resetCollection() {
+        InitializationIsReady()
     }
 
     deleteColection() {
-
+        InitializationIsReady()
     }
 
     getAllCollection() {
+        InitializationIsReady()
         return "Null";
     }
 
     sizeCollections() {
-
+        InitializationIsReady()
     }
 
     /**
@@ -49,15 +51,9 @@ export class NextMDB {
      * @param {boolean} boolean 
      */
     Initialization(boolean) {
-        if(typeof boolean == "boolean" && boolean == true) {
-            world.getAllPlayers().forEach((player) => {
-                if(player.isOp()) {
-                    world.sendMessage(`§7[§6NextMDB§7] §aInitialization was successful.`)
-                }
-            })
-        }
-
+        loadRegisterDatabase();
         ready = true;
+        notification(boolean);
     }
 }
 
@@ -76,12 +72,12 @@ class Collection {
         const scoreboard = world.scoreboard.getObjective(this.name);
     }
 
-    insertDocument(document, json) { 
+    insertDocument(document, json) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty." };
     }
 
-    updateDocument(document, json) { 
+    updateDocument(document, json) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty." };
 
@@ -164,7 +160,6 @@ class Cluster {
 
 function loadRegisterDatabase() {
 
-    if(registerAdded != 0) throw new Error("Root Database already exists.");
     const register = world.scoreboard.getObjective();
 
     const data = escapeQuotes(JSON.stringify({document: {
@@ -183,9 +178,21 @@ function loadRegisterDatabase() {
     })
 }
 
+////////////////////////////////////////////////////////////////////////
 function InitializationIsReady() {
     if(ready == false) throw new Error("Initialization is not ready");
 }
+
+function notification(boolean) {
+    if(typeof boolean == "boolean" && boolean == true) {
+        world.getAllPlayers().forEach((player) => {
+            if(player.isOp()) {
+                world.sendMessage(`§7[§6NextMDB§7] §aInitialization was successful.`)
+            }
+        })
+    }
+}
+////////////////////////////////////////////////////////////////////////
 
 /**
  * @param {String} jsonString 
