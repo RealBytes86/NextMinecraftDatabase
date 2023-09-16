@@ -1,12 +1,10 @@
 import { system, world } from "@minecraft/server";
-import { NextMDB, CryptoNextMDB } from "./Libs/NextMDB";
+import { NextMDB } from "./Libs/NextMDB";
+import "./Example/Database"
 
 console.warn("Loading world...");
 
 const setPrefix = ".";
-const database = new NextMDB("NextMDB", "1100110011001100");
-database.deleteAndcreate()
-database.display.sidebar();
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
@@ -16,6 +14,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
+
             return;
         }
 

@@ -1,8 +1,9 @@
-import { NextMDB, CryptoNextMDB  } from "../Libs/NextMDB";
+import { NextMDB } from "../Libs/NextMDB";
 
-const xor = new CryptoNextMDB().XOR("0100100100110011");
-const database = new NextMDB(xor.encrypt("NextMDB"));
+const MDB = new NextMDB();
+const XOR = MDB.XOR()
+
+const playerid = MDB.Collection("playerid");
 
 
-database.deleteAndcreate();
-database.display.sidebar();
+MDB.Initialization(true)

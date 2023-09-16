@@ -1,102 +1,104 @@
 import { world, system } from "@minecraft/server";
 
-const cache = new Map();
 const overworld = world.getDimension("minecraft:overworld");
+let NMDBkey = "DATABASE:NEXTMDB";
+let ready = false;
 
 export class NextMDB {
+
+    /**
+     * @param {string} name 
+     * @returns {Collection}
+     */
+    Collection(name) {
+        if(typeof name == "string") {
+            return new Collection(name)
+        } else {
+            throw new Error("Name is invalid")
+        }
+    }
+
+    createCollection() { 
+
+    }
+
+    resetCollection() { 
+
+    }
+
+    deleteColection() {
+
+    }
+
+    getAllCollection() {
+        return "Null";
+    }
+
+    sizeCollections() {
+
+    }
+
+    /**
+     * @returns {XOR} 
+     */
+    XOR() {
+        return new XOR()
+    }
+
+    /**
+     * @param {boolean} boolean 
+     */
+    Initialization(boolean) {
+        if(typeof boolean == "boolean" && boolean == true) {
+            world.getAllPlayers().forEach((player) => {
+                if(player.isOp()) {
+                    world.sendMessage(`§7[§6NextMDB§7] §aInitialization was successful.`)
+                }
+            })
+        }
+
+        ready = true;
+    }
+}
+
+class Collection {
     /**
      * @param {string} collection 
      */
     constructor(collection) {
         this.name = collection
         this.display = new Display(this.name);
-        this.collection = new Collection(this.name);
     }
 
-    size() {
+    findDocument(document) {
+        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
+        if(document.length == 0) return { response: "The document name is empty." };
+        const scoreboard = world.scoreboard.getObjective(this.name);
+    }
+
+    insertDocument(document, json) { 
+        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
+        if(document.length == 0) return { response: "The document name is empty." };
+    }
+
+    updateDocument(document, json) { 
+        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
+        if(document.length == 0) return { response: "The document name is empty." };
+
+    }
+
+    existsDocument(document) {
+        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
+        if(document.length == 0) return { response: "The document name is empty." };
+        
+    }
+
+    sizeCollection() {
         return 0;
     }
 
-    /**
-    * @returns {object}
-    */
-    create() {
-        if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
-            return  { response: "exists",  status: "no" };
-        } else {
-            world.scoreboard.addObjective(this.name, this.name);
-            return { response: "created",  status: "ok" };
-        }
-    }
-
-    /**
-    * @returns {object}
-    */
-    delete() {
-        if(world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == this.name)) {
-            world.scoreboard.removeObjective(this.name);
-            return  { response: "exists",  status: "ok" };
-        } else {
-            return { response: "no exists",  status: "no" };
-        }
-    }
-
-    /**
-    * @returns {object}
-    */
-    deleteAndcreate() {
-        let deleteCount = 0;
-        let noDeleteCount = 0;
-        try 
-        {
-            world.scoreboard.removeObjective(this.name);
-            deleteCount += 1;
-        } catch 
-        {
-            noDeleteCount += 1;
-        }
-        try 
-        {
-            world.scoreboard.addObjective(this.name, this.name);
-            deleteCount += 1;
-        } catch 
-        {
-            noDeleteCount += 1;
-        }
-        return  { response: "reseted",  status: "ok", deleteCount: deleteCount, noDeleteCount: noDeleteCount };
-    }
 } 
 
-export class CryptoNextMDB {
-    XOR(key) {
-        return new XOR(key);
-    }
-}
-
-class RegisterNextMDB {
-    constructor(key) {
-        this.key = key;
-        this.register = world.scoreboard.getObjective(new CryptoNextMDB().XOR(key).encrypt("root@nextmdb"));
-    }
-
-    getName() {
-        return this.register.displayName;
-    }
-
-    create() {
-        const xor = new CryptoNextMDB().XOR(this.key);
-        this.register.setScore(xor.encrypt(JSON.stringify({
-            document: {
-                name: "root",
-                id: this.register.getParticipants().length + 1,
-            },
-            data: {
-                password: null,
-                register: [],
-            }
-        })), 0);
-    }
-}
 
 class Display {
     /**
@@ -138,66 +140,13 @@ class Display {
 
 }
 
-class Collection {
-    /**
-     * @param {String} name 
-     */
-    constructor(name) {
-        this.name = name;
-    }
-
-    findDocument(document) {
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
-        const scoreboard = world.scoreboard.getObjective(this.name);
-    }
-
-    insertDocument(document, json) { 
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
-    }
-
-    updateDocument(document, json) { 
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
-
-    }
-
-    existsDocument(document) {
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
-        
-    }
-
-    size() {
-        return 0;
-    }
-}
-
-class Docuemnt {
-    constructor() {
-
-    }
-
-    update() {
-
-    }
-
-    delete() {
-
-    }
-
-    output() {
-
-    }
-}
-
 class Cluster {
     constructor() {
         this.MAX_DOCUMENT_IN_COLLECTION = 5000;
     }
     
     create() {
+
     }
 
     search() {
@@ -211,13 +160,41 @@ class Cluster {
     size() {
 
     }
-} 
+}
+
+function loadRegisterDatabase() {
+
+    if(registerAdded != 0) throw new Error("Root Database already exists.");
+    const register = world.scoreboard.getObjective();
+
+    const data = escapeQuotes(JSON.stringify({document: {
+        name: "root",
+        id: register.getParticipants().length + 1,
+    },
+    data: {
+        users: [{user: "root", password: "root"}],
+        databases: [],
+    }}))
+    
+    system.run(() => {
+        if(register.hasParticipant(data) == false) {
+            register.setScore(data, 0)
+        }
+    })
+}
+
+function InitializationIsReady() {
+    if(ready == false) throw new Error("Initialization is not ready");
+}
 
 /**
  * @param {String} jsonString 
  * @returns {Object}
  */
-function getJson(jsonString) {
+function JParse(jsonString) {
+
+    if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
+    
     try {
         const jsonParse = JSON.parse(jsonString);
         return { json: jsonParse, isValid: true };
@@ -243,25 +220,42 @@ function unescapeQuotes(jsonString) {
 }
 
 class XOR {
-    constructor(key) {
-        this.key = key;
-    }
-    
     /**
      * @param {string} ciphertext
      * @returns {string}
      */
     decrypt(ciphertext) {
-        return new XOREncryption(this.key).Decrypt(ciphertext);
+        return new XOREncryption(NMDBkey).Decrypt(ciphertext);
     }
 
     /**
-     * 
+     * @param {string} key 
+     */
+    setKey(key) {
+        if(typeof key == "string") {
+            if(key.length == 16) {
+                NMDBkey = key;
+            } else {
+                throw new Error("Invalid key. Only key length 16");
+            }
+        } else {
+            throw new Error("Invalid string");
+        }
+    }
+
+    /**
+     * @returns {string}
+     */
+    getKey() {
+        return NMDBkey;
+    }
+
+    /**
      * @param {string} plaintext 
      * @returns 
      */
     encrypt(plaintext) {
-        return new XOREncryption(this.key).Encrypt(plaintext);
+        return new XOREncryption(NMDBkey).Encrypt(plaintext);
     }
 }
 
