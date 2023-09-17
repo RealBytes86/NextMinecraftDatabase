@@ -8,7 +8,6 @@ const NextMap = new Map();
 let NMDBkey = "DATABASE:NEXTMDB";
 let ready = false;
 
-
 //DevelopmentMode
 let developmentMode = {
     notification: false,
@@ -196,14 +195,13 @@ function loadRegisterDatabase() {
 
     const register = world.scoreboard.getObjective(registerName);
 
-
     const JData = {
         document: {
             name: "root",
             id: register.getParticipants().length + 1,
         },
         data: {
-            users: [{name: "root", password: "admin"}],
+            users: [{name: "root", password: "admin", permission: "admin"}],
             databases: [],
         }
     }
@@ -264,7 +262,7 @@ function JParse(jsonString) {
 
 /**
  * @param {string} jsonString 
- * @returns {Object}
+ * @returns {string}
  */
 function escapeQuotes(jsonString) {
     return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
@@ -272,7 +270,7 @@ function escapeQuotes(jsonString) {
 
 /**
  * @param {string} jsonString 
- * @returns {Object}
+ * @returns {string}
  */
 function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');

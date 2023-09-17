@@ -6,6 +6,23 @@ console.warn("Loading world...");
 
 const setPrefix = ".";
 
+
+world.beforeEvents.itemUse.subscribe((ctx) => {
+
+
+    if(ctx.source.isOp() == false) return;
+    if(ctx.itemStack.typeId == "minecraft:stick") {
+        try {
+            const loc = ctx.source.getBlockFromViewDirection();
+            if(!loc) return;
+            const local = loc.block.location;
+            system.run(() => ctx.source.dimension.spawnEntity("minecraft:lightning_bolt", {x: local.x, y: local.y + 1, z: local.z}));
+        } catch {
+        }
+    }
+
+})
+
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
     if(messsage.startsWith(setPrefix)) {
