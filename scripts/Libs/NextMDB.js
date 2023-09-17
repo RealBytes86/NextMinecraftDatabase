@@ -298,7 +298,7 @@ class Account {
 function updateRegister() {
     const xor = new XOREncryption(NMDBkey);
     const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
-    
+
 }
 
 function loadRegisterDatabase() {
@@ -322,7 +322,7 @@ function loadRegisterDatabase() {
             id: register.getParticipants().length + 1,
         },
         data: {
-            users: [{name: xor.Encrypt("root"), password: xor.Encrypt("admin"), permission: xor.Encrypt("admin")}],
+            users: [],
             databases: [],
         }
     }
