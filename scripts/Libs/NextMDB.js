@@ -1,8 +1,15 @@
 import { world, system } from "@minecraft/server";
 
 const overworld = world.getDimension("minecraft:overworld");
+
+//Global variables
+const MAX_DOCUMENT_IN_COLLECTION = 5000;
 let NMDBkey = "DATABASE:NEXTMDB";
 let ready = false;
+let developmentMode = {
+    notification: false,
+    reloadRegister: false,
+}
 
 export class NextMDB {
 
@@ -13,6 +20,7 @@ export class NextMDB {
     Collection(name) {
         InitializationIsReady()
         if(typeof name == "string") {
+            name = name.toUpperCase();
             return new Collection(name)
         } else {
             throw new Error("Name is invalid")
@@ -20,24 +28,27 @@ export class NextMDB {
     }
 
     createCollection() {
-        InitializationIsReady()
+        InitializationIsReady();
     }
 
     resetCollection() {
-        InitializationIsReady()
+        InitializationIsReady();
     }
 
     deleteColection() {
-        InitializationIsReady()
+        InitializationIsReady();
     }
 
     getAllCollection() {
-        InitializationIsReady()
-        return "Null";
+        InitializationIsReady();
+    }
+
+    resetAllCollection() {
+        InitializationIsReady();
     }
 
     sizeCollections() {
-        InitializationIsReady()
+        InitializationIsReady();
     }
 
     /**
@@ -47,13 +58,24 @@ export class NextMDB {
         return new XOR()
     }
 
+    developmentMode({notification: notification, reloadRegister: reloadRegister}) {
+
+        if(typeof notification == "boolean") {
+            developmentMode.notification = notification ?? false;
+        }
+
+        if(typeof reloadRegister == "boolean") {
+            developmentMode.reloadRegister = reloadRegister ?? false;
+        }
+    }
+
     /**
      * @param {boolean} boolean 
      */
-    Initialization(boolean) {
+    Initialization() {
         loadRegisterDatabase();
         ready = true;
-        notification(boolean);
+        notification();
     }
 }
 
@@ -137,10 +159,7 @@ class Display {
 }
 
 class Cluster {
-    constructor() {
-        this.MAX_DOCUMENT_IN_COLLECTION = 5000;
-    }
-    
+
     create() {
 
     }
@@ -160,20 +179,47 @@ class Cluster {
 
 function loadRegisterDatabase() {
 
-    const register = world.scoreboard.getObjective();
+    const xor = new XOREncryption(NMDBkey);
+    const registerName = xor.Encrypt("root@database");
 
-    const data = escapeQuotes(JSON.stringify({document: {
-        name: "root",
-        id: register.getParticipants().length + 1,
-    },
-    data: {
-        users: [{user: "root", password: "root"}],
-        databases: [],
-    }}))
+    if(developmentMode.reloadRegister) {
+        world.scoreboard.removeObjective(registerName);
+    }
+
+    if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == registerName)) {
+        world.scoreboard.addObjective(registerName, registerName);
+    }
+
+    const register = world.scoreboard.getObjective(registerName);
+
+    const data = xor.Encrypt(escapeQuotes(JSON.stringify({
+        document: {
+            name: "root",
+            id: register.getParticipants().length + 1,
+        },
+        data: {
+            users: [{name: "root", password: "admin"}],
+            databases: [],
+        }
+    })))
+
+    let exists = false;
     
     system.run(() => {
-        if(register.hasParticipant(data) == false) {
-            register.setScore(data, 0)
+        register.getParticipants().forEach((participant) => {
+            const realData = xor.Decrypt(participant.displayName);
+            const Parse = JParse(unescapeQuotes(realData));
+            if(Parse.isValid) {
+                if(Parse.json.document.name == "root") {
+                    exists = true;
+                }
+            } else {
+                register.removeParticipant(participant.displayName);
+            }
+        })
+
+        if(exists == false) {
+            register.setScore(data, 0);
         }
     })
 }
@@ -182,8 +228,8 @@ function InitializationIsReady() {
     if(ready == false) throw new Error("Initialization is not ready");
 }
 
-function notification(boolean) {
-    if(typeof boolean == "boolean" && boolean == true) {
+function notification() {
+    if(developmentMode.notification) {
         world.getAllPlayers().forEach((player) => {
             if(player.isOp()) {
                 world.sendMessage(`§7[§6NextMDB§7] §aInitialization was successful.`)
@@ -195,7 +241,6 @@ function notification(boolean) {
 
 /**
  * @param {String} jsonString 
- * @returns {Object}
  */
 function JParse(jsonString) {
 
