@@ -30,12 +30,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
-            system.run(() => {
-                const serverUrl = variables.get("Hello World")
-                console.warn(serverUrl)
-                console.log("i am here")
-            })
-
             return;
         }
 
