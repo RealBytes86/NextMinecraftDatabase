@@ -4,8 +4,12 @@ const overworld = world.getDimension("minecraft:overworld");
 
 //Global variables
 const MAX_DOCUMENT_IN_COLLECTION = 5000;
+const NextMap = new Map();
 let NMDBkey = "DATABASE:NEXTMDB";
 let ready = false;
+
+
+//DevelopmentMode
 let developmentMode = {
     notification: false,
     reloadRegister: false,
@@ -192,7 +196,8 @@ function loadRegisterDatabase() {
 
     const register = world.scoreboard.getObjective(registerName);
 
-    const data = xor.Encrypt(escapeQuotes(JSON.stringify({
+
+    const JData = {
         document: {
             name: "root",
             id: register.getParticipants().length + 1,
@@ -201,7 +206,9 @@ function loadRegisterDatabase() {
             users: [{name: "root", password: "admin"}],
             databases: [],
         }
-    })))
+    }
+
+    const data = xor.Encrypt(escapeQuotes(JSON.stringify(JData)))
 
     let exists = false;
     
@@ -212,6 +219,7 @@ function loadRegisterDatabase() {
             if(Parse.isValid) {
                 if(Parse.json.document.name == "root") {
                     exists = true;
+                    NextMap.set("root", Parse.json);
                 }
             } else {
                 register.removeParticipant(participant.displayName);
@@ -220,6 +228,7 @@ function loadRegisterDatabase() {
 
         if(exists == false) {
             register.setScore(data, 0);
+            NextMap.set("root", JData);
         }
     })
 }
@@ -238,9 +247,8 @@ function notification() {
     }
 }
 
-
 /**
- * @param {String} jsonString 
+ * @param {String} jsonString
  */
 function JParse(jsonString) {
 
