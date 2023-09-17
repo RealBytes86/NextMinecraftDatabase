@@ -15,23 +15,28 @@ let developmentMode = {
 }
 
 export class NextMDB {
-
+    
     /**
      * @param {string} name 
      * @returns {Collection}
      */
     Collection(name) {
         InitializationIsReady()
-        if(typeof name == "string") {
-            name = name.toUpperCase();
-            return new Collection(name)
-        } else {
-            throw new Error("Name is invalid")
-        }
+        if(typeof name != "string") throw new Error("Name is invalid");
+        return new Collection(name.toUpperCase())
     }
 
-    createCollection() {
+    createCollection(name) {
         InitializationIsReady();
+        if(typeof name != "string") throw new Error("Name is invalid");
+        const rootDocument = NextMap.get("root");
+        const find = rootDocument.data.databases.find((database) => database.name == name);
+        if(find == undefined) {
+
+            return { response: "created", status: "ok" };
+        } else {
+            return { response: "exists", status: "no" };
+        }
     }
 
     resetCollection() {
@@ -76,9 +81,10 @@ export class NextMDB {
      * @param {boolean} boolean 
      */
     Initialization() {
-        loadRegisterDatabase();
         ready = true;
-        notification();
+        loadRegisterDatabase();
+        //startLoops();
+        sendNotification("§aInitialization was successful.");
     }
 }
 
@@ -88,7 +94,6 @@ class Collection {
      */
     constructor(collection) {
         this.name = collection
-        this.display = new Display(this.name);
     }
 
     findDocument(document) {
@@ -119,7 +124,6 @@ class Collection {
     }
 
 } 
-
 
 class Display {
     /**
@@ -178,102 +182,6 @@ class Cluster {
     size() {
 
     }
-}
-
-function loadRegisterDatabase() {
-
-    const xor = new XOREncryption(NMDBkey);
-    const registerName = xor.Encrypt("root@database");
-
-    if(developmentMode.reloadRegister) {
-        world.scoreboard.removeObjective(registerName);
-    }
-
-    if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == registerName)) {
-        world.scoreboard.addObjective(registerName, registerName);
-    }
-
-    const register = world.scoreboard.getObjective(registerName);
-
-    const JData = {
-        document: {
-            name: "root",
-            id: register.getParticipants().length + 1,
-        },
-        data: {
-            users: [{name: "root", password: "admin", permission: "admin"}],
-            databases: [],
-        }
-    }
-
-    const data = xor.Encrypt(escapeQuotes(JSON.stringify(JData)))
-
-    let exists = false;
-    
-    system.run(() => {
-        register.getParticipants().forEach((participant) => {
-            const realData = xor.Decrypt(participant.displayName);
-            const Parse = JParse(unescapeQuotes(realData));
-            if(Parse.isValid) {
-                if(Parse.json.document.name == "root") {
-                    exists = true;
-                    NextMap.set("root", Parse.json);
-                }
-            } else {
-                register.removeParticipant(participant.displayName);
-            }
-        })
-
-        if(exists == false) {
-            register.setScore(data, 0);
-            NextMap.set("root", JData);
-        }
-    })
-}
-
-function InitializationIsReady() {
-    if(ready == false) throw new Error("Initialization is not ready");
-}
-
-function notification() {
-    if(developmentMode.notification) {
-        world.getAllPlayers().forEach((player) => {
-            if(player.isOp()) {
-                world.sendMessage(`§7[§6NextMDB§7] §aInitialization was successful.`)
-            }
-        })
-    }
-}
-
-/**
- * @param {String} jsonString
- */
-function JParse(jsonString) {
-
-    if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
-    
-    try {
-        const jsonParse = JSON.parse(jsonString);
-        return { json: jsonParse, isValid: true };
-    }catch {
-        return { json: null, isValid: false };
-    }
-}
-
-/**
- * @param {string} jsonString 
- * @returns {string}
- */
-function escapeQuotes(jsonString) {
-    return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}
-
-/**
- * @param {string} jsonString 
- * @returns {string}
- */
-function unescapeQuotes(jsonString) {
-    return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
 class XOR {
@@ -358,4 +266,135 @@ class XOREncryption {
     bytesToString(bytes) {
         return decodeURIComponent(String.fromCharCode.apply(null, bytes));
     }
+}
+
+class Account {
+
+    create() {
+
+    }
+
+    delete() {
+
+    }
+
+    update() {
+
+    }
+
+    login() {
+
+    }
+
+    logout() {
+
+    }
+
+    get() {
+
+    }
+}
+
+function updateRegister() {
+    const xor = new XOREncryption(NMDBkey);
+    const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
+    
+}
+
+function loadRegisterDatabase() {
+
+    const xor = new XOREncryption(NMDBkey);
+    const registerName = xor.Encrypt("root@document");
+
+    if(developmentMode.reloadRegister) {
+        world.scoreboard.removeObjective(registerName);
+    }
+
+    if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == registerName)) {
+        world.scoreboard.addObjective(registerName, registerName);
+    }
+
+    const register = world.scoreboard.getObjective(registerName);
+
+    const JData = {
+        document: {
+            name: "root",
+            id: register.getParticipants().length + 1,
+        },
+        data: {
+            users: [{name: xor.Encrypt("root"), password: xor.Encrypt("admin"), permission: xor.Encrypt("admin")}],
+            databases: [],
+        }
+    }
+
+    const data = xor.Encrypt(escapeQuotes(JSON.stringify(JData)))
+
+    let exists = false;
+    
+    system.run(() => {
+        register.getParticipants().forEach((participant) => {
+            const realData = xor.Decrypt(participant.displayName);
+            const Parse = JParse(unescapeQuotes(realData));
+            if(Parse.isValid) {
+                if(Parse.json.document.name == "root") {
+                    exists = true;
+                    NextMap.set("root", Parse.json);
+                }
+            } else {
+                register.removeParticipant(participant.displayName);
+            }
+        })
+
+        if(exists == false) {
+            register.setScore(data, 0);
+            NextMap.set("root", JData);
+        }
+    })
+}
+
+function startLoops() {
+    system.runInterval(() => {
+        console.warn("i am here")
+    }, 20);
+}
+
+function InitializationIsReady() {
+    if(ready == false) throw new Error("Initialization is not ready");
+}
+
+function sendNotification(message) {
+    if(developmentMode.notification) {
+        world.sendMessage(`§7[§6NextMDB§7] `, message);
+    }
+}
+
+/**
+ * @param {String} jsonString
+ */
+function JParse(jsonString) {
+
+    if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
+    
+    try {
+        const jsonParse = JSON.parse(jsonString);
+        return { json: jsonParse, isValid: true };
+    }catch {
+        return { json: null, isValid: false };
+    }
+}
+
+/**
+ * @param {string} jsonString 
+ * @returns {string}
+ */
+function escapeQuotes(jsonString) {
+    return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+/**
+ * @param {string} jsonString 
+ * @returns {string}
+ */
+function unescapeQuotes(jsonString) {
+    return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
