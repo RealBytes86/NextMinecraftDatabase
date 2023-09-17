@@ -29,14 +29,6 @@ export class NextMDB {
     createCollection(name) {
         InitializationIsReady();
         if(typeof name != "string") throw new Error("Name is invalid");
-        const rootDocument = NextMap.get("root");
-        const find = rootDocument.data.databases.find((database) => database.name == name);
-        if(find == undefined) {
-
-            return { response: "created", status: "ok" };
-        } else {
-            return { response: "exists", status: "no" };
-        }
     }
 
     resetCollection() {
@@ -296,9 +288,7 @@ class Account {
 }
 
 function updateRegister() {
-    const xor = new XOREncryption(NMDBkey);
-    const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
-
+    
 }
 
 function loadRegisterDatabase() {
@@ -339,6 +329,7 @@ function loadRegisterDatabase() {
                 if(Parse.json.document.name == "root") {
                     exists = true;
                     NextMap.set("root", Parse.json);
+                    return;
                 }
             } else {
                 register.removeParticipant(participant.displayName);
@@ -364,7 +355,7 @@ function InitializationIsReady() {
 
 function sendNotification(message) {
     if(developmentMode.notification) {
-        world.sendMessage(`§7[§6NextMDB§7] `, message);
+        world.sendMessage(`§7[§6NextMDB§7] ` + message);
     }
 }
 
