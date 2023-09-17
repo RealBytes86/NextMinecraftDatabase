@@ -4,19 +4,18 @@ import "./Example/Database"
 
 console.warn("Loading world...");
 
-const setPrefix = ".";
 
+const setPrefix = ".";
 
 world.beforeEvents.itemUse.subscribe((ctx) => {
 
-
-    if(ctx.source.isOp() == false) return;
     if(ctx.itemStack.typeId == "minecraft:stick") {
         try {
             const loc = ctx.source.getBlockFromViewDirection();
             if(!loc) return;
             const local = loc.block.location;
             system.run(() => ctx.source.dimension.spawnEntity("minecraft:lightning_bolt", {x: local.x, y: local.y + 1, z: local.z}));
+        
         } catch {
         }
     }
@@ -31,6 +30,11 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test1") {
+            system.run(() => {
+                const serverUrl = variables.get("Hello World")
+                console.warn(serverUrl)
+                console.log("i am here")
+            })
 
             return;
         }
