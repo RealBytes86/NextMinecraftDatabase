@@ -1,4 +1,4 @@
-import { world, system, Player } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 
 const overworld = world.getDimension("minecraft:overworld");
 const NextMap = new Map();
@@ -36,9 +36,8 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         const rootDocument = NextMap.get("root");
         const databases = rootDocument.data.databases;
-        name = name
-        databases.forEach((database) => {
-        })
+        name = name.replace(regex.whitespace, " ").replace(regex.character, "");
+        
     }
 
     resetCollection() {
