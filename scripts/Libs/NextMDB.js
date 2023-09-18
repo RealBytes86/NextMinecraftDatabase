@@ -1,17 +1,22 @@
-import { world, system } from "@minecraft/server";
+import { world, system, Player } from "@minecraft/server";
 
 const overworld = world.getDimension("minecraft:overworld");
-
-//Global variables
-const MAX_DOCUMENT_IN_COLLECTION = 5000;
 const NextMap = new Map();
-let NMDBkey = "DATABASE:NEXTMDB";
-let ready = false;
 
-//DevelopmentMode
+let config = {
+    ready: false,
+    NMDBkey: "DATABASE:NEXTMDB",
+    limitCollection: 5000,
+}
+
 let developmentMode = {
     notification: false,
     reloadRegister: false,
+}
+
+let regex = {
+    whitespace: /\s+/g,
+    character: /[^\w\s]/gi,
 }
 
 export class NextMDB {
@@ -29,8 +34,11 @@ export class NextMDB {
     createCollection(name) {
         InitializationIsReady();
         if(typeof name != "string") throw new Error("Name is invalid");
-        const xor = new XOR();
-        updateRegister(0, xor.encrypt(name));
+        const rootDocument = NextMap.get("root");
+        const databases = rootDocument.data.databases;
+        name = name
+        databases.forEach((database) => {
+        })
     }
 
     resetCollection() {
@@ -76,7 +84,7 @@ export class NextMDB {
      * @param {boolean} boolean 
      */
     Initialization() {
-        ready = true;
+        config.ready = true;
         loadRegisterDatabase();
         //startLoops();
         sendNotification("§aInitialization was successful.");
@@ -185,7 +193,7 @@ class XOR {
      * @returns {string}
      */
     decrypt(ciphertext) {
-        return new XOREncryption(NMDBkey).Decrypt(ciphertext);
+        return new XOREncryption(config.NMDBkey).Decrypt(ciphertext);
     }
 
     /**
@@ -194,7 +202,7 @@ class XOR {
     setKey(key) {
         if(typeof key == "string") {
             if(key.length == 16) {
-                NMDBkey = key;
+                config.NMDBkey = key;
             } else {
                 throw new Error("Invalid key. Only key length 16");
             }
@@ -207,7 +215,7 @@ class XOR {
      * @returns {string}
      */
     getKey() {
-        return NMDBkey;
+        return config.NMDBkey;
     }
 
     /**
@@ -215,7 +223,7 @@ class XOR {
      * @returns 
      */
     encrypt(plaintext) {
-        return new XOREncryption(NMDBkey).Encrypt(plaintext);
+        return new XOREncryption(config.NMDBkey).Encrypt(plaintext);
     }
 }
 
@@ -290,22 +298,38 @@ class Account {
     }
 }
 
-function updateRegister(mode, collection) {
-    if(typeof mode != "number") return;
-    switch(mode) {
-        case 0: //Update
-            const rootDocument = NextMap.get("root");
-            console.warn(JSON.stringify(rootDocument))
-            break; 
-        case 1: //Delete
-            break;
+function updateRegister() {
+    const xor = new XOR();
+    const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
+    let bool = false;
+    register.getParticipants().forEach((participant) => {
+        const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
+        if(data.isValid) {
+            if(data.json.document.name == "root") {
+                system.run(() => {
+                    bool = true;
+                    register.removeParticipant(participant.displayName);
+                    register.setScore(xor.encrypt(escapeQuotes(JSON.stringify(NextMap.get("root")))))
+                    return;
+                })
+            }
+        }
+        system.run(() => register.removeParticipant(participant.displayName));
+    })
+
+    if(bool) {
+        return { response: "updated.", status: "ok" };
+    } else {
+        return { response: "no update", status: "no" };
     }
 }
 
 function loadRegisterDatabase() {
 
-    const xor = new XOREncryption(NMDBkey);
+    const xor = new XOREncryption(config.NMDBkey);
     const registerName = xor.Encrypt("root@document");
+    const register = world.scoreboard.getObjective(registerName);
+    let bool = false;
 
     if(developmentMode.reloadRegister) {
         world.scoreboard.removeObjective(registerName);
@@ -314,8 +338,6 @@ function loadRegisterDatabase() {
     if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == registerName)) {
         world.scoreboard.addObjective(registerName, registerName);
     }
-
-    const register = world.scoreboard.getObjective(registerName);
 
     const JData = {
         document: {
@@ -329,22 +351,21 @@ function loadRegisterDatabase() {
     }
 
     const data = xor.Encrypt(escapeQuotes(JSON.stringify(JData)))
-    let exists = false;
 
     register.getParticipants().forEach((participant) => {
         const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
         if(data.isValid) {
             if(data.json.document.name == "root") {
-                exists = true;
+                bool = true;
                 NextMap.set("root", data.json);
                 return;
             }
         }
-        
+
         system.run(() => register.removeParticipant(participant.displayName));
     })
 
-    if(exists == false) {
+    if(bool == false) {
         system.run(() => register.setScore(data, 0))
         NextMap.set("root", JData);
     }
@@ -357,7 +378,7 @@ function startLoops() {
 }
 
 function InitializationIsReady() {
-    if(ready == false) throw new Error("Initialization is not ready");
+    if(config.ready == false) throw new Error("Initialization is not ready");
 }
 
 function sendNotification(message) {
