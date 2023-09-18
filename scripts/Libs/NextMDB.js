@@ -29,6 +29,8 @@ export class NextMDB {
     createCollection(name) {
         InitializationIsReady();
         if(typeof name != "string") throw new Error("Name is invalid");
+        const xor = new XOR();
+        updateRegister(0, xor.encrypt(name));
     }
 
     resetCollection() {
@@ -38,6 +40,7 @@ export class NextMDB {
     deleteColection() {
         InitializationIsReady();
     }
+    
 
     getAllCollection() {
         InitializationIsReady();
@@ -287,8 +290,16 @@ class Account {
     }
 }
 
-function updateRegister() {
-    
+function updateRegister(mode, collection) {
+    if(typeof mode != "number") return;
+    switch(mode) {
+        case 0: //Update
+            const rootDocument = NextMap.get("root");
+            console.warn(JSON.stringify(rootDocument))
+            break; 
+        case 1: //Delete
+            break;
+    }
 }
 
 function loadRegisterDatabase() {
@@ -318,29 +329,25 @@ function loadRegisterDatabase() {
     }
 
     const data = xor.Encrypt(escapeQuotes(JSON.stringify(JData)))
-
     let exists = false;
-    
-    system.run(() => {
-        register.getParticipants().forEach((participant) => {
-            const realData = xor.Decrypt(participant.displayName);
-            const Parse = JParse(unescapeQuotes(realData));
-            if(Parse.isValid) {
-                if(Parse.json.document.name == "root") {
-                    exists = true;
-                    NextMap.set("root", Parse.json);
-                    return;
-                }
-            } else {
-                register.removeParticipant(participant.displayName);
-            }
-        })
 
-        if(exists == false) {
-            register.setScore(data, 0);
-            NextMap.set("root", JData);
+    register.getParticipants().forEach((participant) => {
+        const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
+        if(data.isValid) {
+            if(data.json.document.name == "root") {
+                exists = true;
+                NextMap.set("root", data.json);
+                return;
+            }
         }
+        
+        system.run(() => register.removeParticipant(participant.displayName));
     })
+
+    if(exists == false) {
+        system.run(() => register.setScore(data, 0))
+        NextMap.set("root", JData);
+    }
 }
 
 function startLoops() {
