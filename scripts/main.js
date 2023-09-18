@@ -4,9 +4,7 @@ import "./Example/Database"
 
 console.warn("Loading world...");
 
-
 const setPrefix = ".";
-
 
 world.beforeEvents.itemUse.subscribe((ctx) => {
 
@@ -15,13 +13,11 @@ world.beforeEvents.itemUse.subscribe((ctx) => {
             const loc = ctx.source.getBlockFromViewDirection();
             if(!loc) return;
             const local = loc.block.location;
-            //system.run(() => ctx.source.dimension.spawnEntity("minecraft:lightning_bolt", {x: local.x, y: local.y + 1, z: local.z}));
-            system.run(() => ctx.source.teleport({x: local.x, y: local.y + 1, z: local.z}, {dimension: world.getDimension(ctx.source.dimension.id)}))
+            system.run(() => ctx.source.dimension.spawnEntity("minecraft:lightning_bolt", {x: local.x, y: local.y + 1, z: local.z}));
+            //system.run(() => ctx.source.teleport({x: local.x, y: local.y + 1, z: local.z}, {dimension: world.getDimension(ctx.source.dimension.id)}))
         
-        } catch {
-        }
+        } catch {}
     }
-
 })
 
 
