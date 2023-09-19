@@ -4,4 +4,4 @@ const MDB = new NextMDB();
 MDB.developmentMode({notification: true, reloadCollection: true});
 MDB.Initialization(true)
 
-MDB.createCollection("TEST");
+MDB.getSubsCollection("playerid")

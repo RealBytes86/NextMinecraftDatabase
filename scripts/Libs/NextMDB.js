@@ -42,7 +42,7 @@ export class NextMDB {
             const xor = new XOR();
             const subName = name + "#1";
             world.scoreboard.addObjective(xor.encrypt(subName), subName);
-            databases.push({name: name, sub: subName});
+            databases.push({name: name, subs: [{collection: subName}]});
             NextMap.set("root", rootDocument);
             updateRegister()
             return { response: "Collection created", status: "ok" };
@@ -61,7 +61,7 @@ export class NextMDB {
     
 
     /**
-     * @returns { [{name: name, sub: sub}] }
+     * @returns { [{name: name, subs: [{collection: collection}]}] }
      */
     getAllCollection() {
         InitializationIsReady();
@@ -69,11 +69,29 @@ export class NextMDB {
     }
 
     /**
-     * @returns { [{name: name, sub: sub}] }
+     * @returns { {response: string, status: string, json: {name: name, subs: [{collection: collection}]}} }
      */
-    getSubsCollection() { 
+    getSubsCollection(collection) { 
         InitializationIsReady();
+        if(typeof collection !== "string") return { response: "No string", status: "no" };
+        if(collection == "") return { response: "String lenght is 0", status: "no" };
         const databases = NextMap.get("root").data.databases;
+        collection = collection.replace(regex.whitespace, " ").replace(regex.character, "");
+        let bool = false;
+        let json = {};
+        databases.forEach((database) => {
+            if(database.name == collection) {
+                json = { response: "Exists",  json: database, status: "ok" };
+                bool = true;
+                return;
+            }
+        })
+
+        if(bool) {
+            return json;
+        } else {
+            return { response: "No exists", status: "no" };
+        }
     }
 
     resetAllCollection() {
