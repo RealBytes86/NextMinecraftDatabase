@@ -69,7 +69,7 @@ export class NextMDB {
     }
 
     /**
-     * @returns { {response: string, status: string, json: {name: name, subs: [{collection: collection}]}} }
+     * @returns { {response: string, status: string, json?: {name: name, subs: [{collection: collection}]}} }
      */
     getSubsCollection(collection) { 
         InitializationIsReady();
