@@ -39,10 +39,10 @@ export class NextMDB {
         name = name.replace(regex.whitespace, " ").replace(regex.character, "");
         const find = databases.find((database) => database.name == name);
         if(find == undefined) {
-            console.log("i am here")
             const xor = new XOR();
-            databases.push({name: name, sub: name + "#1"});
-            world.scoreboard.addObjective(xor.encrypt(name), name);
+            const subName = name + "#1";
+            databases.push({name: name, sub: subName});
+            world.scoreboard.addObjective(xor.encrypt(subName), subName);
             updateRegister();
             return { response: "Collection created", status: "ok" };
         } else {
@@ -310,7 +310,6 @@ class Account {
 function updateRegister() {
     const xor = new XOR();
     const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
-    console.log(register.displayName)
     let bool = false;
     register.getParticipants().forEach((participant) => {
         const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
@@ -344,7 +343,10 @@ function loadRegisterDatabase() {
         world.scoreboard.removeObjective(registerName);
     }
 
-    if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == registerName)) {
+    const find = world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == registerName).id;
+    console.log(find)
+
+    if(find == undefined) {
         world.scoreboard.addObjective(registerName, "root@document");
     }
 
@@ -384,7 +386,6 @@ function loadRegisterDatabase() {
 
 function startLoops() {
     system.runInterval(() => {
-        console.warn("i am here")
     }, 20);
 }
 
