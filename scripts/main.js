@@ -1,5 +1,5 @@
 import { system, world } from "@minecraft/server";
-import { NextMDB } from "./Libs/NextMDB";
+import { NextMap } from "./Libs/NextMDB";
 import "./Example/Database"
 
 console.warn("Loading world...");
@@ -28,16 +28,9 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const args = messsage.slice(setPrefix.length).trim().split(/ +/g);
         const commandName = args.shift().toLowerCase() 
 
-        if(commandName == "test1") {
+        if(commandName == "test") {
+    
             return;
-        }
-
-        if(commandName == "test2") {
-
-            for(let i = 0; i <= 100000; i++) {
-                const names = `ID: ${i}`
-                console.log(names)
-            }
         }
     }
 })

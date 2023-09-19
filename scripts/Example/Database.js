@@ -1,8 +1,7 @@
 import { NextMDB } from "../Libs/NextMDB";
 
-const MDB = new NextMDB("root", "admin");
-const XOR = MDB.XOR();
-MDB.developmentMode({notification: true, reloadRegister: false});
+const MDB = new NextMDB();
+MDB.developmentMode({notification: true, reloadCollection: true});
 MDB.Initialization(true)
 
-MDB.createCollection("playerid");
+MDB.createCollection("TEST");

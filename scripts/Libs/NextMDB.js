@@ -1,7 +1,7 @@
 import { world, system } from "@minecraft/server";
 
 const overworld = world.getDimension("minecraft:overworld");
-const NextMap = new Map();
+export const NextMap = new Map();
 
 let config = {
     ready: false,
@@ -11,7 +11,7 @@ let config = {
 
 let developmentMode = {
     notification: false,
-    reloadRegister: false,
+    reloadCollection: false,
 }
 
 let regex = {
@@ -28,13 +28,14 @@ export class NextMDB {
     Collection(name) {
         InitializationIsReady()
         if(typeof name != "string") throw new Error("Name is invalid");
-        return new Collection(name.toUpperCase())
+        return new Collection(name)
     }
 
     createCollection(name) {
         InitializationIsReady();
         if(typeof name != "string" || !name) throw new Error("Name is invalid");
         const rootDocument = NextMap.get("root");
+        console.log(JSON.stringify(rootDocument))
         const databases = rootDocument.data.databases;
         name = name.replace(regex.whitespace, " ").replace(regex.character, "");
         const find = databases.find((database) => database.name == name);
@@ -42,8 +43,9 @@ export class NextMDB {
             const xor = new XOR();
             const subName = name + "#1";
             databases.push({name: name, sub: subName});
+            NextMap.set("root", rootDocument);
             world.scoreboard.addObjective(xor.encrypt(subName), subName);
-            updateRegister();
+            updateRegister()
             return { response: "Collection created", status: "ok" };
         } else {
             return { response: "Collection exists", status: "no" };
@@ -78,14 +80,14 @@ export class NextMDB {
         return new XOR()
     }
 
-    developmentMode({notification: notification, reloadRegister: reloadRegister}) {
+    developmentMode({notification: notification, reloadCollection: reloadCollection}) {
 
         if(typeof notification == "boolean") {
             developmentMode.notification = notification ?? false;
         }
 
-        if(typeof reloadRegister == "boolean") {
-            developmentMode.reloadRegister = reloadRegister ?? false;
+        if(typeof reloadCollection == "boolean") {
+            developmentMode.reloadCollection = reloadCollection ?? false;
         }
     }
 
@@ -93,10 +95,10 @@ export class NextMDB {
      * @param {boolean} boolean 
      */
     Initialization() {
-        config.ready = true;
+        reloadCollection();
         loadRegisterDatabase();
-        //startLoops();
         sendNotification("§aInitialization was successful.");
+        config.ready = true;
     }
 }
 
@@ -309,28 +311,34 @@ class Account {
 
 function updateRegister() {
     const xor = new XOR();
-    const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
+    const registerName = xor.encrypt("root@document");
+    const register = world.scoreboard.getObjective(registerName);
     let bool = false;
     register.getParticipants().forEach((participant) => {
-        const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
+        const data = JParse(unescapeQuotes(xor.decrypt(participant.displayName)));
         if(data.isValid) {
             if(data.json.document.name == "root") {
                 system.run(() => {
-                    bool = true;
                     register.removeParticipant(participant.displayName);
-                    register.setScore(xor.encrypt(escapeQuotes(JSON.stringify(NextMap.get("root")))))
-                    return;
+                    register.setScore(xor.encrypt(escapeQuotes(JSON.stringify(NextMap.get("root")))), 0)
                 })
+                bool = true;
+                return;
             }
         }
         system.run(() => register.removeParticipant(participant.displayName));
     })
 
     if(bool) {
-        return { response: "updated.", status: "ok" };
+        return { response: "Updated", status: "ok" };
     } else {
-        return { response: "no update", status: "no" };
+        return { response: "No update", status: "no" };
     }
+}
+
+function reloadCollection() {
+    if(developmentMode.reloadCollection == false) return;
+    world.scoreboard.getObjectives().forEach((scoreboard) => world.scoreboard.removeObjective(scoreboard.id));
 }
 
 function loadRegisterDatabase() {
@@ -339,12 +347,7 @@ function loadRegisterDatabase() {
     const registerName = xor.Encrypt("root@document");
     let bool = false;
 
-    if(developmentMode.reloadRegister) {
-        world.scoreboard.removeObjective(registerName);
-    }
-
-    const find = world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == registerName).id;
-    console.log(find)
+    const find = world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == registerName);
 
     if(find == undefined) {
         world.scoreboard.addObjective(registerName, "root@document");
@@ -377,6 +380,8 @@ function loadRegisterDatabase() {
 
         system.run(() => register.removeParticipant(participant.displayName));
     })
+
+    console.log(JSON.stringify(NextMap.get("root")))
 
     if(bool == false) {
         system.run(() => register.setScore(data, 0))
