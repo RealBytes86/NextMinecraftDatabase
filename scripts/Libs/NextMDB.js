@@ -344,7 +344,7 @@ function loadRegisterDatabase() {
         world.scoreboard.removeObjective(registerName);
     }
 
-    if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == registerName)) {
+    if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == registerName)) {
         world.scoreboard.addObjective(registerName, "root@document");
     }
 
