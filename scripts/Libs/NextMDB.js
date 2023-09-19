@@ -33,11 +33,21 @@ export class NextMDB {
 
     createCollection(name) {
         InitializationIsReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
+        if(typeof name != "string" || !name) throw new Error("Name is invalid");
         const rootDocument = NextMap.get("root");
         const databases = rootDocument.data.databases;
         name = name.replace(regex.whitespace, " ").replace(regex.character, "");
-        
+        const find = databases.find((database) => database.name == name);
+        if(find == undefined) {
+            console.log("i am here")
+            const xor = new XOR();
+            databases.push({name: name, sub: name + "#1"});
+            world.scoreboard.addObjective(xor.encrypt(name), name);
+            updateRegister();
+            return { response: "Collection created", status: "ok" };
+        } else {
+            return { response: "Collection exists", status: "no" };
+        }
     }
 
     resetCollection() {
@@ -300,6 +310,7 @@ class Account {
 function updateRegister() {
     const xor = new XOR();
     const register = world.scoreboard.getObjective(xor.Encrypt("root@document"));
+    console.log(register.displayName)
     let bool = false;
     register.getParticipants().forEach((participant) => {
         const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
@@ -327,7 +338,6 @@ function loadRegisterDatabase() {
 
     const xor = new XOREncryption(config.NMDBkey);
     const registerName = xor.Encrypt("root@document");
-    const register = world.scoreboard.getObjective(registerName);
     let bool = false;
 
     if(developmentMode.reloadRegister) {
@@ -335,8 +345,10 @@ function loadRegisterDatabase() {
     }
 
     if(!world.scoreboard.getObjectives().find((scoreboard) => scoreboard.displayName == registerName)) {
-        world.scoreboard.addObjective(registerName, registerName);
+        world.scoreboard.addObjective(registerName, "root@document");
     }
+
+    const register = world.scoreboard.getObjective(registerName);
 
     const JData = {
         document: {
