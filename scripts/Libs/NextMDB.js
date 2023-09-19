@@ -35,16 +35,15 @@ export class NextMDB {
         InitializationIsReady();
         if(typeof name != "string" || !name) throw new Error("Name is invalid");
         const rootDocument = NextMap.get("root");
-        console.log(JSON.stringify(rootDocument))
         const databases = rootDocument.data.databases;
         name = name.replace(regex.whitespace, " ").replace(regex.character, "");
         const find = databases.find((database) => database.name == name);
         if(find == undefined) {
             const xor = new XOR();
             const subName = name + "#1";
+            world.scoreboard.addObjective(xor.encrypt(subName), subName);
             databases.push({name: name, sub: subName});
             NextMap.set("root", rootDocument);
-            world.scoreboard.addObjective(xor.encrypt(subName), subName);
             updateRegister()
             return { response: "Collection created", status: "ok" };
         } else {
@@ -314,6 +313,7 @@ function updateRegister() {
     const registerName = xor.encrypt("root@document");
     const register = world.scoreboard.getObjective(registerName);
     let bool = false;
+
     register.getParticipants().forEach((participant) => {
         const data = JParse(unescapeQuotes(xor.decrypt(participant.displayName)));
         if(data.isValid) {
