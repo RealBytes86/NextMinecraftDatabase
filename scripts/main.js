@@ -20,7 +20,6 @@ world.beforeEvents.itemUse.subscribe((ctx) => {
     }
 })
 
-
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
     if(messsage.startsWith(setPrefix)) {
@@ -34,5 +33,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         }
     }
 })
+
+
 
 console.warn("Addon is Ready!");

@@ -60,8 +60,12 @@ export class NextMDB {
     }
     
 
+    /**
+     * @returns { {name: name, sub: sub} }
+     */
     getAllCollection() {
         InitializationIsReady();
+        return NextMap.get("root").data.databases;
     }
 
     resetAllCollection() {
