@@ -61,11 +61,19 @@ export class NextMDB {
     
 
     /**
-     * @returns { {name: name, sub: sub} }
+     * @returns { [{name: name, sub: sub}] }
      */
     getAllCollection() {
         InitializationIsReady();
         return NextMap.get("root").data.databases;
+    }
+
+    /**
+     * @returns { [{name: name, sub: sub}] }
+     */
+    getSubsCollection() { 
+        InitializationIsReady();
+        const databases = NextMap.get("root").data.databases;
     }
 
     resetAllCollection() {
