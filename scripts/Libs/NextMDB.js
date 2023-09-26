@@ -290,7 +290,7 @@ function JParse(jsonString) {
         const jsonParse = JSON.parse(jsonString);
         return { json: jsonParse, isValid: true };
     }catch {
-        return { json: null, isValid: false };
+        return { json: {}, isValid: false };
     }
 }
 
