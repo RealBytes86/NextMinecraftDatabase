@@ -1,7 +1,0 @@
-
-class test {
-
-    constructor() {
-
-    }
-}

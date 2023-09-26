@@ -7,6 +7,7 @@ let config = {
     NMDBkey: "DATABASE:NEXTMDB",
     limitCollection: 5000,
     rootDocumentName: "root@document",
+    registerReady: false,
 }
 
 let developmentMode = {
@@ -16,8 +17,8 @@ let developmentMode = {
 let regex = {
     whitespace: /\s+/g,
     character: /[^\w\s]/gi,
+    documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*,/
 }
-
 
 export class NextMDB {
     
@@ -39,21 +40,23 @@ export class NextMDB {
         return new Collection(name)
     }
 
-    createCollection(name) {
+    createCollection() {
+        registerScoreboard();
     }
 
     resetCollection() {
+
     }
 
     deleteColection() {
 
     }
-    
+
     /**
      * @returns { [{name: name, subs: [{collection: collection}]}] }
      */
     getAllCollection() {
-        return getRoot().data.databases;
+        
     }
 
     /**
@@ -102,31 +105,30 @@ class Collection {
 
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
+        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
         const scoreboard = world.scoreboard.getObjective(this.name);
     }
 
     insertDocument(document, json) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
+        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
     }
 
     updateDocument(document, json) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
+        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
 
     }
 
     existsDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty." };
+        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
         
     }
 
     sizeCollection() {
         return 0;
     }
-
 } 
 
 class Display {
@@ -308,10 +310,63 @@ function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-function getRoot() {
+function registerScoreboard() {
+    const xor = new XOR();
+    const id = xor.encrypt(config.rootDocumentName);
+
+    if(config.registerReady) {
+        return world.scoreboard.getObjective(id);
+    }
+
+    const findScoreboard = world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == id);
+
+    if(findScoreboard == undefined) {
+        world.scoreboard.addObjective(id, config.rootDocumentName);
+    }
+
+    const scoreboard = world.scoreboard.getObjective(id);
+
+    const findParticipant = scoreboard.getParticipants().find((participant) => {
+        const document = unescapeQuotes(xor.decrypt(participant.displayName));
+        if (getDocumentName(document) == config.rootDocumentName) {
+            return true;
+        } else {
+            scoreboard.removeParticipant(participant.displayName);
+        }
+    });
+    
+    if(findParticipant == undefined) {
+        const document = {
+            document: {
+                name: config.rootDocumentName,
+                id: scoreboard.getParticipants().length + 1
+            },
+            data: {
+                users: [],
+                databases: [],
+            }
+        }
+        scoreboard.setScore(xor.encrypt(escapeQuotes(JSON.stringify(document))), 0);
+        setRootDocument(document)
+    } else {
+        const Parse = JParse(unescapeQuotes(xor.decrypt(findParticipant.displayName)))
+        if(Parse.isValid) {
+            setRootDocument(Parse.json);
+        }
+    }
+
+    config.registerReady = true;
+    return world.scoreboard.getObjective(id);
+}
+
+function getDocumentName(jsonString) {
+    return jsonString.match(regex.documentName)[1];
+}
+
+function getRootDocument() {
     return NextMap.get("root");
 }
 
-function setRoot(value) {
+function setRootDocument(value) {
     return NextMap.set("root", value);
 }
