@@ -4,14 +4,13 @@ const overworld = world.getDimension("minecraft:overworld");
 export const NextMap = new Map();
 
 let config = {
-    ready: false,
     NMDBkey: "DATABASE:NEXTMDB",
     limitCollection: 5000,
+    rootDocumentName: "root@document",
 }
 
 let developmentMode = {
     notification: false,
-    reloadCollection: false,
 }
 
 let regex = {
@@ -19,87 +18,57 @@ let regex = {
     character: /[^\w\s]/gi,
 }
 
+
 export class NextMDB {
     
+    constructor() {
+        this.utils = {
+            JParse,
+            sendNotification,
+            unescapeQuotes,
+            escapeQuotes,
+        }
+    }
+
     /**
      * @param {string} name 
      * @returns {Collection}
      */
     Collection(name) {
-        InitializationIsReady()
         if(typeof name != "string") throw new Error("Name is invalid");
         return new Collection(name)
     }
 
     createCollection(name) {
-        InitializationIsReady();
-        if(typeof name != "string" || !name) throw new Error("Name is invalid");
-        const rootDocument = NextMap.get("root");
-        const databases = rootDocument.data.databases;
-        name = name.replace(regex.whitespace, " ").replace(regex.character, "");
-        const find = databases.find((database) => database.name == name);
-        if(find == undefined) {
-            const xor = new XOR();
-            const subName = name + "#1";
-            world.scoreboard.addObjective(xor.encrypt(subName), subName);
-            databases.push({name: name, subs: [{collection: subName}]});
-            NextMap.set("root", rootDocument);
-            updateRegister()
-            return { response: "Collection created", status: "ok" };
-        } else {
-            return { response: "Collection exists", status: "no" };
-        }
     }
 
     resetCollection() {
-        InitializationIsReady();
     }
 
     deleteColection() {
-        InitializationIsReady();
+
     }
     
-
     /**
      * @returns { [{name: name, subs: [{collection: collection}]}] }
      */
     getAllCollection() {
-        InitializationIsReady();
-        return NextMap.get("root").data.databases;
+        return getRoot().data.databases;
     }
 
     /**
      * @returns { {response: string, status: string, json?: {name: name, subs: [{collection: collection}]}} }
      */
     getSubsCollection(collection) { 
-        InitializationIsReady();
-        if(typeof collection !== "string") return { response: "No string", status: "no" };
-        if(collection == "") return { response: "String lenght is 0", status: "no" };
-        const databases = NextMap.get("root").data.databases;
-        collection = collection.replace(regex.whitespace, " ").replace(regex.character, "");
-        let bool = false;
-        let json = {};
-        databases.forEach((database) => {
-            if(database.name == collection) {
-                json = { response: "Exists",  json: database, status: "ok" };
-                bool = true;
-                return;
-            }
-        })
 
-        if(bool) {
-            return json;
-        } else {
-            return { response: "No exists", status: "no" };
-        }
     }
 
     resetAllCollection() {
-        InitializationIsReady();
+
     }
 
     sizeCollections() {
-        InitializationIsReady();
+
     }
 
     /**
@@ -116,18 +85,10 @@ export class NextMDB {
         }
 
         if(typeof reloadCollection == "boolean") {
-            developmentMode.reloadCollection = reloadCollection ?? false;
+            if(reloadCollection) {
+                world.scoreboard.getObjectives().forEach((scoreboard) => world.scoreboard.removeObjective(scoreboard.id));
+            }
         }
-    }
-
-    /**
-     * @param {boolean} boolean 
-     */
-    Initialization() {
-        reloadCollection();
-        loadRegisterDatabase();
-        sendNotification("§aInitialization was successful.");
-        config.ready = true;
     }
 }
 
@@ -267,7 +228,6 @@ class XOR {
     }
 }
 
-//Not 100% sure
 class XOREncryption {
     constructor(key) {
         this.key = key;
@@ -311,126 +271,9 @@ class XOREncryption {
     }
 }
 
-class Account {
-
-    create() {
-
-    }
-
-    delete() {
-
-    }
-
-    update() {
-
-    }
-
-    login() {
-
-    }
-
-    logout() {
-
-    }
-
-    get() {
-
-    }
-}
-
-function updateRegister() {
-    const xor = new XOR();
-    const registerName = xor.encrypt("root@document");
-    const register = world.scoreboard.getObjective(registerName);
-    let bool = false;
-
-    register.getParticipants().forEach((participant) => {
-        const data = JParse(unescapeQuotes(xor.decrypt(participant.displayName)));
-        if(data.isValid) {
-            if(data.json.document.name == "root") {
-                system.run(() => {
-                    register.removeParticipant(participant.displayName);
-                    register.setScore(xor.encrypt(escapeQuotes(JSON.stringify(NextMap.get("root")))), 0)
-                })
-                bool = true;
-                return;
-            }
-        }
-        system.run(() => register.removeParticipant(participant.displayName));
-    })
-
-    if(bool) {
-        return { response: "Updated", status: "ok" };
-    } else {
-        return { response: "No update", status: "no" };
-    }
-}
-
-function reloadCollection() {
-    if(developmentMode.reloadCollection == false) return;
-    world.scoreboard.getObjectives().forEach((scoreboard) => world.scoreboard.removeObjective(scoreboard.id));
-}
-
-function loadRegisterDatabase() {
-
-    const xor = new XOREncryption(config.NMDBkey);
-    const registerName = xor.Encrypt("root@document");
-    let bool = false;
-
-    const find = world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == registerName);
-
-    if(find == undefined) {
-        world.scoreboard.addObjective(registerName, "root@document");
-    }
-
-    const register = world.scoreboard.getObjective(registerName);
-
-    const JData = {
-        document: {
-            name: "root",
-            id: register.getParticipants().length + 1,
-        },
-        data: {
-            users: [],
-            databases: [],
-        }
-    }
-
-    const data = xor.Encrypt(escapeQuotes(JSON.stringify(JData)))
-
-    register.getParticipants().forEach((participant) => {
-        const data = JParse(unescapeQuotes(xor.Decrypt(participant.displayName)));
-        if(data.isValid) {
-            if(data.json.document.name == "root") {
-                bool = true;
-                NextMap.set("root", data.json);
-                return;
-            }
-        }
-
-        system.run(() => register.removeParticipant(participant.displayName));
-    })
-
-    console.log(JSON.stringify(NextMap.get("root")))
-
-    if(bool == false) {
-        system.run(() => register.setScore(data, 0))
-        NextMap.set("root", JData);
-    }
-}
-
-function startLoops() {
-    system.runInterval(() => {
-    }, 20);
-}
-
-function InitializationIsReady() {
-    if(config.ready == false) throw new Error("Initialization is not ready");
-}
-
 function sendNotification(message) {
     if(developmentMode.notification) {
-        world.sendMessage(`§7[§6NextMDB§7] ` + message);
+        world.sendMessage(`§7[§6NextMDB§7]§r ` + message);
     }
 }
 
@@ -463,4 +306,12 @@ function escapeQuotes(jsonString) {
  */
 function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+}
+
+function getRoot() {
+    return NextMap.get("root");
+}
+
+function setRoot(value) {
+    return NextMap.set("root", value);
 }

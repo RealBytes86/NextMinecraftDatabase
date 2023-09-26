@@ -1,8 +1,11 @@
 import { system, world } from "@minecraft/server";
-import { NextMap } from "./Libs/NextMDB";
+import {NextMDB } from "./Libs/NextMDB";
 import "./Example/Database"
 
 console.warn("Loading world...");
+
+const next = new NextMDB();
+const xor = next.XOR();
 
 const setPrefix = ".";
 
@@ -20,6 +23,7 @@ world.beforeEvents.itemUse.subscribe((ctx) => {
     }
 })
 
+
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
     if(messsage.startsWith(setPrefix)) {
@@ -28,8 +32,23 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-    
+            const registerName = next.XOR().encrypt("root@document");
+            const register = world.scoreboard.getObjective(registerName);
+            console.warn(register.getParticipants().length)
             return;
+        }
+
+        if(commandName == "test2") {
+            const participants = world.scoreboard.getParticipants();
+            participants.forEach((participant) => {
+                const d = xor.decrypt(participant.displayName);
+                const j = next.utils.JParse(next.utils.unescapeQuotes(d));
+                if(j.isValid) {
+                    if(j.json.document.name == "root") {
+                        console.warn(JSON.stringify(j.json));
+                    }
+                }
+            })
         }
     }
 })
