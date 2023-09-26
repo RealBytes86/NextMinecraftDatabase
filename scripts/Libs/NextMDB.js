@@ -359,6 +359,10 @@ function registerScoreboard() {
     return world.scoreboard.getObjective(id);
 }
 
+function updateRegister() {
+
+}
+
 function getDocumentName(jsonString) {
     return jsonString.match(regex.documentName)[1];
 }
