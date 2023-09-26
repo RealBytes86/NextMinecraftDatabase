@@ -32,9 +32,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-            const registerName = next.XOR().encrypt("root@document");
-            const register = world.scoreboard.getObjective(registerName);
-            console.warn(register.getParticipants().length)
             return;
         }
 

@@ -1,7 +1,7 @@
 import { world, system } from "@minecraft/server";
 
 const overworld = world.getDimension("minecraft:overworld");
-export const NextMap = new Map();
+const NextMap = new Map();
 
 let config = {
     NMDBkey: "DATABASE:NEXTMDB",
