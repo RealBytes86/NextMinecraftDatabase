@@ -28,6 +28,7 @@ export class NextMDB {
             sendNotification,
             unescapeQuotes,
             escapeQuotes,
+            isNumberInRange
         }
     }
 
@@ -373,4 +374,8 @@ function getRootDocument() {
 
 function setRootDocument(value) {
     return NextMap.set("root", value);
+}
+
+function isNumberInRange(number, min, max) {
+    return number >= min && number <= max;
 }
