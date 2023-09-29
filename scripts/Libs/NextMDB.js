@@ -32,6 +32,14 @@ export class NextMDB {
         }
     }
 
+    setLimitCollection(maxCollection) {
+        if(typeof maxCollection != "number") return { response: "", status: "no" };
+        if(isNumberInRange(maxCollection, 0, config.limitCollection)) {
+        } else {
+
+        }
+    }
+
     /**
      * @param {string} name 
      * @returns {Collection}
@@ -57,13 +65,13 @@ export class NextMDB {
      * @returns { [{name: name, subs: [{collection: collection}]}] }
      */
     getAllCollection() {
-        
+        return getRootDocument().data.databases;
     }
 
     /**
-     * @returns { {response: string, status: string, json?: {name: name, subs: [{collection: collection}]}} }
+     * @returns { {name: name, subs: [{collection: collection}]} }
      */
-    getSubsCollection(collection) { 
+    getSubsCollection(collection) {
 
     }
 
@@ -361,7 +369,7 @@ function registerScoreboard() {
 }
 
 function updateRegister() {
-
+    const register = registerScoreboard();
 }
 
 function getDocumentName(jsonString) {
