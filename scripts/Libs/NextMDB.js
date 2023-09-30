@@ -18,8 +18,10 @@ let regex = {
 }
 
 class EventMap {
+
+    #map = new Map();
+
     constructor() {
-        this.map = new Map();
         this.onChangeCallback = () => {};
     }
 
@@ -28,18 +30,18 @@ class EventMap {
     }
 
     set(key, value, type) {
-        this.map.set(key, value);
+        this.#map.set(key, value);
         this.onChangeCallback(key, value, "set", type);
     }
 
     get(key, type) {
         this.onChangeCallback(null, null, "get", type);
-        return this.map.get(key);
+        return this.#map.get(key);
     }
 
     delete(key, type) {
-        const value = this.map.get(key);
-        this.map.delete(key);
+        const value = this.#map.get(key);
+        this.#map.delete(key);
         this.onChangeCallback(key, value, "delete", type);
     }
 }
