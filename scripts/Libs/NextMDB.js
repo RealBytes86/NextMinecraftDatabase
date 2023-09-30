@@ -69,7 +69,8 @@ export class NextMDB {
             sendNotification,
             unescapeQuotes,
             escapeQuotes,
-            isNumberInRange
+            isNumberInRange,
+            BetterMap
         }
     }
 
