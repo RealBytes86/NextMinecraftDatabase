@@ -1,8 +1,5 @@
 import { world, system } from "@minecraft/server";
 
-const overworld = world.getDimension("minecraft:overworld");
-const NextMap = new Map();
-
 let config = {
     NMDBkey: "DATABASE:NEXTMDB",
     limitCollection: 5000,
@@ -19,6 +16,36 @@ let regex = {
     character: /[^\w\s]/gi,
     documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*,/
 }
+
+class EventMap {
+    constructor() {
+        this.map = new Map();
+        this.onChangeCallback = () => {};
+    }
+
+    Callback(callback) {
+        this.onChangeCallback = callback;
+    }
+
+    set(key, value, type) {
+        this.map.set(key, value);
+        this.onChangeCallback(key, value, "set", type);
+    }
+
+    get(key, type) {
+        this.onChangeCallback(null, null, "get", type);
+        return this.map.get(key);
+    }
+
+    delete(key, type) {
+        const value = this.map.get(key);
+        this.map.delete(key);
+        this.onChangeCallback(key, value, "delete", type);
+    }
+}
+
+const overworld = world.getDimension("minecraft:overworld");
+const NextMap = new EventMap();
 
 export class NextMDB {
     
@@ -50,7 +77,8 @@ export class NextMDB {
     }
 
     createCollection() {
-        registerScoreboard();
+        const rootDocument = getRootDocument();
+        console.warn(JSON.stringify(rootDocument))
     }
 
     resetCollection() {
@@ -65,7 +93,7 @@ export class NextMDB {
      * @returns { [{name: name, subs: [{collection: collection}]}] }
      */
     getAllCollection() {
-        return getRootDocument().data.databases;
+        return getRootDocument().content.databases;
     }
 
     /**
@@ -343,6 +371,7 @@ function registerScoreboard() {
             scoreboard.removeParticipant(participant.displayName);
         }
     });
+
     
     if(findParticipant == undefined) {
         const document = {
@@ -350,7 +379,7 @@ function registerScoreboard() {
                 name: config.rootDocumentName,
                 id: scoreboard.getParticipants().length + 1
             },
-            data: {
+            content: {
                 users: [],
                 databases: [],
             }
@@ -369,7 +398,23 @@ function registerScoreboard() {
 }
 
 function updateRegister() {
+
+    const xor = new XOR();
     const register = registerScoreboard();
+
+    const findParticipant = register.getParticipants().find((participant) => {
+        const document = unescapeQuotes(xor.decrypt(participant.displayName));
+        if(getDocumentName(document) == config.rootDocumentName) {
+            return true;
+        } else {
+            register.removeParticipant(participant.displayName);
+        }
+    });
+
+    if(findParticipant == undefined) {
+        return { response: "API Error", status: "No" };
+    } else {
+    }
 }
 
 function getDocumentName(jsonString) {
@@ -387,3 +432,9 @@ function setRootDocument(value) {
 function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
 }
+
+registerScoreboard()
+
+NextMap.Callback((key, value, action, type) => {
+
+})

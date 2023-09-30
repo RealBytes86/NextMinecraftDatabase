@@ -1,8 +1,8 @@
-import { system, world } from "@minecraft/server";
-import {NextMDB } from "./Libs/NextMDB";
-import "./Example/Database"
-
 console.warn("Loading world...");
+
+import { system, world } from "@minecraft/server";
+import { NextMDB } from "./Libs/NextMDB";
+import "./Example/Database";
 
 const next = new NextMDB();
 const xor = next.XOR();
@@ -49,7 +49,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         }
     }
 })
-
 
 
 console.warn("Addon is Ready!");
