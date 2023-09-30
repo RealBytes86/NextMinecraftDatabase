@@ -1,7 +1,7 @@
 console.warn("Loading world...");
 
 import { system, world } from "@minecraft/server";
-import { NextMDB, NextMap } from "./Libs/NextMDB";
+import { NextMDB } from "./Libs/NextMDB";
 import "./Example/Database";
 
 const next = new NextMDB();

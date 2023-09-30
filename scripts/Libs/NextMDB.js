@@ -17,7 +17,7 @@ let regex = {
     documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*,/
 }
 
-class BetterMap {
+export class BetterMap {
 
     #map = new Map();
     #onChangeCallback = () => {};
@@ -313,7 +313,7 @@ class XOREncryption {
     }
 }
 
-function sendNotification(message) {
+export function sendMessageWitMDB(message) {
     if(developmentMode.notification) {
         world.sendMessage(`§7[§6NextMDB§7]§r ` + message);
     }
@@ -322,7 +322,7 @@ function sendNotification(message) {
 /**
  * @param {String} jsonString
  */
-function JParse(jsonString) {
+export function JParse(jsonString) {
 
     if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
     
@@ -338,7 +338,7 @@ function JParse(jsonString) {
  * @param {string} jsonString 
  * @returns {string}
  */
-function escapeQuotes(jsonString) {
+export function escapeQuotes(jsonString) {
     return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
@@ -346,7 +346,7 @@ function escapeQuotes(jsonString) {
  * @param {string} jsonString 
  * @returns {string}
  */
-function unescapeQuotes(jsonString) {
+export function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
@@ -411,7 +411,7 @@ function setRootDocument(value, type) {
     return NextMap.set("root", value, type);
 }
 
-function isNumberInRange(number, min, max) {
+export function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
 }
 
