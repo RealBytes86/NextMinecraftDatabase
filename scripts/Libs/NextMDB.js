@@ -17,37 +17,34 @@ let regex = {
     documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*,/
 }
 
-class EventMap {
+class BetterMap {
 
     #map = new Map();
+    #onChangeCallback = () => {};
 
-    constructor() {
-        this.onChangeCallback = () => {};
-    }
-
-    Callback(callback) {
-        this.onChangeCallback = callback;
+    callback(callback) {
+        this.#onChangeCallback = callback;
     }
 
     set(key, value, type) {
         this.#map.set(key, value);
-        this.onChangeCallback(key, value, "set", type);
+        this.#onChangeCallback(key, value, "set", type);
     }
 
     get(key, type) {
-        this.onChangeCallback(null, null, "get", type);
+        this.#onChangeCallback(key, null, "get", type);
         return this.#map.get(key);
     }
 
     delete(key, type) {
         const value = this.#map.get(key);
         this.#map.delete(key);
-        this.onChangeCallback(key, value, "delete", type);
+        this.#onChangeCallback(key, value, "delete", type);
     }
 }
 
 const overworld = world.getDimension("minecraft:overworld");
-const NextMap = new EventMap();
+const NextMap = new BetterMap();
 
 export class NextMDB {
     
@@ -80,7 +77,6 @@ export class NextMDB {
 
     createCollection() {
         const rootDocument = getRootDocument();
-        console.warn(JSON.stringify(rootDocument))
     }
 
     resetCollection() {
@@ -374,7 +370,6 @@ function registerScoreboard() {
         }
     });
 
-    
     if(findParticipant == undefined) {
         const document = {
             document: {
@@ -387,36 +382,16 @@ function registerScoreboard() {
             }
         }
         scoreboard.setScore(xor.encrypt(escapeQuotes(JSON.stringify(document))), 0);
-        setRootDocument(document)
+        setRootDocument(document, "loadRegister")
     } else {
         const Parse = JParse(unescapeQuotes(xor.decrypt(findParticipant.displayName)))
         if(Parse.isValid) {
-            setRootDocument(Parse.json);
+            setRootDocument(Parse.json, "getRegister");
         }
     }
 
     config.registerReady = true;
     return world.scoreboard.getObjective(id);
-}
-
-function updateRegister() {
-
-    const xor = new XOR();
-    const register = registerScoreboard();
-
-    const findParticipant = register.getParticipants().find((participant) => {
-        const document = unescapeQuotes(xor.decrypt(participant.displayName));
-        if(getDocumentName(document) == config.rootDocumentName) {
-            return true;
-        } else {
-            register.removeParticipant(participant.displayName);
-        }
-    });
-
-    if(findParticipant == undefined) {
-        return { response: "API Error", status: "No" };
-    } else {
-    }
 }
 
 function getDocumentName(jsonString) {
@@ -427,8 +402,8 @@ function getRootDocument() {
     return NextMap.get("root");
 }
 
-function setRootDocument(value) {
-    return NextMap.set("root", value);
+function setRootDocument(value, type) {
+    return NextMap.set("root", value, type);
 }
 
 function isNumberInRange(number, min, max) {
@@ -437,6 +412,11 @@ function isNumberInRange(number, min, max) {
 
 registerScoreboard()
 
-NextMap.Callback((key, value, action, type) => {
+NextMap.callback((key, value, action, type) => {
+    console.warn(key)
+    if(action == "set") {
+        if(type == "loadRegister") {
 
+        }
+    }
 })
