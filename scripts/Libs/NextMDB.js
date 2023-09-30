@@ -59,20 +59,9 @@ class BetterMap {
 }
 
 const overworld = world.getDimension("minecraft:overworld");
-export const NextMap = new BetterMap();
+const NextMap = new BetterMap();
 
 export class NextMDB {
-    
-    constructor() {
-        this.utils = {
-            JParse,
-            sendNotification,
-            unescapeQuotes,
-            escapeQuotes,
-            isNumberInRange,
-            BetterMap
-        }
-    }
 
     setLimitCollection(maxCollection) {
         if(typeof maxCollection != "number") return { response: "", status: "no" };
