@@ -409,10 +409,9 @@ export function isNumberInRange(number, min, max) {
 
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
-        if(event == "loadRegister") {
-
-        } else if(event == "getRegister") { 
-
+        const xor = new XOR();
+        if(event == "update") {
+            
         }
     }
 })
