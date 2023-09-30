@@ -390,7 +390,7 @@ function registerScoreboard() {
     config.registerReady = true;
     return world.scoreboard.getObjective(id);
 }
-d
+
 function getDocumentName(jsonString) {
     return jsonString.match(regex.documentName)[1];
 }
