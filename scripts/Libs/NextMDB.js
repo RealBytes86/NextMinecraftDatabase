@@ -397,7 +397,7 @@ function getDocumentName(jsonString) {
 
 function getRootDocument() {
     return NextMap.get("root", "register");
-}
+} 
 
 function setRootDocument(value, event) {
     return NextMap.set("root", value, event);
@@ -411,7 +411,7 @@ NextMap.callback((key, value, action, event) => {
     if(action == "set") {
         const xor = new XOR();
         if(event == "update") {
-            
+
         }
     }
 })
