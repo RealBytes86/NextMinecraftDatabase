@@ -26,35 +26,35 @@ export class BetterMap {
         this.#onChangeCallback = callback;
     }
 
-    set(key, value, type) {
+    set(key, value, event) {
 
-        if(typeof type == "undefined") {
-            type = null;
+        if(typeof event == "undefined") {
+            event = null;
         }
 
-        this.#onChangeCallback(key, value, "set", type);
+        this.#onChangeCallback(key, value, "set", event);
         this.#map.set(key, value);
     }
 
-    get(key, type) {
+    get(key, event) {
 
-        if(typeof type == "undefined") {
-            type = null;
+        if(typeof event == "undefined") {
+            event = null;
         }
 
-        this.#onChangeCallback(key, null, "get", type);
+        this.#onChangeCallback(key, null, "get", event);
         return this.#map.get(key);
     }
 
-    delete(key, type) {
+    delete(key, event) {
 
-        if(typeof type == "undefined") {
-            type = null;
+        if(typeof event == "undefined") {
+            event = null;
         }
 
         const value = this.#map.get(key);
         this.#map.delete(key);
-        this.#onChangeCallback(key, value, "delete", type);
+        this.#onChangeCallback(key, value, "delete", event);
     }
 }
 
@@ -62,14 +62,6 @@ const overworld = world.getDimension("minecraft:overworld");
 const NextMap = new BetterMap();
 
 export class NextMDB {
-
-    setLimitCollection(maxCollection) {
-        if(typeof maxCollection != "number") return { response: "", status: "no" };
-        if(isNumberInRange(maxCollection, 0, config.limitCollection)) {
-        } else {
-
-        }
-    }
 
     /**
      * @param {string} name 
@@ -407,16 +399,22 @@ function getRootDocument() {
     return NextMap.get("root", "register");
 }
 
-function setRootDocument(value, type) {
-    return NextMap.set("root", value, type);
+function setRootDocument(value, event) {
+    return NextMap.set("root", value, event);
 }
 
 export function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
 }
 
-NextMap.callback((key, value, action, type) => {
-    console.warn(action)
+NextMap.callback((key, value, action, event) => {
+    if(action == "set") {
+        if(event == "loadRegister") {
+
+        } else if(event == "getRegister") { 
+
+        }
+    }
 })
 
 registerScoreboard()
