@@ -32,8 +32,8 @@ class BetterMap {
             type = null;
         }
 
-        this.#map.set(key, value);
         this.#onChangeCallback(key, value, "set", type);
+        this.#map.set(key, value);
     }
 
     get(key, type) {
@@ -59,7 +59,7 @@ class BetterMap {
 }
 
 const overworld = world.getDimension("minecraft:overworld");
-const NextMap = new BetterMap();
+export const NextMap = new BetterMap();
 
 export class NextMDB {
     
@@ -414,7 +414,7 @@ function getDocumentName(jsonString) {
 }
 
 function getRootDocument() {
-    return NextMap.get("root");
+    return NextMap.get("root", "register");
 }
 
 function setRootDocument(value, type) {
@@ -425,13 +425,8 @@ function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
 }
 
-registerScoreboard()
-
 NextMap.callback((key, value, action, type) => {
-    console.warn(key)
-    if(action == "set") {
-        if(type == "loadRegister") {
-
-        }
-    }
+    console.warn(action)
 })
+
+registerScoreboard()

@@ -1,7 +1,7 @@
 console.warn("Loading world...");
 
 import { system, world } from "@minecraft/server";
-import { NextMDB } from "./Libs/NextMDB";
+import { NextMDB, NextMap } from "./Libs/NextMDB";
 import "./Example/Database";
 
 const next = new NextMDB();
@@ -36,16 +36,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         }
 
         if(commandName == "test2") {
-            const participants = world.scoreboard.getParticipants();
-            participants.forEach((participant) => {
-                const d = xor.decrypt(participant.displayName);
-                const j = next.utils.JParse(next.utils.unescapeQuotes(d));
-                if(j.isValid) {
-                    if(j.json.document.name == "root") {
-                        console.warn(JSON.stringify(j.json));
-                    }
-                }
-            })
         }
     }
 })
