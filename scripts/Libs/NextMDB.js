@@ -5,10 +5,12 @@ let config = {
     limitCollection: 5000,
     rootDocumentName: "root@document",
     registerReady: false,
+    initReady: false,
 }
 
 let developmentMode = {
     notification: false,
+    reloadCollection: false,
 }
 
 let regex = {
@@ -68,42 +70,45 @@ export class NextMDB {
      * @returns {Collection}
      */
     Collection(name) {
+        initReady();
         if(typeof name != "string") throw new Error("Name is invalid");
         return new Collection(name)
     }
 
     createCollection() {
+        initReady();
         const rootDocument = getRootDocument();
     }
 
     resetCollection() {
-
+        initReady();
     }
 
     deleteColection() {
-
+        initReady();
     }
 
     /**
      * @returns { [{name: name, subs: [{collection: collection}]}] }
      */
     getAllCollection() {
+        initReady();
         return getRootDocument().content.databases;
     }
 
     /**
      * @returns { {name: name, subs: [{collection: collection}]} }
      */
-    getSubsCollection(collection) {
-
+    getCollection(collection) {
+        initReady();
     }
 
     resetAllCollection() {
-
+        initReady();
     }
 
     sizeCollections() {
-
+        initReady();
     }
 
     /**
@@ -120,10 +125,19 @@ export class NextMDB {
         }
 
         if(typeof reloadCollection == "boolean") {
-            if(reloadCollection) {
-                world.scoreboard.getObjectives().forEach((scoreboard) => world.scoreboard.removeObjective(scoreboard.id));
-            }
+            developmentMode.reloadCollection = reloadCollection ?? false;
         }
+    }
+
+    init() {
+        if(developmentMode.reloadCollection) {
+            world.scoreboard.getObjectives().forEach((scoreboard) => {
+                world.scoreboard.removeObjective(scoreboard.id);
+            })
+        }
+
+        registerScoreboard();
+        config.initReady = true;
     }
 }
 
@@ -379,11 +393,11 @@ function registerScoreboard() {
             }
         }
         scoreboard.setScore(xor.encrypt(escapeQuotes(JSON.stringify(document))), 0);
-        setRootDocument(document, "loadRegister")
+        setRootDocument(document, "createRegister")
     } else {
         const Parse = JParse(unescapeQuotes(xor.decrypt(findParticipant.displayName)))
         if(Parse.isValid) {
-            setRootDocument(Parse.json, "getRegister");
+            setRootDocument(Parse.json, "loadRegisterFromDatabase");
         }
     }
 
@@ -403,17 +417,21 @@ function setRootDocument(value, event) {
     return NextMap.set("root", value, event);
 }
 
+function initReady() { 
+    if(config.initReady == false) {
+        throw new Error("Init is not ready!");
+    }
+}
+
 export function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
 }
 
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
-        const xor = new XOR();
         if(event == "update") {
+            const register = registerScoreboard();
 
         }
     }
 })
-
-registerScoreboard()
