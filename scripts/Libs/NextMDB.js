@@ -27,16 +27,31 @@ class BetterMap {
     }
 
     set(key, value, type) {
+
+        if(typeof type != "string", typeof type != "number" || typeof type != "boolean") {
+            type = null;
+        } 
+
         this.#map.set(key, value);
         this.#onChangeCallback(key, value, "set", type);
     }
 
     get(key, type) {
+
+        if(typeof type != "string", typeof type != "number" || typeof type != "boolean") {
+            type = null;
+        } 
+
         this.#onChangeCallback(key, null, "get", type);
         return this.#map.get(key);
     }
 
     delete(key, type) {
+
+        if(typeof type != "string", typeof type != "number" || typeof type != "boolean") {
+            type = null;
+        } 
+        
         const value = this.#map.get(key);
         this.#map.delete(key);
         this.#onChangeCallback(key, value, "delete", type);
