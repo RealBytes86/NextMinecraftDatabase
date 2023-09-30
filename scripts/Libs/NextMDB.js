@@ -28,9 +28,9 @@ class BetterMap {
 
     set(key, value, type) {
 
-        if(typeof type != "string", typeof type != "number" || typeof type != "boolean") {
+        if(typeof type == "undefined") {
             type = null;
-        } 
+        }
 
         this.#map.set(key, value);
         this.#onChangeCallback(key, value, "set", type);
@@ -38,9 +38,9 @@ class BetterMap {
 
     get(key, type) {
 
-        if(typeof type != "string", typeof type != "number" || typeof type != "boolean") {
+        if(typeof type == "undefined") {
             type = null;
-        } 
+        }
 
         this.#onChangeCallback(key, null, "get", type);
         return this.#map.get(key);
@@ -48,10 +48,10 @@ class BetterMap {
 
     delete(key, type) {
 
-        if(typeof type != "string", typeof type != "number" || typeof type != "boolean") {
+        if(typeof type == "undefined") {
             type = null;
-        } 
-        
+        }
+
         const value = this.#map.get(key);
         this.#map.delete(key);
         this.#onChangeCallback(key, value, "delete", type);
