@@ -75,9 +75,11 @@ export class NextMDB {
         return new Collection(name)
     }
 
-    createCollection() {
+    createCollection(name) {
         initReady();
-        const rootDocument = getRootDocument();
+        if(typeof name != "string") throw new Error("Name is invalid");
+        getRootDocument()
+
     }
 
     resetCollection() {
@@ -377,7 +379,7 @@ function registerScoreboard() {
         if (getDocumentName(document) == config.rootDocumentName) {
             return true;
         } else {
-            scoreboard.removeParticipant(participant.displayName);
+            system.run(() => scoreboard.removeParticipant(participant.displayName));
         }
     });
 
@@ -429,9 +431,25 @@ export function isNumberInRange(number, min, max) {
 
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
+        const xor = new XOR();
         if(event == "update") {
             const register = registerScoreboard();
-
+            register.getParticipants().forEach((participant) => {
+                const searchRootDocument = unescapeQuotes(xor.decrypt(participant.displayName));
+                if(getDocumentName(searchRootDocument) == config.rootDocumentName) {
+                    system.run(() => {
+                        register.removeParticipant(participant.displayName);
+                        register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
+                    })
+                    return;
+                }
+                system.run(() => scoreboard.removeParticipant(participant.displayName));
+            })
         }
+        return;
+    } else if(action == "get") {
+        return;
+    } else if(action == "delete") {
+        return;
     }
 })
