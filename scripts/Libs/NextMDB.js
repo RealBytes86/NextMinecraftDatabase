@@ -72,14 +72,27 @@ export class NextMDB {
     Collection(name) {
         initReady();
         if(typeof name != "string") throw new Error("Name is invalid");
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
         return new Collection(name)
     }
 
     createCollection(name) {
         initReady();
         if(typeof name != "string") throw new Error("Name is invalid");
-        getRootDocument()
-
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
+        const rootDocument = getRootDocument();
+        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
+        if(findCollection == undefined) {
+            const xor = new XOR();
+            const firstColletionName = `${name}#1`
+            rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: xor.encrypt(firstColletionName)}]})
+            world.scoreboard.addObjective(xor.encrypt(name), firstColletionName);
+            setRootDocument(rootDocument, "update")
+        } else {
+            return { response: "Collection exists", status: "No" };
+        }
     }
 
     resetCollection() {
@@ -431,6 +444,7 @@ export function isNumberInRange(number, min, max) {
 
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
+        console.warn(JSON.stringify(value))
         const xor = new XOR();
         if(event == "update") {
             const register = registerScoreboard();
