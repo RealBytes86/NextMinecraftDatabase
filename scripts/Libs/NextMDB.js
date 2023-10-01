@@ -90,6 +90,7 @@ export class NextMDB {
             rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: xor.encrypt(firstColletionName)}]})
             world.scoreboard.addObjective(xor.encrypt(name), firstColletionName);
             setRootDocument(rootDocument, "update")
+            return { response: "Collection created", status: "Ok" };
         } else {
             return { response: "Collection exists", status: "No" };
         }
