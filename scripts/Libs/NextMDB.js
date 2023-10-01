@@ -445,7 +445,6 @@ export function isNumberInRange(number, min, max) {
 
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
-        console.warn(JSON.stringify(value))
         const xor = new XOR();
         if(event == "update") {
             const register = registerScoreboard();
