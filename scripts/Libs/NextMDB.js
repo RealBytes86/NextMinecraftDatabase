@@ -192,7 +192,7 @@ export class NextMDB {
                 index++;
             })
             if(index == 0) {
-                return { response: "No collection. WARNING API ERROR", reset: index, status: "no"};
+                return { response: "No collection (WARNING API ERROR)", reset: index, status: "no"};
             } else {
                 return { response: "Collection reseted", reset: index, status: "ok"};
             }
