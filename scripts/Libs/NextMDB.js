@@ -86,9 +86,10 @@ export class NextMDB {
         const findCollection = rootDocument.content.databases.find((database) => database.name == name);
         if(findCollection == undefined) {
             const xor = new XOR();
-            const firstColletionName = `${name}#1`
-            rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: xor.encrypt(firstColletionName)}]})
-            world.scoreboard.addObjective(xor.encrypt(name), firstColletionName);
+            const firstColletionName = `${name}#1`;
+            const firstColletionID =  xor.encrypt(firstColletionName)
+            rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: firstColletionID}]})
+            world.scoreboard.addObjective(firstColletionID, firstColletionName);
             setRootDocument(rootDocument, "update")
             return { response: "Collection created", status: "ok" };
         } else { 
@@ -131,6 +132,22 @@ export class NextMDB {
 
     resetAllCollection() {
         initReady();
+        const rootDocument = getRootDocument();
+        let index = 0;
+        rootDocument.content.databases.forEach((database) => {
+            const subsCollection = database.subs;
+            subsCollection.forEach((sub) => {
+                world.scoreboard.removeObjective(sub.id);
+                world.scoreboard.addObjective(sub.id, sub.collection);
+            })
+            index++;
+        })
+
+        if(index == 0) {
+            return { response: "Collection is empty", reset: index, status: "no" };
+        } else {
+            return { response: "Collection rested", reset: index, status: "ok"};
+        }
     }
 
     sizeCollections() {
@@ -461,10 +478,8 @@ NextMap.callback((key, value, action, event) => {
             register.getParticipants().forEach((participant) => {
                 const searchRootDocument = unescapeQuotes(xor.decrypt(participant.displayName));
                 if(getDocumentName(searchRootDocument) == config.rootDocumentName) {
-                    system.run(() => {
-                        register.removeParticipant(participant.displayName);
-                        register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
-                    })
+                    register.removeParticipant(participant.displayName);
+                    register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
                     return;
                 }
                 system.run(() => scoreboard.removeParticipant(participant.displayName));
