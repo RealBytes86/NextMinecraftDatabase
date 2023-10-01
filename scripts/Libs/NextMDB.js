@@ -272,14 +272,14 @@ class Collection {
     /**
      * @param {string} collection 
      */
+
     constructor(collection) { 
-        this.name = collection
+        this.collection = collection
     }
 
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-        const scoreboard = world.scoreboard.getObjective(this.name);
     }
 
     insertDocument(document, json) {
@@ -304,7 +304,7 @@ class Collection {
     }
 } 
 
-class Display {
+export class Display {
     /**
      * @param {string} name 
      */
@@ -566,7 +566,7 @@ NextMap.callback((key, value, action, event) => {
                     register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
                     return;
                 }
-                system.run(() => scoreboard.removeParticipant(participant.displayName));
+                register.removeParticipant(participant.displayName);
             })
         }
         return;
