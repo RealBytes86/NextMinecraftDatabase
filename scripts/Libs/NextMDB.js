@@ -124,7 +124,7 @@ export class NextMDB {
     }
 
     /**
-     * @returns { {collection: {name?: name, subs?: [{collection?: collection}]} response: response, status: status} }
+     * @returns { {collection: {name?: name, subs?: [{collection?: collection, id?: id}]} response: response, status: status} }
      */
     getCollection(name) {
         initReady();
@@ -167,7 +167,7 @@ export class NextMDB {
         const rootDocument = getRootDocument();
         const findCollection = rootDocument.content.databases.find((database) => database.name == name);
         if(findCollection == undefined) {
-            return { response: "Collection not eixsts", status: "ok" };
+            return { response: "Collection not eixsts", status: "no" };
         } else {
             let index = 0;
             findCollection.subs.forEach((sub) => {
@@ -183,8 +183,43 @@ export class NextMDB {
         }
     }
 
+    /**
+     * @returns {Number}
+     */
     sizeCollections() {
         initReady();
+        return getRootDocument().content.databases.length;
+    }
+
+    /**
+     * @returns { {collection: {name?: name, documents: documents, subsCollection: subsCollection, subs?: [{collection?: collection, id?: id}]} response: response, status: status} }
+     */
+    sizeCollection(name) {
+        initReady();
+        if(typeof name != "string") throw new Error("Name is invalid");
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
+        const rootDocument = getRootDocument();
+        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
+        if(findCollection == undefined) {
+            return { response: "Collection not eixsts", status: "no" };
+        } else {
+            let collection = {
+                name: findCollection.name,
+                documents: 0,
+                subsCollection: findCollection.subs.length,
+                subs: [],
+            };
+            findCollection.subs.forEach((sub) => {
+                const subName = sub.collection;
+                const subID = sub.id;
+                const length = world.scoreboard.getObjective(subID).getParticipants().length;
+                collection.documents = collection.documents += length;
+                collection.subs.push({collection: subName, id: subID, documents: length});  
+            })
+
+            return { collection, response: "Collection exists", status: "ok" } 
+        }
     }
 
     /**
@@ -221,7 +256,7 @@ class Collection {
     /**
      * @param {string} collection 
      */
-    constructor(collection) {
+    constructor(collection) { 
         this.name = collection
     }
 
