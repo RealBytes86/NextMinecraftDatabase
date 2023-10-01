@@ -77,6 +77,20 @@ export class NextMDB {
         return new Collection(name)
     }
 
+    existsCollecton(name) {
+        initReady();
+        if(typeof name != "string") throw new Error("Name is invalid");
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
+        const rootDocument = getRootDocument();
+        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
+        if(findCollection == undefined) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     createCollection(name) {
         initReady();
         if(typeof name != "string") throw new Error("Name is invalid");
@@ -87,7 +101,7 @@ export class NextMDB {
         if(findCollection == undefined) {
             const xor = new XOR();
             const firstColletionName = `${name}#1`;
-            const firstColletionID =  xor.encrypt(firstColletionName)
+            const firstColletionID = xor.encrypt(firstColletionName)
             rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: firstColletionID}]})
             world.scoreboard.addObjective(firstColletionID, firstColletionName);
             setRootDocument(rootDocument, "update")
@@ -95,10 +109,6 @@ export class NextMDB {
         } else { 
             return { response: "Collection exist", status: "no" };
         }
-    }
-
-    resetCollection() {
-        initReady();
     }
 
     deleteColection() {
@@ -147,6 +157,20 @@ export class NextMDB {
             return { response: "Collection is empty", reset: index, status: "no" };
         } else {
             return { response: "Collection rested", reset: index, status: "ok"};
+        }
+    }
+
+
+    resetCollection(name) {
+        if(typeof name != "string") throw new Error("Name is invalid");
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
+        const rootDocument = getRootDocument();
+        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
+        if(findCollection == undefined) {
+
+        } else {
+
         }
     }
 
