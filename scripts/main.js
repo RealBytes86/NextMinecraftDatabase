@@ -32,7 +32,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-            next.getAllCollection()
+
             return;
         }
 

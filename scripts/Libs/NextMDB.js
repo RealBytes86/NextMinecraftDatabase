@@ -160,7 +160,6 @@ export class NextMDB {
         }
     }
 
-
     resetCollection(name) {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
@@ -168,9 +167,19 @@ export class NextMDB {
         const rootDocument = getRootDocument();
         const findCollection = rootDocument.content.databases.find((database) => database.name == name);
         if(findCollection == undefined) {
-
+            return { response: "Collection not eixsts", status: "ok" };
         } else {
-
+            let index = 0;
+            findCollection.subs.forEach((sub) => {
+                world.scoreboard.removeObjective(sub.id);
+                world.scoreboard.addObjective(sub.id, sub.collection);
+                index++;
+            })
+            if(index == 0) {
+                return { response: "No collection. WARNING API ERROR", reset: index, status: "no"};
+            } else {
+                return { response: "Collection reseted", reset: index, status: "ok"};
+            }
         }
     }
 
