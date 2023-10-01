@@ -346,19 +346,7 @@ export class Display {
 
 class Cluster {
 
-    create() {
-
-    }
-
     search() {
-
-    }
-
-    find() {
-
-    }
-
-    size() {
 
     }
 }
@@ -552,6 +540,10 @@ function initReady() {
 
 export function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
+}
+
+function isNotLimitCollection(number) {
+    return isNumberInRange(number, 0, config.limitCollection);
 }
 
 NextMap.callback((key, value, action, event) => {
