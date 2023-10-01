@@ -111,8 +111,24 @@ export class NextMDB {
         }
     }
 
-    deleteColection() {
+    deleteColection(name) {
         initReady();
+        if(typeof name != "string") throw new Error("Name is invalid");
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
+        const rootDocument = getRootDocument();
+        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
+        if(findCollection == undefined) {
+            return { response: "Collection not eixsts", status: "no" };
+        } else {
+            findCollection.subs.forEach((sub) => {
+                world.scoreboard.removeObjective(sub.id);
+                const index = rootDocument.content.databases.findIndex((database) => database.name == name);
+                rootDocument.content.databases.splice(index, 1);
+                setRootDocument(rootDocument, "update");
+                return { response: "Collection deleted", status: "ok" };
+            })
+        }
     }
 
     /**
