@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+import { world, system, ScoreboardIdentityType } from "@minecraft/server";
 
 let config = {
     NMDBkey: "DATABASE:NEXTMDB",
@@ -74,7 +74,11 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
-        return new Collection(name)
+        if(this.existsCollecton(name)) {
+            return new Collection(name)
+        } else {
+            throw new Error("Collection not found");
+        }
     }
 
     existsCollecton(name) {
@@ -269,12 +273,14 @@ export class NextMDB {
 }
 
 class Collection {
-    /**
-     * @param {string} collection 
-     */
 
-    constructor(collection) { 
-        this.collection = collection
+    #cluster = new Cluster();
+
+    /**
+    * @param {string} collection 
+    */
+    constructor(collection) {
+        this.collection = collection;
     }
 
     findDocument(document) {
@@ -285,6 +291,7 @@ class Collection {
     insertDocument(document, json) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
+        if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
     }
 
     updateDocument(document, json) {
@@ -303,6 +310,25 @@ class Collection {
         return 0;
     }
 } 
+
+class Cluster {
+    /**
+     * @returns {{name: string, subs: [{collection: string, id: string}]}}
+     */
+    #getCollection = (collection) => {
+        return getRootDocument().content.databases.find((database) => database.name == collection);
+    }
+    
+    /**
+     * @param {string} collection 
+     * @param {string} document 
+     */
+    search(collection, document) {
+        this.#getCollection(collection).subs.forEach((sub) => {
+            
+        })
+    }
+}
 
 export class Display {
     /**
@@ -342,13 +368,6 @@ export class Display {
         return { response: "setdisplay no belowname", status: "ok" };
     }
 
-}
-
-class Cluster {
-
-    search() {
-
-    }
 }
 
 class XOR {

@@ -39,12 +39,14 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-
             return;
         }
 
         if(commandName == "test2") {
+            return;
         }
+
+        ctx.sender.sendMessage("§7[§6Command§7]§r §c" + commandName + " not exist.");
     }
 })
 
