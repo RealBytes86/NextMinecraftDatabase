@@ -330,7 +330,8 @@ class Cluster {
         let name = "null";
         let id = "null";
         let documents = 0;
-        this.#getCollection(collection).subs.forEach((sub) => {
+        const getCollection = this.#getCollection(collection);
+        getCollection.subs.forEach((sub) => {
             const subId = sub.id;
             const scoreboard = world.scoreboard.getObjective(subId);
             const documentsSize = scoreboard.getParticipants().length;
@@ -341,7 +342,9 @@ class Cluster {
                 documents = documentsSize;
                 return;
             } else {
-                
+                if(getCollection.subs.length == index) {
+                    
+                }
             }
         })
 
