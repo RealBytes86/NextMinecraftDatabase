@@ -1,4 +1,4 @@
-import { world, system, ScoreboardIdentityType } from "@minecraft/server";
+import { world, system, ScoreboardIdentity } from "@minecraft/server";
 
 let config = {
     NMDBkey: "DATABASE:NEXTMDB",
@@ -323,15 +323,24 @@ class Cluster {
      * @param {string} collection 
      * @param {string} document 
      */
-    search(collection, document) {
+    search(collection) {
+        let isValid = false;
+        let name = "null";
+        let id = "null";
+        let documents = 0;
         this.#getCollection(collection).subs.forEach((sub) => {
-            const id = sub.id;
-            const name = sub.collection;
-            const scoreboard = world.scoreboard.getObjective(id);
-            if(isNotLimitCollection(scoreboard.getParticipants().length)) {
-                
+            const subId = sub.id;
+            const scoreboard = world.scoreboard.getObjective(subId);
+            const documentsSize = scoreboard.getParticipants().length;
+            if(isNotLimitCollection(documentsSize)) {
+                isValid = true;
+                name = sub.collection;
+                id = subId;
+                documents = documentsSize;
+                return;
             }
         })
+        return { name: name, id: id, isValid: isValid, documents: documents };
     }
 }
 
