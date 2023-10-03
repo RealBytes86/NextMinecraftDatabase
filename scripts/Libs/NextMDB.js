@@ -292,6 +292,8 @@ class Collection {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
         if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
+        const search = this.#cluster.search(this.collection);
+
     }
 
     updateDocument(document, json) {
@@ -338,8 +340,11 @@ class Cluster {
                 id = subId;
                 documents = documentsSize;
                 return;
+            } else {
+                
             }
         })
+
         return { name: name, id: id, isValid: isValid, documents: documents };
     }
 }
