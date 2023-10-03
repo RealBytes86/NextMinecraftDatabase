@@ -325,7 +325,12 @@ class Cluster {
      */
     search(collection, document) {
         this.#getCollection(collection).subs.forEach((sub) => {
-            
+            const id = sub.id;
+            const name = sub.collection;
+            const scoreboard = world.scoreboard.getObjective(id);
+            if(isNotLimitCollection(scoreboard.getParticipants().length)) {
+                
+            }
         })
     }
 }
