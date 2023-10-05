@@ -302,6 +302,9 @@ class Collection {
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
+        const find = this.#cluster.find(document, this.collection);
+        console.warn(JSON.stringify(find.json))
+
     }
 
     insertDocument(document, json) {
@@ -316,7 +319,6 @@ class Collection {
                 },
                 content: json,
             }
-
             const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
             scoreboard.setScore(escapeQuotes(JSON.stringify(documentContent)), 0);
             return { response: "Document created", status: "ok"};
@@ -350,8 +352,34 @@ class Cluster {
         return getRootDocument().content.databases.find((database) => database.name == collection);
     }
 
-    find() {
-        
+    /**
+     * @param {string} document 
+     */
+    find(document, collection) {
+        const database = this.#getCollection(collection);
+        let bool = false;
+        let json = "null";
+        database.subs.forEach((sub) => {
+            world.scoreboard.getObjective(sub.id).getParticipants().forEach((participant, index) => {
+                if(index == config.limitCollection) {
+                    return;
+                }
+                const data = unescapeQuotes(participant.displayName);
+                if(getDocumentName(data) == document) {
+                    const JP = JParse(data);
+                    if(JP.isValid) {
+                        bool = true;
+                        json = JP.json.content;    
+                    }
+                }
+            })
+
+            if(bool) {
+                return;
+            }
+        })
+
+        return { response: "Document exists", status: "ok", json: json };
     }
     
     /**
@@ -364,7 +392,7 @@ class Cluster {
         let id = "null";
         let documents = 0;
         const getCollection = this.#getCollection(collection);
-        getCollection.subs.forEach((sub) => {
+        getCollection.subs.forEach((sub, index) => {
             const subId = sub.id;
             const scoreboard = world.scoreboard.getObjective(subId);
             const documentsSize = scoreboard.getParticipants().length;
@@ -376,7 +404,7 @@ class Cluster {
                 return;
             } else {
                 const sizeSubsCollection = getCollection.subs.length;
-                if(sizeSubsCollection == index) {
+                if(sizeSubsCollection == index + 1) {
                     const xor = new XOR();
                     const displayName = `${sub.collection}#${sizeSubsCollection + 1}`;
                     const sId = xor.encrypt(displayName);
