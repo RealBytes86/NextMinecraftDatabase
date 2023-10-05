@@ -1,4 +1,4 @@
-import { world, system, ScoreboardIdentity } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 
 let config = {
     NMDBkey: "DATABASE:NEXTMDB",
@@ -292,8 +292,14 @@ class Collection {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
         if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
-        const search = this.#cluster.search(this.collection);
-
+        const getSubCollection = this.#cluster.getSubCollection(this.collection);
+        if(getSubCollection.isValid) {
+            const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
+            scoreboard.setScore(escapeQuotes(JSON.stringify(json)), 0);
+            return { response: "Document created", status: "ok"};
+        } else {
+            return { response: "Is not valid", status: "no" };
+        }
     }
 
     updateDocument(document, json) {
@@ -325,7 +331,7 @@ class Cluster {
      * @param {string} collection 
      * @param {string} document 
      */
-    search(collection) {
+    getSubCollection(collection) {
         let isValid = false;
         let name = "null";
         let id = "null";
@@ -342,8 +348,22 @@ class Cluster {
                 documents = documentsSize;
                 return;
             } else {
-                if(getCollection.subs.length == index) {
-                    
+                const sizeSubsCollection = getCollection.subs.length;
+                if(sizeSubsCollection == index) {
+                    const xor = new XOR();
+                    const displayName = `${sub.collection}#${sizeSubsCollection + 1}`;
+                    const sId = xor.encrypt(displayName);
+                    world.scoreboard.addObjective(sId, displayName);
+                    const rootDocument = getRootDocument();
+                    const data = rootDocument.content.databases.find((database) => database.name == collection);
+                    if(data == undefined) return { isValid: false, name: null };
+                    data.subs.push({collection: displayName, id: sId});
+                    setRootDocument(rootDocument, "update");
+                    isValid = true;
+                    name = displayName;
+                    id = sId;
+                    documents = 0;
+                    return;
                 }
             }
         })
