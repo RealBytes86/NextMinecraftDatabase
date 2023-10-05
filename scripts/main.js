@@ -4,6 +4,7 @@ import { system, world } from "@minecraft/server";
 import { NextMDB } from "./Libs/NextMDB";
 import "./Example/Database";
 
+
 const next = new NextMDB();
 const xor = next.XOR();
 

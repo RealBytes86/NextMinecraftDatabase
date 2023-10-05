@@ -610,9 +610,28 @@ export function isNumberInRange(number, min, max) {
     return number >= min && number <= max;
 }
 
-function isNotLimitCollection(number) {
+export function isNotLimitCollection(number) {
     return isNumberInRange(number, 0, config.limitCollection);
 }
+
+export function calculateByteSize(str) {
+    let byteSize = 0;
+
+    for(let i = 0; i < str.length; i++) {
+        const charCode = str.charCodeAt(i);
+        if (charCode <= 0x7F) {
+            byteSize += 1;
+        } else if (charCode <= 0x7FF) {
+            byteSize += 2;
+        } else if (charCode <= 0xFFFF) {
+            byteSize += 3;
+        } else {
+            byteSize += 4;
+        }
+    }
+    return byteSize;
+}
+  
 
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
