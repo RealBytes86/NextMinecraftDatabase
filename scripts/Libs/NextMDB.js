@@ -349,6 +349,10 @@ class Cluster {
     #getCollection = (collection) => {
         return getRootDocument().content.databases.find((database) => database.name == collection);
     }
+
+    find() {
+        
+    }
     
     /**
      * @param {string} collection 
