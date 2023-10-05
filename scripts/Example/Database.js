@@ -6,8 +6,4 @@ const xor = MDB.XOR();
 MDB.init();
 
 MDB.createCollection("Datenbank");
-const database = MDB.Collection("Datenbank");
-
-for(let i = 0; i <= 5000; i++) {
-    database.insertDocument("HelloWorld", {name: "Kevin"})
-}
+const database = MDB.Collection("Datenbank")

@@ -60,6 +60,62 @@ export class BetterMap {
     }
 }
 
+export class NextTimeDate {
+    constructor(country) {
+        this.country = country;
+    }
+
+    getTimeZoneOffset() { 
+        let timezoneOffset = 2;
+        switch(this.country.toLowerCase()) {
+            case "berlin":
+                timezoneOffset = 2 * 60 * 60 * 1000;
+                break;
+            case "new_york":
+                timezoneOffset = -4 * 60 * 60 * 1000;
+                break;
+            case "london":
+                timezoneOffset = 1 * 60 * 60 * 1000;
+                break;
+            case "tokyo":
+                timezoneOffset = 9 * 60 * 60 * 1000;
+                break;
+            case "sydney":
+                timezoneOffset = 10 * 60 * 60 * 1000;
+                break;
+            case "moscow":
+                timezoneOffset = 3 * 60 * 60 * 1000;
+                break;
+            case "los_angeles":
+                timezoneOffset = -7 * 60 * 60 * 1000;
+                break;
+            case "hong_kong":
+                timezoneOffset = 8 * 60 * 60 * 1000;
+                break;
+            case "dubai":
+                timezoneOffset = 4 * 60 * 60 * 1000;
+                break;
+            case "mumbai":
+                timezoneOffset = 5.5 * 60 * 60 * 1000;
+                break;
+            default:
+                timezoneOffset = 2 * 60 * 60 * 1000;
+                break;
+        }
+
+        return timezoneOffset;
+    }
+
+    getDate() {
+        return new Date(new Date().getTime() + this.getTimeZoneOffset());
+    }
+
+    secondToTick(second) {
+        if(typeof second != "number") throw new Error("Seconds must be a number"); 
+        return time * 20;
+    }
+}
+
 const overworld = world.getDimension("minecraft:overworld");
 const NextMap = new BetterMap();
 
@@ -569,13 +625,15 @@ function registerScoreboard() {
             document: {
                 name: config.rootDocumentName,
                 create: "",
+                lastOpen: "",
             },
             content: {
                 users: [],
                 databases: [],
             }
         }
-        scoreboard.setScore(xor.encrypt(escapeQuotes(JSON.stringify(document))), 0);
+        const data = xor.encrypt(escapeQuotes(JSON.stringify(document)));
+        scoreboard.setScore(data, 0);
         setRootDocument(document, "createRegister")
     } else {
         const Parse = JParse(unescapeQuotes(xor.decrypt(findParticipant.displayName)))
