@@ -294,6 +294,13 @@ class Collection {
         if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
         const getSubCollection = this.#cluster.getSubCollection(this.collection);
         if(getSubCollection.isValid) {
+
+            const documentContent = {
+                document: {
+                    name: "",
+                }
+            }
+
             const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
             scoreboard.setScore(escapeQuotes(JSON.stringify(json)), 0);
             return { response: "Document created", status: "ok"};
@@ -561,7 +568,7 @@ function registerScoreboard() {
         const document = {
             document: {
                 name: config.rootDocumentName,
-                id: scoreboard.getParticipants().length + 1
+                create: "",
             },
             content: {
                 users: [],
