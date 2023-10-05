@@ -16,7 +16,7 @@ let developmentMode = {
 let regex = {
     whitespace: /\s+/g,
     character: /[^\w\s]/gi,
-    documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*,/
+    documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*/
 }
 
 export class BetterMap {
@@ -163,20 +163,20 @@ export class NextMDB {
     resetAllCollection() {
         initReady();
         const rootDocument = getRootDocument();
-        let index = 0;
-        rootDocument.content.databases.forEach((database) => {
+        let indexX = 0;
+        rootDocument.content.databases.forEach((database, index) => {
             const subsCollection = database.subs;
             subsCollection.forEach((sub) => {
                 world.scoreboard.removeObjective(sub.id);
                 world.scoreboard.addObjective(sub.id, sub.collection);
             })
-            index++;
+            indexX = index
         })
 
-        if(index == 0) {
-            return { response: "Collection is empty", reset: index, status: "no" };
+        if(indexX == 0) {
+            return { response: "Collection is empty", reset: indexX, status: "no" };
         } else {
-            return { response: "Collection rested", reset: index, status: "ok"};
+            return { response: "Collection rested", reset: indexX, status: "ok"};
         }
     }
 
@@ -242,14 +242,28 @@ export class NextMDB {
         }
     }
 
+    Display(name, subNumber) {
+        initReady();
+        if(typeof name != "string") throw new Error("Name is invalid");
+        name = name.replace(regex.character, "");
+        if(name.length == 0) throw new Error("Name is 0");
+        if(typeof subNumber != "number") throw new Error("SubNumber is invalid");
+        const findCollection = getRootDocument().content.databases.find((database) => database.name == name);
+        if(findCollection == undefined) {
+            throw new Error("Collection not exists");
+        }
+        const id = findCollection.subs[subNumber].id;
+        if(id != undefined) {
+            return new Display(id);
+        }
+    }
+
     /**
      * @returns {XOR} 
      */
     XOR() {
         return new XOR()
     }
-
-
 
     developmentMode({notification: notification, reloadCollection: reloadCollection}) {
 
@@ -296,15 +310,15 @@ class Collection {
         if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
         const getSubCollection = this.#cluster.getSubCollection(this.collection);
         if(getSubCollection.isValid) {
-
             const documentContent = {
                 document: {
-                    name: "",
-                }
+                    name: document
+                },
+                content: json,
             }
 
             const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
-            scoreboard.setScore(escapeQuotes(JSON.stringify(json)), 0);
+            scoreboard.setScore(escapeQuotes(JSON.stringify(documentContent)), 0);
             return { response: "Document created", status: "ok"};
         } else {
             return { response: "Is not valid", status: "no" };
