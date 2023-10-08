@@ -87,6 +87,7 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
         const rootDocument = getRootDocument();
+        
         const findCollection = rootDocument.content.databases.find((database) => database.name == name);
         if(findCollection == undefined) {
             return false;
@@ -587,6 +588,7 @@ export function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
+
 function registerScoreboard() {
     const xor = new XOR();
     const id = xor.encrypt(config.rootDocumentName);
@@ -595,40 +597,54 @@ function registerScoreboard() {
         return world.scoreboard.getObjective(id);
     }
 
-    const findScoreboard = world.scoreboard.getObjectives().find((scoreboard) => scoreboard.id == id);
+    let findScoreboard = null;
+    const scoreboards = world.scoreboard.getObjectives();
+    const scoreboardsLength = scoreboards.length;
 
-    if(findScoreboard == undefined) {
+    for(let i = 0; i < scoreboardsLength; i++) { 
+        const scoreboard = scoreboards[i];
+        if(scoreboard.id == id) {
+            findScoreboard = scoreboard;
+            break;
+        }
+    }
+
+    if(findScoreboard == null) {
         world.scoreboard.addObjective(id, config.rootDocumentName);
     }
 
     const scoreboard = world.scoreboard.getObjective(id);
+    const participantLength = scoreboard.getParticipants().length;
+    let documentName = null;
 
-    const findParticipant = scoreboard.getParticipants().find((participant) => {
+    for(let i = 0; i < participantLength; i++) {
+        const participant = scoreboard.getParticipants()[i];
         const document = unescapeQuotes(xor.decrypt(participant.displayName));
-        if (getDocumentName(document) == config.rootDocumentName) {
-            return true;
+        if(getDocumentName(document) == config.rootDocumentName) {
+            documentName = document;
+            break;
         } else {
-            system.run(() => scoreboard.removeParticipant(participant.displayName));
+            scoreboard.removeParticipant(participant.displayName);
         }
-    });
+    }
 
-    if(findParticipant == undefined) {
+    if(documentName == null) {
         const document = {
             document: {
                 name: config.rootDocumentName,
             },
             content: {
                 users: [],
-                databases: [],
+                databases: []
             }
         }
         const data = xor.encrypt(escapeQuotes(JSON.stringify(document)));
         scoreboard.setScore(data, 0);
-        setRootDocument(document, "createRegister")
+        setRootDocument(document, "createRegister");
     } else {
-        const Parse = JParse(unescapeQuotes(xor.decrypt(findParticipant.displayName)))
+        const Parse = JParse(unescapeQuotes(xor.decrypt(documentName)));
         if(Parse.isValid) {
-            setRootDocument(Parse.json, "loadRegisterFromDatabase");
+            setRootDocument(Parse.json, "loadRegisterFromDatabase")
         }
     }
 
@@ -685,16 +701,21 @@ NextMap.callback((key, value, action, event) => {
     if(action == "set") {
         const xor = new XOR();
         if(event == "update") {
+
             const register = registerScoreboard();
-            register.getParticipants().forEach((participant) => {
+            const registerLength = register.getParticipants().length;
+            
+            for(let i = 0; i < registerLength; i++) { 
+                const participant = register.getParticipants()[i];
                 const searchRootDocument = unescapeQuotes(xor.decrypt(participant.displayName));
                 if(getDocumentName(searchRootDocument) == config.rootDocumentName) {
                     register.removeParticipant(participant.displayName);
                     register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
                     return;
                 }
+
                 register.removeParticipant(participant.displayName);
-            })
+            }
         }
         return;
     } else if(action == "get") {
