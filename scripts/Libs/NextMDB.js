@@ -86,14 +86,18 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
-        const rootDocument = getRootDocument();
-        
-        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
-        if(findCollection == undefined) {
-            return false;
-        } else {
-            return true;
+
+        const databases = getRootDocument().content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                return true;
+            }
         }
+
+        return false;
     }
 
     createCollection(name) {
@@ -346,86 +350,7 @@ class Collection {
 } 
 
 class Cluster {
-    /**
-     * @returns {{name: string, subs: [{collection: string, id: string}]}}
-     */
-    #getCollection = (collection) => {
-        return getRootDocument().content.databases.find((database) => database.name == collection);
-    }
 
-    /**
-     * @param {string} document 
-     */
-    find(document, collection) {
-        const database = this.#getCollection(collection);
-        let bool = false;
-        let json = "null";
-        database.subs.forEach((sub) => {
-            world.scoreboard.getObjective(sub.id).getParticipants().forEach((participant, index) => {
-                if(index == config.limitCollection) {
-                    return;
-                }
-                const data = unescapeQuotes(participant.displayName);
-                if(getDocumentName(data) == document) {
-                    const JP = JParse(data);
-                    if(JP.isValid) {
-                        bool = true;
-                        json = JP.json.content;    
-                    }
-                }
-            })
-
-            if(bool) {
-                return;
-            }
-        })
-
-        return { response: "Document exists", status: "ok", json: json };
-    }
-    
-    /**
-     * @param {string} collection 
-     * @param {string} document 
-     */
-    getSubCollection(collection) {
-        let isValid = false;
-        let name = "null";
-        let id = "null";
-        let documents = 0;
-        const getCollection = this.#getCollection(collection);
-        getCollection.subs.forEach((sub, index) => {
-            const subId = sub.id;
-            const scoreboard = world.scoreboard.getObjective(subId);
-            const documentsSize = scoreboard.getParticipants().length;
-            if(isNotLimitCollection(documentsSize)) {
-                isValid = true;
-                name = sub.collection;
-                id = subId;
-                documents = documentsSize;
-                return;
-            } else {
-                const sizeSubsCollection = getCollection.subs.length;
-                if(sizeSubsCollection == index + 1) {
-                    const xor = new XOR();
-                    const displayName = `${sub.collection}#${sizeSubsCollection + 1}`;
-                    const sId = xor.encrypt(displayName);
-                    world.scoreboard.addObjective(sId, displayName);
-                    const rootDocument = getRootDocument();
-                    const data = rootDocument.content.databases.find((database) => database.name == collection);
-                    if(data == undefined) return { isValid: false, name: null };
-                    data.subs.push({collection: displayName, id: sId});
-                    setRootDocument(rootDocument, "update");
-                    isValid = true;
-                    name = displayName;
-                    id = sId;
-                    documents = 0;
-                    return;
-                }
-            }
-        })
-
-        return { name: name, id: id, isValid: isValid, documents: documents };
-    }
 }
 
 export class Display {
@@ -588,7 +513,6 @@ export function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-
 function registerScoreboard() {
     const xor = new XOR();
     const id = xor.encrypt(config.rootDocumentName);
@@ -696,15 +620,12 @@ export function calculateByteSize(str) {
     return byteSize;
 }
   
-
 NextMap.callback((key, value, action, event) => {
     if(action == "set") {
         const xor = new XOR();
         if(event == "update") {
-
             const register = registerScoreboard();
             const registerLength = register.getParticipants().length;
-            
             for(let i = 0; i < registerLength; i++) { 
                 const participant = register.getParticipants()[i];
                 const searchRootDocument = unescapeQuotes(xor.decrypt(participant.displayName));
@@ -713,7 +634,6 @@ NextMap.callback((key, value, action, event) => {
                     register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
                     return;
                 }
-
                 register.removeParticipant(participant.displayName);
             }
         }
