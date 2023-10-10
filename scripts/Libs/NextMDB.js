@@ -138,9 +138,21 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
+
         const rootDocument = getRootDocument();
-        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
-        if(findCollection == undefined) {
+        let findCollection = null;
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                findCollection = database;
+                break;
+            }
+        }
+
+        if(findCollection == null) {
             return { response: "Collection not eixsts", status: "no" };
         } else {
             findCollection.subs.forEach((sub) => {
@@ -170,8 +182,20 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
         const rootDocument = getRootDocument();
-        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
-        if(findCollection == undefined) {
+
+        let findCollection = null;
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                findCollection = database;
+                break;
+            }
+        }
+
+        if(findCollection == null) {
             return { response: "Collection not eixsts", status: "no" };
         } else {
             return { response: "Collection eixts",  status: "ok", collection: findCollection};
@@ -203,8 +227,20 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
         const rootDocument = getRootDocument();
-        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
-        if(findCollection == undefined) {
+
+        let findCollection = null;
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                findCollection = database;
+                break;
+            }
+        }
+
+        if(findCollection == null) {
             return { response: "Collection not eixsts", status: "no" };
         } else {
             let index = 0;
@@ -238,8 +274,20 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
         const rootDocument = getRootDocument();
-        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
-        if(findCollection == undefined) {
+
+        let findCollection = null;
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                findCollection = database;
+                break;
+            }
+        }
+
+        if(findCollection == null) {
             return { response: "Collection not eixsts", status: "no" };
         } else {
             let collection = {
@@ -266,7 +314,20 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
         if(typeof subNumber != "number") throw new Error("SubNumber is invalid");
-        const findCollection = getRootDocument().content.databases.find((database) => database.name == name);
+
+        const rootDocument = getRootDocument();
+        let findCollection = null;
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                findCollection = database;
+                break;
+            }
+        }
+
         if(findCollection == undefined) {
             throw new Error("Collection not exists");
         }
