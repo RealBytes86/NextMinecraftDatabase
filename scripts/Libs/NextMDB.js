@@ -106,8 +106,20 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
         const rootDocument = getRootDocument();
-        const findCollection = rootDocument.content.databases.find((database) => database.name == name);
-        if(findCollection == undefined) {
+
+        let findCollection = null;
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+
+        for(let i = 0; i < databasesLength; i++) {
+            const database = databases[i];
+            if(database.name == name) {
+                findCollection = database;
+                break;
+            }
+        }
+
+        if(findCollection == null) {
             const xor = new XOR();
             const firstColletionName = `${name}#1`;
             const firstColletionID = xor.encrypt(firstColletionName)
@@ -118,6 +130,7 @@ export class NextMDB {
         } else { 
             return { response: "Collection exist", status: "no" };
         }
+
     }
 
     deleteColection(name) {
