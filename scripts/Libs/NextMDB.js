@@ -72,7 +72,7 @@ class collections {
             if(JP.isValid) {
                 if(find(JP.json, query)) {
                     return {
-                        json: JP,
+                        json: JP.json,
                         document: new document(participant, scoreboard, JP.json)
                     }
                 }
