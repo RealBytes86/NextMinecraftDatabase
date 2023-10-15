@@ -361,8 +361,6 @@ class Collection {
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-        const find = this.#cluster.find(document, this.collection);
-        console.warn(JSON.stringify(find.json))
 
     }
 
@@ -392,6 +390,13 @@ class Collection {
 
 class Cluster {
 
+    find() {
+
+    }
+
+    search() {
+        
+    }
 }
 
 export class Display {
