@@ -413,7 +413,7 @@ class Cluster {
 
     search(collection) {
         const getCollection = this.#getCollecttion(collection);
-
+        
     }
 }
 
