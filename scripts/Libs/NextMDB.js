@@ -420,6 +420,8 @@ class Cluster {
             const participants = world.scoreboard.getObjective(sub.id).getParticipants();
             const participantsLength = participants.length;
             if(isNotLimitCollection(participantsLength)) {
+                return { isValid: true, name: sub.collection, id: sub.id, documents: participantsLength };
+            } else {
                 
             }
         }
