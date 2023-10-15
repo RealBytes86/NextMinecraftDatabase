@@ -412,8 +412,12 @@ class Cluster {
     }
 
     search(collection) {
-        const getCollection = this.#getCollecttion(collection);
-        
+        const database = this.#getCollecttion(collection);
+        const subs = database.subs;
+        const subsLength = subs.length;
+        for(let i = 0; i < subsLength; i++) {
+            
+        }
     }
 }
 
