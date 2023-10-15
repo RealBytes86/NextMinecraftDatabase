@@ -13,7 +13,7 @@ export class NextMDB {
 
         for(let i = 0; i < scoreboards.length; i++) {
             const scoreboard = scoreboards[i];
-            if(scoreboard.displayName == collection) {
+            if(scoreboard.id == collection) {
                 return null;
             }
         }
@@ -27,7 +27,7 @@ export class NextMDB {
 
         for(let i = 0; i < scoreboards.length; i++) {
             const scoreboard = scoreboards[i];
-            if(scoreboard.displayName == collection) {
+            if(scoreboard.id == collection) {
                 return world.scoreboard.removeObjective(collection);
             }
         }
