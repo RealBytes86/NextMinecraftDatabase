@@ -1,9 +1,7 @@
 console.warn("Loading world...");
 
 import { system, world } from "@minecraft/server";
-import { database } from "./Example/Database";
-import "./Example/Database";
-
+import "./Example/Database"
 const setPrefix = ".";
 
 world.beforeEvents.itemUse.subscribe((ctx) => {
@@ -36,7 +34,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-            database.findDocument("5000");
             return;
         }
 

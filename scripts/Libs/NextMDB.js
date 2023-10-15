@@ -2,7 +2,7 @@ import { world } from "@minecraft/server";
 
 export const beginScore = -1000000000;
 
-export class NextMinecraftDatabase {
+export class NextMDB {
 
     collection(collection) {
         return new collections(collection);
@@ -100,7 +100,10 @@ class collections {
     }
 
     insert(json) {
-        world.scoreboard.getObjective(this.collection).setScore(escapeQuotes(JSON.stringify(json)), 0);
+        const JP = JParse(json)
+        if(JP.isValid) {
+            world.scoreboard.getObjective(this.collection).setScore(escapeQuotes(JSON.stringify(json)), 0);
+        }
         return true
     }
 
@@ -167,16 +170,25 @@ function isArrayMatch(objArray, queryArray) {
     return true;
 }
 
-export function JParse(jsonString) {
+export function JParse(query, boolean) {
 
-    if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
+    if(boolean == true) {
+        if(typeof jsonString  == "object") return { json: query, isValid: true };
     
-    try {
-        const jsonParse = JSON.parse(jsonString);
-        return { json: jsonParse, isValid: true };
-    }catch {
-        return { json: {}, isValid: false };
+        try {
+            const jsonParse = JSON.parse(jsonString);
+            return { json: jsonParse, isValid: true };
+        }catch {
+            return { json: {}, isValid: false };
+        }
+
+    } else if(boolean == false) {
+        if(typeof jsonString  == "object") return { json: JSON.stringify(query), isValid: true };
+        return
+    } else {
+        throw new Error("Invalid JSON");
     }
+
 }
 
 export class XOR {
