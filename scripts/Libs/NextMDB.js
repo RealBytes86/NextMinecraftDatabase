@@ -57,7 +57,7 @@ class document {
 
     update(query) {
         world.getDimension("overworld").runCommand(`scoreboard players reset "${this.participant.displayName}" ${this.scoreboard.displayName}`)
-        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify([query]))}" ${this.scoreboard.displayName} 0`)
+        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify(query))}" ${this.scoreboard.displayName} 0`)
         return 1;
     }
 }
@@ -108,7 +108,7 @@ class collections {
     }
 
     insertOne(json) {
-        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify([json]))}" ${this.collection} 0`)
+        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify(json))}" ${this.collection} 0`)
         return 1;
     }
 
@@ -122,19 +122,6 @@ function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-function isJSONObject(value) {
-    if (typeof value !== "string") {
-        return false;
-    }
-
-    try {
-        JSON.parse(value);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-  
 function find(array, query) {
     for (let i = 0; i < array.length; i++) {
         const obj = array[i];
@@ -146,7 +133,7 @@ function find(array, query) {
 }
 
 function isMatch(obj, query) {
-    for (const key in query) {
+    for(const key in query) {
         if (query.hasOwnProperty(key)) {
             const queryValue = query[key];
             const objValue = obj[key];
@@ -189,4 +176,101 @@ function isArrayMatch(objArray, queryArray) {
         }
     }
     return true;
+}
+
+export function JParse(jsonString) {
+
+    if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
+    
+    try {
+        const jsonParse = JSON.parse(jsonString);
+        return { json: jsonParse, isValid: true };
+    }catch {
+        return { json: {}, isValid: false };
+    }
+}
+
+export class XOR {
+    /**
+     * @param {string} ciphertext
+     * @returns {string}
+     */
+    #key = "ABCDEFGHIJKLMNOP"
+
+    decrypt(ciphertext) {
+        return new XOREncryption(this.#key).Decrypt(ciphertext);
+    }
+
+    /**
+     * @param {string} key 
+     */
+    setKey(key) {
+        if(typeof key == "string") {
+            if(key.length == 16) {
+                this.#key = key
+            } else {
+                throw new Error("Invalid key. Only key length 16");
+            }
+        } else {
+            throw new Error("Invalid string");
+        }
+    }
+
+    /**
+     * @returns {string}
+     */
+    getKey() {
+        return this.#key
+    }
+
+    /**
+     * @param {string} plaintext 
+     * @returns 
+     */
+    encrypt(plaintext) {
+        return new XOREncryption(this.#key).Encrypt(plaintext);
+    }
+}
+
+class XOREncryption {
+    constructor(key) {
+        this.key = key;
+    }
+
+    Encrypt(plaintext) {
+        if(this.key.length != 16) throw new Error("Der Schlüssel muss 16 Bytes lang sein.");
+        const plaintextBytes = this.stringToBytes(plaintext)
+        const keyBytes = this.stringToBytes(this.key);
+        for(let j = 0; j < 16; j++) plaintextBytes[j] ^= keyBytes[j];
+        return this.bytesToHexString(plaintextBytes);
+    }
+
+    Decrypt(ciphertext) {
+        if(this.key.length !== 16) throw new Error("Der Schlüssel muss 16 Bytes lang sein.");
+        const ciphertextBytes = this.hexStringToBytes(ciphertext);
+        const keyBytes = this.stringToBytes(this.key);
+        for(let j = 0; j < 16; j++) ciphertextBytes[j] ^= keyBytes[j]
+        return this.bytesToString(ciphertextBytes);
+    }
+
+    hexStringToBytes(hexString) {
+        const bytes = [];
+        for(let i = 0; i < hexString.length; i += 2) bytes.push(parseInt(hexString.substr(i, 2), 16));
+        return bytes;
+    }
+    
+    bytesToHexString(bytes) {
+        return bytes.map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+    }
+    
+    stringToBytes(string) {
+        const utf8 = encodeURIComponent(string);
+        const bytes = [];
+        for(let i = 0; i < utf8.length; i++) bytes.push(utf8.charCodeAt(i));
+        return bytes;
+    }
+
+    bytesToString(bytes) {
+        return decodeURIComponent(String.fromCharCode.apply(null, bytes));
+    }
 }
