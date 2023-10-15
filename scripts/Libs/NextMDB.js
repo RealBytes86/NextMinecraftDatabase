@@ -142,23 +142,13 @@ export class NextMDB {
             if(database.name == name) {
                 const sub = database.sub;
                 world.scoreboard.removeObjective(sub.id);
-                
-
+                rootDocument.content.databases.splice(i, 1);
+                setRootDocument(rootDocument, "update");
                 return { response: "Collection deleted", status: "ok" };
             }
         }
-        
+
         return { response: "Collection not eixsts", status: "no" };
-
-
-        findCollection.subs.forEach((sub) => {
-            world.scoreboard.removeObjective(sub.id);
-            const index = rootDocument.content.databases.findIndex((database) => database.name == name);
-            rootDocument.content.databases.splice(index, 1);
-            setRootDocument(rootDocument, "update");
-            return { response: "Collection deleted", status: "ok" };
-        })
-        
     }
 
     /**
@@ -177,25 +167,19 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
-        const rootDocument = getRootDocument();
 
-        let findCollection = null;
+        const rootDocument = getRootDocument();
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
 
         for(let i = 0; i < databasesLength; i++) {
             const database = databases[i];
             if(database.name == name) {
-                findCollection = database;
-                break;
+                return { response: "Collection eixts",  status: "ok", collection: database };
             }
         }
 
-        if(findCollection == null) {
-            return { response: "Collection not eixsts", status: "no" };
-        } else {
-            return { response: "Collection eixts",  status: "ok", collection: findCollection};
-        }
+        return { response: "Collection not eixsts", status: "no" };
     }
 
     resetAllCollection() {
