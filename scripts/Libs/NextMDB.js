@@ -260,39 +260,35 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
-        const rootDocument = getRootDocument();
 
-        let findCollection = null;
+        const rootDocument = getRootDocument();
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
 
         for(let i = 0; i < databasesLength; i++) {
             const database = databases[i];
             if(database.name == name) {
-                findCollection = database;
-                break;
+                const subs = database.subs;
+                const subsLength = subs.length;
+                let collection = {
+                    name: database.name,
+                    documents: 0,
+                    subsCollection: subsLength,
+                    subs: [],
+                };
+
+                for(let s = 0; s < subsLength; i++) {
+                    const sub = subs[i];
+                    const documentsLenght = world.scoreboard.getObjective(sub.id).getParticipants().length;
+                    collection.documents = collection.documents += documentsLenght;
+                    collection.subs.push({collection: sub.name, id: sub.id, documents: documentsLenght});
+                }
+
+                return { collection: collection, response: "Collection exists", status: "ok" } 
             }
         }
 
-        if(findCollection == null) {
-            return { response: "Collection not eixsts", status: "no" };
-        } else {
-            let collection = {
-                name: findCollection.name,
-                documents: 0,
-                subsCollection: findCollection.subs.length,
-                subs: [],
-            };
-            findCollection.subs.forEach((sub) => {
-                const subName = sub.collection;
-                const subID = sub.id;
-                const length = world.scoreboard.getObjective(subID).getParticipants().length;
-                collection.documents = collection.documents += length;
-                collection.subs.push({collection: subName, id: subID, documents: length});  
-            })
-
-            return { collection, response: "Collection exists", status: "ok" } 
-        }
+        return { response: "Collection not eixsts", status: "no" };
     }
 
     Display(name, subNumber) {
