@@ -361,7 +361,7 @@ class Collection {
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-        this.#cluster.search(this.collection);
+        this.#cluster.getSubsCollection(this.collection);
 
     }
 
@@ -411,12 +411,17 @@ class Cluster {
     find() {
     }
 
-    search(collection) {
+    getSubsCollection(collection) {
         const database = this.#getCollecttion(collection);
         const subs = database.subs;
         const subsLength = subs.length;
         for(let i = 0; i < subsLength; i++) {
-            
+            const sub = subs[i];
+            const participants = world.scoreboard.getObjective(sub.id).getParticipants();
+            const participantsLength = participants.length;
+            if(isNotLimitCollection(participantsLength)) {
+                
+            }
         }
     }
 }
