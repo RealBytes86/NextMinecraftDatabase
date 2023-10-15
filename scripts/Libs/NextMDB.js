@@ -395,7 +395,7 @@ class Cluster {
     }
 
     search() {
-        
+
     }
 }
 
@@ -667,6 +667,7 @@ export function calculateByteSize(str) {
 }
   
 NextMap.callback((key, value, action, event) => {
+    console.warn(action)
     if(action == "set") {
         const xor = new XOR();
         if(event == "update") {
