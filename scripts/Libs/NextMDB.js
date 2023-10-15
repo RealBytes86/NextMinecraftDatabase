@@ -286,7 +286,7 @@ class MemCollections {
 
     set(key, value) {
         if(typeof key == "string" || typeof key == "number") {
-
+            
         } else {
             throw new Error("Invalid key");
         }
