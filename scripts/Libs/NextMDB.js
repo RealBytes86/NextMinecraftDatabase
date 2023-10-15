@@ -87,7 +87,8 @@ export class NextMDB {
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
 
-        const databases = getRootDocument().content.databases;
+        const rootDocument = getRootDocument();
+        const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
 
         for(let i = 0; i < databasesLength; i++) {
@@ -202,9 +203,9 @@ export class NextMDB {
         }
 
         if(scan == 0) {
-            return { response: "Collection is empty", reset: indexX, status: "no" };
+            return { response: "Collection is empty", reset: scan, status: "no" };
         } else {
-            return { response: "Collection rested", reset: indexX, status: "ok"};
+            return { response: "Collection rested", reset: scan, status: "ok"};
         }
     }
 
@@ -212,35 +213,35 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
-        const rootDocument = getRootDocument();
 
-        let findCollection = null;
+        const rootDocument = getRootDocument();
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
+        let scan = 0; 
 
         for(let i = 0; i < databasesLength; i++) {
             const database = databases[i];
             if(database.name == name) {
-                findCollection = database;
-                break;
+                const subs = database.subs;
+                const subsLength = subs.length;
+                for(let s = 0; s < subsLength; s++) {
+                    const sub = subs[s];
+                    world.scoreboard.removeObjective(sub.id);
+                    world.scoreboard.addObjective(sub.id, sub.collection);
+                    scan++;
+                }
+
+                if(scan == 0) {
+                    return { response: "No collection (WARNING API ERROR)", reset: scan, status: "no"};
+                } else {
+                    return { response: "Collection reseted", reset: scan, status: "ok"};
+                }
+
             }
         }
 
-        if(findCollection == null) {
-            return { response: "Collection not eixsts", status: "no" };
-        } else {
-            let index = 0;
-            findCollection.subs.forEach((sub) => {
-                world.scoreboard.removeObjective(sub.id);
-                world.scoreboard.addObjective(sub.id, sub.collection);
-                index++;
-            })
-            if(index == 0) {
-                return { response: "No collection (WARNING API ERROR)", reset: index, status: "no"};
-            } else {
-                return { response: "Collection reseted", reset: index, status: "ok"};
-            }
-        }
+        return { response: "Collection not eixsts", status: "no" };
+
     }
 
     /**
