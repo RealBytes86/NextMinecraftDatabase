@@ -172,7 +172,7 @@ function isArrayMatch(objArray, queryArray) {
 
 export function JParse(query, boolean) {
 
-    if(boolean == true) {
+    if(boolean == true || boolean == undefined || boolean == null) {
         if(typeof jsonString  == "object") return { json: query, isValid: true };
     
         try {
@@ -186,7 +186,7 @@ export function JParse(query, boolean) {
         if(typeof jsonString  == "object") return { json: JSON.stringify(query), isValid: true };
         return
     } else {
-        throw new Error("Invalid JSON");
+        throw new Error("Invalid boolean");
     }
 
 }
