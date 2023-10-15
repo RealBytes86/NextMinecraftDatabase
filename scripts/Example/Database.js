@@ -5,6 +5,7 @@ MDB.developmentMode({notification: true, reloadCollection: true});
 MDB.init();
 
 MDB.createCollection("Datenbank");
-MDB.Display("Datenbank", 1).sidebar();
+const display = MDB.Display("Datenbank", 1);
+display.sidebar();
 export const database = MDB.Collection("Datenbank")
 

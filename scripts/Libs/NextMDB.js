@@ -370,20 +370,7 @@ class Collection {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
         if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
-        const getSubCollection = this.#cluster.getSubCollection(this.collection);
-        if(getSubCollection.isValid) {
-            const documentContent = {
-                document: {
-                    name: document
-                },
-                content: json,
-            }
-            const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
-            scoreboard.setScore(escapeQuotes(JSON.stringify(documentContent)), 0);
-            return { response: "Document created", status: "ok"};
-        } else {
-            return { response: "Is not valid", status: "no" };
-        }
+        
     }
 
     updateDocument(document, json) {
