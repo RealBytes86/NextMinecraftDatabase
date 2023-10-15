@@ -1,8 +1,8 @@
 import { world } from "@minecraft/server";
 
-const score_begin = -1000000000;
+export const beginScore = -1000000000;
 
-export class MinecraftDB {
+export class NextMinecraftDatabase {
 
     collection(collection) {
         return new collections(collection);
@@ -39,25 +39,19 @@ export class MinecraftDB {
 
 class document {
 
-    constructor(participant, scoreboard, JSON_) {
+    constructor(participant, scoreboard) {
         this.participant = participant;
         this.scoreboard = scoreboard;
-        this.JSON = JSON_;
     }
 
     delete() {
-        world.getDimension("overworld").runCommand(`scoreboard players reset "${this.participant.displayName}" ${this.scoreboard.displayName}`)
-        return 1;
-    }
-
-    output() {
-        console.warn(JSON.stringify(this.JSON[0]));
+        this.scoreboard.removeParticipant(this.participant);
         return 1;
     }
 
     update(query) {
-        world.getDimension("overworld").runCommand(`scoreboard players reset "${this.participant.displayName}" ${this.scoreboard.displayName}`)
-        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify(query))}" ${this.scoreboard.displayName} 0`)
+        this.scoreboard.removeParticipant(this.participant);
+        this.scoreboard.setScore(escapeQuotes(JSON.stringify(query)), 0);
         return 1;
     }
 }
@@ -67,19 +61,18 @@ class collections {
     constructor(collection) {
         this.collection = collection;
     }
-    findOne(query) {
+
+    find(query) {
         const scoreboard = world.scoreboard.getObjective(this.collection);
         const participants = scoreboard.getParticipants();
-        
         for(let i = 0; i < participants.length; i++) {
             const participant = participants[i];
-            const unscape = unescapeQuotes(participant.displayName)
-            if(isJSONObject(unscape)) {
-                const JSON_OBJECT = JSON.parse(unscape);
-                if(find(JSON_OBJECT, query)) {
+            const JP = JParse(unescapeQuotes(participant.displayName));
+            if(JP.isValid) {
+                if(find(JP.json, query)) {
                     return {
-                        json: JSON_OBJECT[0],
-                        document: new document(participant, scoreboard, JSON_OBJECT)
+                        json: JP.isValid,
+                        document: new document(participant, scoreboard, JP.json)
                     }
                 }
             }
@@ -88,28 +81,27 @@ class collections {
         return null;
     }
 
-    deleteOne(query) {
+    delete(query) {
 
         const participants = world.scoreboard.getObjective(this.collection).getParticipants();
         
         for(let i = 0; i < participants.length; i++) {
             const participant = participants[i];
-            const unscape = unescapeQuotes(participant.displayName)
-            if(isJSONObject(unscape)) {
-                const JSON_OBJECT = JSON.parse(unscape);
-                if(find(JSON_OBJECT, query)) {
-                   world.getDimension("overworld").runCommand(`scoreboard players reset "${participant.displayName}" ${this.collection}`)
-                   return 1;
+            const JP = JParse(unescapeQuotes(participant.displayName));
+            if(JP.isValid) {
+                if(find(JP.json, query)) {
+                    world.scoreboard.getObjective(this.collection).setScore(participant.displayName, 0);
+                    return true
                 }
             }
         }
 
-        return null;
+        return false
     }
 
-    insertOne(json) {
-        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify(json))}" ${this.collection} 0`)
-        return 1;
+    insert(json) {
+        world.scoreboard.getObjective(this.collection).setScore(escapeQuotes(JSON.stringify(json)), 0);
+        return true
     }
 
 }
@@ -122,12 +114,9 @@ function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-function find(array, query) {
-    for (let i = 0; i < array.length; i++) {
-        const obj = array[i];
-        if (isMatch(obj, query)) {
-            return obj;
-        }
+function find(obj, query) {
+    if(isMatch(obj, query)) {
+        return obj;
     }
     return null;
 }
