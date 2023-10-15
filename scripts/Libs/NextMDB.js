@@ -105,31 +105,25 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
+        
         const rootDocument = getRootDocument();
-
-        let findCollection = null;
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
 
         for(let i = 0; i < databasesLength; i++) {
             const database = databases[i];
             if(database.name == name) {
-                findCollection = database;
-                break;
+                return { response: "Collection exist", status: "no" };
             }
         }
 
-        if(findCollection == null) {
-            const xor = new XOR();
-            const firstColletionName = `${name}#1`;
-            const firstColletionID = xor.encrypt(firstColletionName)
-            rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: firstColletionID}]})
-            world.scoreboard.addObjective(firstColletionID, firstColletionName);
-            setRootDocument(rootDocument, "update")
-            return { response: "Collection created", status: "ok" };
-        } else { 
-            return { response: "Collection exist", status: "no" };
-        }
+        const xor = new XOR();
+        const firstColletionName = `${name}#1`;
+        const firstColletionID = xor.encrypt(firstColletionName)
+        rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: firstColletionID}]})
+        world.scoreboard.addObjective(firstColletionID, firstColletionName);
+        setRootDocument(rootDocument, "update")
+        return { response: "Collection created", status: "ok" };
 
     }
 
