@@ -71,7 +71,7 @@ class collections {
             if(JP.isValid) {
                 if(find(JP.json, query)) {
                     return {
-                        json: JP.isValid,
+                        json: JP,
                         document: new document(participant, scoreboard, JP.json)
                     }
                 }
@@ -100,11 +100,13 @@ class collections {
     }
 
     insert(json) {
-        const JP = JParse(json)
+        const JP = JParse(json, false)
         if(JP.isValid) {
-            world.scoreboard.getObjective(this.collection).setScore(escapeQuotes(JSON.stringify(json)), 0);
+            world.scoreboard.getObjective(this.collection).setScore(escapeQuotes(JP.json), 0);
+            return true
+        } else {
+            return false;
         }
-        return true
     }
 
 }
@@ -173,16 +175,19 @@ function isArrayMatch(objArray, queryArray) {
 export function JParse(query, boolean) {
 
     if(boolean == true || boolean == undefined || boolean == null) {
-        if(typeof jsonString  == "object") return { json: query, isValid: true };
+        if(typeof query  == "object") return { json: query, isValid: true };
         try {
-            const jsonParse = JSON.parse(jsonString);
+            const jsonParse = JSON.parse(query);
             return { json: jsonParse, isValid: true };
         }catch {
             return { json: {}, isValid: false };
         }
     } else if(boolean == false) {
-        if(typeof jsonString  == "object") return { json: JSON.stringify(query), isValid: true };
-        return
+        if(typeof query == "object") {
+            return { json: JSON.stringify(query), isValid: true };
+        } else {
+            return {json: {}, isValid: false };
+        }
     } else {
         throw new Error("Invalid boolean");
     }
