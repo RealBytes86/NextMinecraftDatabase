@@ -420,7 +420,22 @@ class Cluster {
         throw new Error('NextMinecraftDatabase API CLUSTER ERROR: getCollection. {message: "collection not found"}');
     }
 
-    find() {
+    find(collection, document) {
+        const database = this.#getCollecttion(collection);
+        const subs = database.subs;
+        for(let i = 0; i < subs.length; i++) { 
+            const sub = subs[i];
+            for(let s = 0; s <= config.limitCollection; s++) { 
+                const participant = world.scoreboard.getObjective(sub.id).getParticipants()[i];
+                const data = unescapeQuotes(participant.displayName);
+                if(getDocumentName(data) == document) {
+                    const JP = JParse(data);
+                    if(JP.isValid) {
+                        return { response: "Document exists", status: "ok", json: JP.json };
+                    }
+                }
+            } 
+        }
     }
 
     getSubCollection(collection) {
