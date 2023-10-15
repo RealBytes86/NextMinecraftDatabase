@@ -279,3 +279,32 @@ class XOREncryption {
         return decodeURIComponent(String.fromCharCode.apply(null, bytes));
     }
 }
+
+
+class MemCollections {
+    #Mem = [];
+
+    set(key, value) {
+        if(typeof key == "string" || typeof key == "number") {
+
+        } else {
+            throw new Error("Invalid key");
+        }
+    }
+
+    get(key) {
+        if(typeof key == "string" || typeof key == "number") {
+
+        } else {
+            throw new Error("Invalid key");
+        }
+    }
+
+    delete(key) {
+        if(typeof key == "string" || typeof key == "number") {
+
+        } else {
+            throw new Error("Invalid key");
+        }
+    }
+}
