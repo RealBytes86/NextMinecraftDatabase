@@ -105,7 +105,7 @@ export class NextMDB {
         if(typeof name != "string") throw new Error("Name is invalid");
         name = name.replace(regex.character, "");
         if(name.length == 0) throw new Error("Name is 0");
-        
+
         const rootDocument = getRootDocument();
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
@@ -134,29 +134,31 @@ export class NextMDB {
         if(name.length == 0) throw new Error("Name is 0");
 
         const rootDocument = getRootDocument();
-        let findCollection = null;
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
 
         for(let i = 0; i < databasesLength; i++) {
             const database = databases[i];
             if(database.name == name) {
-                findCollection = database;
-                break;
+                const sub = database.sub;
+                world.scoreboard.removeObjective(sub.id);
+                
+
+                return { response: "Collection deleted", status: "ok" };
             }
         }
+        
+        return { response: "Collection not eixsts", status: "no" };
 
-        if(findCollection == null) {
-            return { response: "Collection not eixsts", status: "no" };
-        } else {
-            findCollection.subs.forEach((sub) => {
-                world.scoreboard.removeObjective(sub.id);
-                const index = rootDocument.content.databases.findIndex((database) => database.name == name);
-                rootDocument.content.databases.splice(index, 1);
-                setRootDocument(rootDocument, "update");
-                return { response: "Collection deleted", status: "ok" };
-            })
-        }
+
+        findCollection.subs.forEach((sub) => {
+            world.scoreboard.removeObjective(sub.id);
+            const index = rootDocument.content.databases.findIndex((database) => database.name == name);
+            rootDocument.content.databases.splice(index, 1);
+            setRootDocument(rootDocument, "update");
+            return { response: "Collection deleted", status: "ok" };
+        })
+        
     }
 
     /**
