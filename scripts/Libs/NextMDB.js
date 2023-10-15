@@ -174,14 +174,12 @@ export function JParse(query, boolean) {
 
     if(boolean == true || boolean == undefined || boolean == null) {
         if(typeof jsonString  == "object") return { json: query, isValid: true };
-    
         try {
             const jsonParse = JSON.parse(jsonString);
             return { json: jsonParse, isValid: true };
         }catch {
             return { json: {}, isValid: false };
         }
-
     } else if(boolean == false) {
         if(typeof jsonString  == "object") return { json: JSON.stringify(query), isValid: true };
         return
