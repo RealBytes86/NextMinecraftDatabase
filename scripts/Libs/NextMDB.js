@@ -299,25 +299,22 @@ export class NextMDB {
         if(typeof subNumber != "number") throw new Error("SubNumber is invalid");
 
         const rootDocument = getRootDocument();
-        let findCollection = null;
         const databases = rootDocument.content.databases;
         const databasesLength = databases.length;
 
         for(let i = 0; i < databasesLength; i++) {
             const database = databases[i];
             if(database.name == name) {
-                findCollection = database;
-                break;
+                const id = database.subs[subNumber - 1];
+                if(id != undefined) {
+                    return new Display(id.id);
+                } else {
+                    throw new Error("Subs not exists");
+                }
             }
         }
 
-        if(findCollection == undefined) {
-            throw new Error("Collection not exists");
-        }
-        const id = findCollection.subs[subNumber].id;
-        if(id != undefined) {
-            return new Display(id);
-        }
+        throw new Error("Collection not exists");
     }
 
     /**
