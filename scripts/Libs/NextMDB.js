@@ -361,7 +361,6 @@ class Collection {
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-        this.#cluster.getSubsCollection(this.collection);
 
     }
 
@@ -369,7 +368,20 @@ class Collection {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
         if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
-        
+        const getSubCollection = this.#cluster.getSubCollection(this.collection);
+        if(getSubCollection.isNotLimit) {
+            const documentContent = {
+                document: {
+                    name: document
+                },
+                content: json,
+            }
+            const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
+            scoreboard.setScore(escapeQuotes(JSON.stringify(documentContent)), 0);
+            return { response: "Document created", status: "ok"};
+        } else {
+            return { response: "Is not valid", status: "no" };
+        }
     }
 
     updateDocument(document, json) {
@@ -411,7 +423,7 @@ class Cluster {
     find() {
     }
 
-    getSubsCollection(collection) {
+    getSubCollection(collection) {
         const database = this.#getCollecttion(collection);
         const subs = database.subs;
         const subsLength = subs.length;
@@ -420,9 +432,25 @@ class Cluster {
             const participants = world.scoreboard.getObjective(sub.id).getParticipants();
             const participantsLength = participants.length;
             if(isNotLimitCollection(participantsLength)) {
-                return { isValid: true, name: sub.collection, id: sub.id, documents: participantsLength };
+                return { isNotLimit: true, name: sub.collection, id: sub.id, documents: participantsLength };
             } else {
-                
+                if(subsLength - 1 == i) {
+                    const xor = new XOR();
+                    const displayName = `${sub.collection}#${subsLength + 1}`;
+                    const sId = xor.encrypt(displayName);
+                    world.scoreboard.addObjective(sId, displayName);
+                    const rootDocument = getRootDocument();
+                    const databases = rootDocument.content.databases;
+                    const databasesLength = databases.length; 
+                    for(let c = 0; c < databasesLength; c++) {
+                        const database = databases[c];
+                        if(database.name == collection) {
+                            database.subs.push({collection: displayName, id: sId})
+                            setRootDocument(rootDocument, "update")
+                            return { isNotLimit: false, name: displayName, id: sId, documents: 0 };
+                        }
+                    }
+                } 
             }
         }
     }
