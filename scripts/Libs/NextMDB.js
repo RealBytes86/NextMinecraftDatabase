@@ -1,765 +1,192 @@
-import { world, system } from "@minecraft/server";
+import { world } from "@minecraft/server";
 
-let config = {
-    NMDBkey: "DATABASE:NEXTMDB",
-    limitCollection: 5000,
-    rootDocumentName: "root@document",
-    registerReady: false,
-    initReady: false,
-}
+const score_begin = -1000000000;
 
-let developmentMode = {
-    notification: false,
-    reloadCollection: false,
-}
+export class MinecraftDB {
 
-let regex = {
-    whitespace: /\s+/g,
-    character: /[^\w\s]/gi,
-    documentName: /"document"\s*:\s*\{\s*"name"\s*:\s*"([^"]+)"\s*/
-}
-
-export class BetterMap {
-
-    #map = new Map();
-    #onChangeCallback = () => {};
-
-    callback(callback) {
-        this.#onChangeCallback = callback;
+    collection(collection) {
+        return new collections(collection);
     }
 
-    set(key, value, event) {
+    createCollection(collection) {
+        const scoreboards = world.scoreboard.getObjectives();
 
-        if(typeof event == "undefined") {
-            event = null;
+        for(let i = 0; i < scoreboards.length; i++) {
+            const scoreboard = scoreboards[i];
+            if(scoreboard.displayName == collection) {
+                return null;
+            }
         }
 
-        this.#onChangeCallback(key, value, "set", event);
-        this.#map.set(key, value);
+        return world.scoreboard.addObjective(collection, collection);
     }
 
-    get(key, event) {
+    deleteCollection(collection) {
 
-        if(typeof event == "undefined") {
-            event = null;
+        const scoreboards = world.scoreboard.getObjectives();
+
+        for(let i = 0; i < scoreboards.length; i++) {
+            const scoreboard = scoreboards[i];
+            if(scoreboard.displayName == collection) {
+                return world.scoreboard.removeObjective(collection);
+            }
         }
 
-        this.#onChangeCallback(key, null, "get", event);
-        return this.#map.get(key);
-    }
-
-    delete(key, event) {
-
-        if(typeof event == "undefined") {
-            event = null;
-        }
-
-        const value = this.#map.get(key);
-        this.#map.delete(key);
-        this.#onChangeCallback(key, value, "delete", event);
+        return null;
     }
 }
 
-const overworld = world.getDimension("minecraft:overworld");
-const NextMap = new BetterMap();
 
-export class NextMDB {
+class document {
 
-    /**
-     * @param {string} name 
-     * @returns {Collection}
-     */
-    Collection(name) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-        if(this.existsCollecton(name)) {
-            return new Collection(name)
-        } else {
-            throw new Error("Collection not found");
-        }
+    constructor(participant, scoreboard, JSON_) {
+        this.participant = participant;
+        this.scoreboard = scoreboard;
+        this.JSON = JSON_;
     }
 
-    existsCollecton(name) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                return true;
-            }
-        }
-
-        return false;
+    delete() {
+        world.getDimension("overworld").runCommand(`scoreboard players reset "${this.participant.displayName}" ${this.scoreboard.displayName}`)
+        return 1;
     }
 
-    createCollection(name) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                return { response: "Collection exist", status: "no" };
-            }
-        }
-
-        const xor = new XOR();
-        const firstColletionName = `${name}#1`;
-        const firstColletionID = xor.encrypt(firstColletionName)
-        rootDocument.content.databases.push({name: name, subs:[{collection: firstColletionName, id: firstColletionID}]})
-        world.scoreboard.addObjective(firstColletionID, firstColletionName);
-        setRootDocument(rootDocument, "update")
-        return { response: "Collection created", status: "ok" };
-
+    output() {
+        console.warn(JSON.stringify(this.JSON[0]));
+        return 1;
     }
 
-    deleteColection(name) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                const sub = database.sub;
-                world.scoreboard.removeObjective(sub.id);
-                rootDocument.content.databases.splice(i, 1);
-                setRootDocument(rootDocument, "update");
-                return { response: "Collection deleted", status: "ok" };
-            }
-        }
-
-        return { response: "Collection not eixsts", status: "no" };
-    }
-
-    /**
-     * @returns { [{name: name, subs: [{collection: collection}]}] }
-     */
-    getAllCollection() {
-        initReady();
-        return getRootDocument().content.databases;
-    }
-
-    /**
-     * @returns { {collection: {name?: name, subs?: [{collection?: collection, id?: id}]} response: response, status: status} }
-     */
-    getCollection(name) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                return { response: "Collection eixts",  status: "ok", collection: database };
-            }
-        }
-
-        return { response: "Collection not eixsts", status: "no" };
-    }
-
-    resetAllCollection() {
-        initReady();
-
-        const databases = getRootDocument().content.databases;
-        const databasesLength = databases.length;
-        let scan = 0;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            const subs = database.subs;
-            const subsLength = subs.length;
-            for(let s = 0; s < subsLength; s++) { 
-                const sub = subs[s];
-                world.scoreboard.removeObjective(sub.id);
-                world.scoreboard.addObjective(sub.id, sub.collection);
-                scan++;
-            }
-        }
-
-        if(scan == 0) {
-            return { response: "Collection is empty", reset: scan, status: "no" };
-        } else {
-            return { response: "Collection rested", reset: scan, status: "ok"};
-        }
-    }
-
-    resetCollection(name) {
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-        let scan = 0; 
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                const subs = database.subs;
-                const subsLength = subs.length;
-                for(let s = 0; s < subsLength; s++) {
-                    const sub = subs[s];
-                    world.scoreboard.removeObjective(sub.id);
-                    world.scoreboard.addObjective(sub.id, sub.collection);
-                    scan++;
-                }
-
-                if(scan == 0) {
-                    return { response: "No collection (WARNING API ERROR)", reset: scan, status: "no"};
-                } else {
-                    return { response: "Collection reseted", reset: scan, status: "ok"};
-                }
-
-            }
-        }
-
-        return { response: "Collection not eixsts", status: "no" };
-
-    }
-
-    /**
-     * @returns {Number}
-     */
-    sizeCollections() {
-        initReady();
-        return getRootDocument().content.databases.length;
-    }
-
-    /**
-     * @returns { {collection: {name?: name, documents: documents, subsCollection: subsCollection, subs?: [{collection?: collection, id?: id}]} response: response, status: status} }
-     */
-    sizeCollection(name) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                const subs = database.subs;
-                const subsLength = subs.length;
-                let collection = {
-                    name: database.name,
-                    documents: 0,
-                    subsCollection: subsLength,
-                    subs: [],
-                };
-
-                for(let s = 0; s < subsLength; i++) {
-                    const sub = subs[i];
-                    const documentsLenght = world.scoreboard.getObjective(sub.id).getParticipants().length;
-                    collection.documents = collection.documents += documentsLenght;
-                    collection.subs.push({collection: sub.name, id: sub.id, documents: documentsLenght});
-                }
-
-                return { collection: collection, response: "Collection exists", status: "ok" } 
-            }
-        }
-
-        return { response: "Collection not eixsts", status: "no" };
-    }
-
-    Display(name, subNumber) {
-        initReady();
-        if(typeof name != "string") throw new Error("Name is invalid");
-        name = name.replace(regex.character, "");
-        if(name.length == 0) throw new Error("Name is 0");
-        if(typeof subNumber != "number") throw new Error("SubNumber is invalid");
-
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-
-        for(let i = 0; i < databasesLength; i++) {
-            const database = databases[i];
-            if(database.name == name) {
-                const id = database.subs[subNumber - 1];
-                if(id != undefined) {
-                    return new Display(id.id);
-                } else {
-                    throw new Error("Subs not exists");
-                }
-            }
-        }
-
-        throw new Error("Collection not exists");
-    }
-
-    /**
-     * @returns {XOR} 
-     */
-    XOR() {
-        return new XOR()
-    }
-
-    developmentMode({notification: notification, reloadCollection: reloadCollection}) {
-
-        if(typeof notification == "boolean") {
-            developmentMode.notification = notification ?? false;
-        }
-
-        if(typeof reloadCollection == "boolean") {
-            developmentMode.reloadCollection = reloadCollection ?? false;
-        }
-    }
-
-    init() {
-        if(developmentMode.reloadCollection) {
-            world.scoreboard.getObjectives().forEach((scoreboard) => {
-                world.scoreboard.removeObjective(scoreboard.id);
-            })
-        }
-
-        registerScoreboard();
-        config.initReady = true;
+    update(query) {
+        world.getDimension("overworld").runCommand(`scoreboard players reset "${this.participant.displayName}" ${this.scoreboard.displayName}`)
+        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify([query]))}" ${this.scoreboard.displayName} 0`)
+        return 1;
     }
 }
 
-class Collection {
+class collections {
 
-    #cluster = new Cluster();
-
-    /**
-    * @param {string} collection 
-    */
     constructor(collection) {
         this.collection = collection;
     }
-
-    findDocument(document) {
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-
-    }
-
-    insertDocument(document, json) {
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-        if(typeof json != "object") return { response: "The json is not a object.", status: "no" };
-        const getSubCollection = this.#cluster.getSubCollection(this.collection);
-        if(getSubCollection.isNotLimit) {
-            const documentContent = {
-                document: {
-                    name: document
-                },
-                content: json,
-            }
-            const scoreboard = world.scoreboard.getObjective(getSubCollection.id);
-            scoreboard.setScore(escapeQuotes(JSON.stringify(documentContent)), 0);
-            return { response: "Document created", status: "ok"};
-        } else {
-            return { response: "Is not valid", status: "no" };
-        }
-    }
-
-    updateDocument(document, json) {
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
-
-    }
-
-    existsDocument(document) {
-        if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
-        if(document.length == 0) return { response: "The document name is empty.", status: "no" };
+    findOne(query) {
+        const scoreboard = world.scoreboard.getObjective(this.collection);
+        const participants = scoreboard.getParticipants();
         
-    }
-
-    sizeCollection() {
-        return 0;
-    }
-} 
-
-class Cluster {
-
-    /**
-     * @returns {{name: string, subs: [{collection: string, id: string}]}}
-     */
-    #getCollecttion = (collection) => {
-        const rootDocument = getRootDocument();
-        const databases = rootDocument.content.databases;
-        const databasesLength = databases.length;
-        for(let i = 0; i < databasesLength; i++) { 
-            const database = databases[i];
-            if(database.name == collection) {
-                return database;
-            }
-        }
-
-        throw new Error('NextMinecraftDatabase API CLUSTER ERROR: getCollection. {message: "collection not found"}');
-    }
-
-    find(collection, document) {
-        const database = this.#getCollecttion(collection);
-        const subs = database.subs;
-        for(let i = 0; i < subs.length; i++) { 
-            const sub = subs[i];
-            for(let s = 0; s <= config.limitCollection; s++) { 
-                const participant = world.scoreboard.getObjective(sub.id).getParticipants()[i];
-                const data = unescapeQuotes(participant.displayName);
-                if(getDocumentName(data) == document) {
-                    const JP = JParse(data);
-                    if(JP.isValid) {
-                        return { response: "Document exists", status: "ok", json: JP.json };
+        for(let i = 0; i < participants.length; i++) {
+            const participant = participants[i];
+            const unscape = unescapeQuotes(participant.displayName)
+            if(isJSONObject(unscape)) {
+                const JSON_OBJECT = JSON.parse(unscape);
+                if(find(JSON_OBJECT, query)) {
+                    return {
+                        json: JSON_OBJECT[0],
+                        document: new document(participant, scoreboard, JSON_OBJECT)
                     }
                 }
-            } 
-        }
-    }
-
-    getSubCollection(collection) {
-        const database = this.#getCollecttion(collection);
-        const subs = database.subs;
-        const subsLength = subs.length;
-        for(let i = 0; i < subsLength; i++) {
-            const sub = subs[i];
-            const participants = world.scoreboard.getObjective(sub.id).getParticipants();
-            const participantsLength = participants.length;
-            if(isNotLimitCollection(participantsLength)) {
-                return { isNotLimit: true, name: sub.collection, id: sub.id, documents: participantsLength };
-            } else {
-                if(subsLength - 1 == i) {
-                    const xor = new XOR();
-                    const displayName = `${sub.collection}#${subsLength + 1}`;
-                    const sId = xor.encrypt(displayName);
-                    world.scoreboard.addObjective(sId, displayName);
-                    const rootDocument = getRootDocument();
-                    const databases = rootDocument.content.databases;
-                    const databasesLength = databases.length; 
-                    for(let c = 0; c < databasesLength; c++) {
-                        const database = databases[c];
-                        if(database.name == collection) {
-                            database.subs.push({collection: displayName, id: sId})
-                            setRootDocument(rootDocument, "update")
-                            return { isNotLimit: false, name: displayName, id: sId, documents: 0 };
-                        }
-                    }
-                } 
             }
         }
-    }
-}
 
-export class Display {
-    /**
-     * @param {string} name 
-     */
-    constructor(name) {
-        this.name = name;
+        return null;
     }
 
-    list() {
-        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay list "${this.name}"`));
-        return { response: "setdisplay list", status: "ok" };
-    }
+    deleteOne(query) {
 
-    sidebar() {
-        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay sidebar "${this.name}"`));
-        return { response: "setdisplay sidebar", status: "ok" };
-    }
-
-    belowname() {
-        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay belowname "${this.name}"`));
-        return { response: "setdisplay belowname", status: "ok" };
-    }
-
-    noList() {
-        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay list`));
-        return { response: "setdisplay no list", status: "ok" };
-    }
-
-    noSidebar() { 
-        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay sidebar`));
-        return { response: "setdisplay no sidebar", status: "ok" };
-    }
-
-    noBelowname() {
-        system.run(() => overworld.runCommand(`scoreboard objectives setdisplay belowname`));
-        return { response: "setdisplay no belowname", status: "ok" };
-    }
-
-}
-
-class XOR {
-    /**
-     * @param {string} ciphertext
-     * @returns {string}
-     */
-    decrypt(ciphertext) {
-        return new XOREncryption(config.NMDBkey).Decrypt(ciphertext);
-    }
-
-    /**
-     * @param {string} key 
-     */
-    setKey(key) {
-        if(typeof key == "string") {
-            if(key.length == 16) {
-                config.NMDBkey = key;
-            } else {
-                throw new Error("Invalid key. Only key length 16");
+        const participants = world.scoreboard.getObjective(this.collection).getParticipants();
+        
+        for(let i = 0; i < participants.length; i++) {
+            const participant = participants[i];
+            const unscape = unescapeQuotes(participant.displayName)
+            if(isJSONObject(unscape)) {
+                const JSON_OBJECT = JSON.parse(unscape);
+                if(find(JSON_OBJECT, query)) {
+                   world.getDimension("overworld").runCommand(`scoreboard players reset "${participant.displayName}" ${this.collection}`)
+                   return 1;
+                }
             }
-        } else {
-            throw new Error("Invalid string");
         }
+
+        return null;
     }
 
-    /**
-     * @returns {string}
-     */
-    getKey() {
-        return config.NMDBkey;
+    insertOne(json) {
+        world.getDimension("overworld").runCommand(`scoreboard players set "${escapeQuotes(JSON.stringify([json]))}" ${this.collection} 0`)
+        return 1;
     }
 
-    /**
-     * @param {string} plaintext 
-     * @returns 
-     */
-    encrypt(plaintext) {
-        return new XOREncryption(config.NMDBkey).Encrypt(plaintext);
-    }
 }
 
-class XOREncryption {
-    constructor(key) {
-        this.key = key;
-    }
-
-    Encrypt(plaintext) {
-        if(this.key.length != 16) throw new Error("Der Schlüssel muss 16 Bytes lang sein.");
-        const plaintextBytes = this.stringToBytes(plaintext)
-        const keyBytes = this.stringToBytes(this.key);
-        for(let j = 0; j < 16; j++) plaintextBytes[j] ^= keyBytes[j];
-        return this.bytesToHexString(plaintextBytes);
-    }
-
-    Decrypt(ciphertext) {
-        if(this.key.length !== 16) throw new Error("Der Schlüssel muss 16 Bytes lang sein.");
-        const ciphertextBytes = this.hexStringToBytes(ciphertext);
-        const keyBytes = this.stringToBytes(this.key);
-        for(let j = 0; j < 16; j++) ciphertextBytes[j] ^= keyBytes[j]
-        return this.bytesToString(ciphertextBytes);
-    }
-
-    hexStringToBytes(hexString) {
-        const bytes = [];
-        for(let i = 0; i < hexString.length; i += 2) bytes.push(parseInt(hexString.substr(i, 2), 16));
-        return bytes;
-    }
-    
-    bytesToHexString(bytes) {
-        return bytes.map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
-    }
-    
-    stringToBytes(string) {
-        const utf8 = encodeURIComponent(string);
-        const bytes = [];
-        for(let i = 0; i < utf8.length; i++) bytes.push(utf8.charCodeAt(i));
-        return bytes;
-    }
-
-    bytesToString(bytes) {
-        return decodeURIComponent(String.fromCharCode.apply(null, bytes));
-    }
-}
-
-export function sendMessageWitMDB(message) {
-    if(developmentMode.notification) {
-        world.sendMessage(`§7[§6NextMDB§7]§r ` + message);
-    }
-}
-
-/**
- * @param {String} jsonString
- */
-export function JParse(jsonString) {
-
-    if(typeof jsonString  == "object") return { json: jsonString, isValid: true };
-    
-    try {
-        const jsonParse = JSON.parse(jsonString);
-        return { json: jsonParse, isValid: true };
-    }catch {
-        return { json: {}, isValid: false };
-    }
-}
-
-/**
- * @param {string} jsonString 
- * @returns {string}
- */
-export function escapeQuotes(jsonString) {
+function escapeQuotes(jsonString) {
     return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
-/**
- * @param {string} jsonString 
- * @returns {string}
- */
-export function unescapeQuotes(jsonString) {
+function unescapeQuotes(jsonString) {
     return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-function registerScoreboard() {
-    const xor = new XOR();
-    const id = xor.encrypt(config.rootDocumentName);
-
-    if(config.registerReady) {
-        return world.scoreboard.getObjective(id);
+function isJSONObject(value) {
+    if (typeof value !== "string") {
+        return false;
     }
 
-    let findScoreboard = null;
-    const scoreboards = world.scoreboard.getObjectives();
-    const scoreboardsLength = scoreboards.length;
-
-    for(let i = 0; i < scoreboardsLength; i++) { 
-        const scoreboard = scoreboards[i];
-        if(scoreboard.id == id) {
-            findScoreboard = scoreboard;
-            break;
-        }
+    try {
+        JSON.parse(value);
+        return true;
+    } catch (error) {
+        return false;
     }
-
-    if(findScoreboard == null) {
-        world.scoreboard.addObjective(id, config.rootDocumentName);
-    }
-
-    const scoreboard = world.scoreboard.getObjective(id);
-    const participantLength = scoreboard.getParticipants().length;
-    let documentName = null;
-
-    for(let i = 0; i < participantLength; i++) {
-        const participant = scoreboard.getParticipants()[i];
-        const document = unescapeQuotes(xor.decrypt(participant.displayName));
-        if(getDocumentName(document) == config.rootDocumentName) {
-            documentName = document;
-            break;
-        } else {
-            scoreboard.removeParticipant(participant.displayName);
-        }
-    }
-
-    if(documentName == null) {
-        const document = {
-            document: {
-                name: config.rootDocumentName,
-            },
-            content: {
-                users: [],
-                databases: []
-            }
-        }
-        const data = xor.encrypt(escapeQuotes(JSON.stringify(document)));
-        scoreboard.setScore(data, 0);
-        setRootDocument(document, "createRegister");
-    } else {
-        const Parse = JParse(unescapeQuotes(xor.decrypt(documentName)));
-        if(Parse.isValid) {
-            setRootDocument(Parse.json, "loadRegisterFromDatabase")
-        }
-    }
-
-    config.registerReady = true;
-    return world.scoreboard.getObjective(id);
-}
-
-function getDocumentName(jsonString) {
-    return jsonString.match(regex.documentName)[1];
-}
-
-function getRootDocument() {
-    return NextMap.get("root", "register");
-} 
-
-function setRootDocument(value, event) {
-    return NextMap.set("root", value, event);
-}
-
-function initReady() { 
-    if(config.initReady == false) {
-        throw new Error("Init is not ready!");
-    }
-}
-
-export function isNumberInRange(number, min, max) {
-    return number >= min && number <= max;
-}
-
-export function isNotLimitCollection(number) {
-    return isNumberInRange(number, 0, config.limitCollection);
-}
-
-export function calculateByteSize(str) {
-    let byteSize = 0;
-
-    for(let i = 0; i < str.length; i++) {
-        const charCode = str.charCodeAt(i);
-        if (charCode <= 0x7F) {
-            byteSize += 1;
-        } else if (charCode <= 0x7FF) {
-            byteSize += 2;
-        } else if (charCode <= 0xFFFF) {
-            byteSize += 3;
-        } else {
-            byteSize += 4;
-        }
-    }
-    return byteSize;
 }
   
-NextMap.callback((key, value, action, event) => {
-    console.warn(action)
-    if(action == "set") {
-        const xor = new XOR();
-        if(event == "update") {
-            const register = registerScoreboard();
-            const registerLength = register.getParticipants().length;
-            for(let i = 0; i < registerLength; i++) { 
-                const participant = register.getParticipants()[i];
-                const searchRootDocument = unescapeQuotes(xor.decrypt(participant.displayName));
-                if(getDocumentName(searchRootDocument) == config.rootDocumentName) {
-                    register.removeParticipant(participant.displayName);
-                    register.setScore(escapeQuotes(xor.encrypt(JSON.stringify(value))), 0);
-                    return;
+function find(array, query) {
+    for (let i = 0; i < array.length; i++) {
+        const obj = array[i];
+        if (isMatch(obj, query)) {
+            return obj;
+        }
+    }
+    return null;
+}
+
+function isMatch(obj, query) {
+    for (const key in query) {
+        if (query.hasOwnProperty(key)) {
+            const queryValue = query[key];
+            const objValue = obj[key];
+            if (typeof queryValue === 'object') {
+                if (Array.isArray(queryValue)) {
+                    if (!isArrayMatch(objValue, queryValue)) {
+                        return false;
+                    }
+                } else {
+                    if (!isMatch(objValue, queryValue)) {
+                        return false;
+                    }
                 }
-                register.removeParticipant(participant.displayName);
+            } else {
+                if (objValue !== queryValue) {
+                    return false;
+                }
             }
         }
-        return;
-    } else if(action == "get") {
-        return;
-    } else if(action == "delete") {
-        return;
     }
-})
+    return true;
+}
+
+function isArrayMatch(objArray, queryArray) {
+    if (!Array.isArray(objArray)) {
+        return false;
+    }
+    for (let i = 0; i < queryArray.length; i++) {
+        const queryObj = queryArray[i];
+        let found = false;
+        for (let j = 0; j < objArray.length; j++) {
+            const obj = objArray[j];
+            if (isMatch(obj, queryObj)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            return false;
+        }
+    }
+    return true;
+}
