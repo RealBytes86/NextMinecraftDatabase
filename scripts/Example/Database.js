@@ -8,4 +8,4 @@ MDB.createCollection("Datenbank");
 const display = MDB.Display("Datenbank", 1);
 display.sidebar();
 export const database = MDB.Collection("Datenbank")
-
+database.findDocument("lol");

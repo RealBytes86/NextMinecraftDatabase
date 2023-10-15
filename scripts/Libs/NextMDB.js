@@ -361,6 +361,7 @@ class Collection {
     findDocument(document) {
         if(typeof document !== "string") return { response: "The document name is not a string.", status: "no" };
         if(document.length == 0) return { response: "The document name is empty.", status: "no" };
+        this.#cluster.search(this.collection);
 
     }
 
@@ -390,11 +391,28 @@ class Collection {
 
 class Cluster {
 
-    find() {
+    /**
+     * @returns {{name: string, subs: [{collection: string, id: string}]}}
+     */
+    #getCollecttion = (collection) => {
+        const rootDocument = getRootDocument();
+        const databases = rootDocument.content.databases;
+        const databasesLength = databases.length;
+        for(let i = 0; i < databasesLength; i++) { 
+            const database = databases[i];
+            if(database.name == collection) {
+                return database;
+            }
+        }
 
+        throw new Error('NextMinecraftDatabase API CLUSTER ERROR: getCollection. {message: "collection not found"}');
     }
 
-    search() {
+    find() {
+    }
+
+    search(collection) {
+        const getCollection = this.#getCollecttion(collection);
 
     }
 }
