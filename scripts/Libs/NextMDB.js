@@ -294,7 +294,14 @@ class MemCollections {
 
     get(key) {
         if(typeof key == "string" || typeof key == "number") {
-
+            const memory = this.#Mem;
+            for(let i = 0; i < memory.length; i++) {
+                const mem = memory[i];
+                if(mem.hasOwnProperty(key)) {
+                    return mem[key];
+                }
+            }
+            throw new Error("Invalid key");
         } else {
             throw new Error("Invalid key");
         }
