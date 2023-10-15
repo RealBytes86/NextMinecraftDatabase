@@ -184,24 +184,6 @@ export class NextMDB {
 
     resetAllCollection() {
         initReady();
-        /*
-        let indexX = 0;
-
-        rootDocument.content.databases.forEach((database, index) => {
-            const subsCollection = database.subs;
-            subsCollection.forEach((sub) => {
-                world.scoreboard.removeObjective(sub.id);
-                world.scoreboard.addObjective(sub.id, sub.collection);
-            })
-            indexX = index
-        })
-
-        if(indexX == 0) {
-            return { response: "Collection is empty", reset: indexX, status: "no" };
-        } else {
-            return { response: "Collection rested", reset: indexX, status: "ok"};
-        }
-        */
 
         const databases = getRootDocument().content.databases;
         const databasesLength = databases.length;
