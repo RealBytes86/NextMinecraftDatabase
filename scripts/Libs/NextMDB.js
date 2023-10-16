@@ -35,6 +35,22 @@ export class NextMDB {
         return null;
     }
 
+    resetCollection(collection) {
+        try {
+            world.scoreboard.removeObjective(collection)
+        } catch {
+
+        }
+
+        try {
+            world.scoreboard.addObjective(collection, collection);
+        } catch {
+
+        }
+
+        return true;
+    }
+
 }
 
 
@@ -134,11 +150,11 @@ function isMatch(obj, query) {
             const objValue = obj[key];
             if (typeof queryValue === 'object') {
                 if (Array.isArray(queryValue)) {
-                    if (!isArrayMatch(objValue, queryValue)) {
+                    if(!isArrayMatch(objValue, queryValue)) {
                         return false;
                     }
                 } else {
-                    if (!isMatch(objValue, queryValue)) {
+                    if(!isMatch(objValue, queryValue)) {
                         return false;
                     }
                 }
