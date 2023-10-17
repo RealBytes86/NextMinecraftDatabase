@@ -100,14 +100,15 @@ class collections {
 
     delete(query) {
 
-        const participants = world.scoreboard.getObjective(this.collection).getParticipants();
+        const scoreboard = world.scoreboard.getObjective(this.collection);
+        const participants = scoreboard.getParticipants();
         
         for(let i = 0; i < participants.length; i++) {
             const participant = participants[i];
             const JP = JParse(unescapeQuotes(participant.displayName));
             if(JP.isValid) {
                 if(find(JP.json, query)) {
-                    world.scoreboard.getObjective(this.collection).setScore(participant.displayName, 0);
+                    scoreboard.setScore(participant.displayName, 0);
                     return true
                 }
             }
