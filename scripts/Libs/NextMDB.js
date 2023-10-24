@@ -8,7 +8,7 @@ export class NextMDB {
 
     get(property) {
         if(typeof property == "string") {
-            const get = world.getDynamicProperty(property);
+            const get = world.getDynamicProperty(`${this.database}:${property}`);
             if(get == undefined) return { error: "property not found" };
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) throw new Error("invalid Json");
@@ -23,19 +23,17 @@ export class NextMDB {
         if(typeof json != "object") throw new Error("json must be a object");
         const J = JParse(json, false);
         if(J.isValid) {
-            world.setDynamicProperty(property, escapeQuotes(J.json));
+            world.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
             return { succes: true };
         } else {
             throw new Error("invalid Json");
         }
     }
 
-    update() {
-
-    }
-
-    delete() {
-
+    delete(property) {
+        if(typeof property != "string") throw new Error("property must be a string");
+        world.setDynamicProperty(`${this.database}:${property}`, undefined);
+        return { succes: true };
     }
 }
 
