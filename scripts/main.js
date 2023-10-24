@@ -1,5 +1,4 @@
 import { world } from "@minecraft/server";
-import { database } from "./Example/Database";
 
 console.warn("Loading world...");
 
@@ -13,7 +12,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-
+            return;
         }
 
         ctx.sender.sendMessage("§7[§6Command§7]§r §c" + commandName + " not exist.");
