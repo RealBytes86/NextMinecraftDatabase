@@ -1,17 +1,60 @@
-import { world } from "@minecraft/server";
+import { world, Entity } from "@minecraft/server";
 
 export class NextMDB {
-    Server(database) {
+    World(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
-        return new server(database);
+        return new World(database);
     }
+
     Entity(object, database) {
-        
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
+        return new Entity(object, database);
     }
 }
 
+class EEntiy {
+    /**
+     * @param {Entity} object 
+     * @param {string} database 
+     */
+    constructor(object, database) {
+        this.entity = object;
+        this.database = database;
+    }
 
-class server {
+    get(property) {
+        if(typeof property == "string") {
+            const get = this.entity.getDynamicProperty(`${this.database}:${property}`);
+            if(get == undefined) return { error: "property not found" };
+            const J = JParse(unescapeQuotes(get));
+            if(J.isValid == false) throw new Error("invalid Json");
+            return J.json;
+        } else {
+            throw new Error("property must be a string");
+        }
+    }
+
+    set(property, json) {
+        if(typeof property != "string") throw new Error("property must be a string");
+        if(typeof json != "object") throw new Error("json must be a object");
+        const J = JParse(json, false);
+        if(J.isValid) {
+            this.entity.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
+            return { succes: true };
+        } else {
+            throw new Error("invalid Json");
+        }
+    }
+
+    delete(property) {
+        if(typeof property != "string") throw new Error("property must be a string");)
+        this.entity.setDynamicProperty(`${this.database}:${property}`, undefined);
+        return { succes: true };
+    }
+
+}
+
+class World {
 
     constructor(database) {
         this.database = database.toLowerCase();
