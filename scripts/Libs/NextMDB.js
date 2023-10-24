@@ -11,7 +11,7 @@ export class NextMDB {
         return new EEntity(object, database);
     }
 
-    ClearAllDatabase() {
+    ClearAllDatabases() {
         world.clearDynamicProperties();
         return { succes: true };
     }
