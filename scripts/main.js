@@ -4,8 +4,6 @@ console.warn("Loading world...");
 
 const setPrefix = ".";
 
-world.setDynamicProperty("HelloWorld", undefined)
-
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
     if(messsage.startsWith(setPrefix)) {
@@ -14,7 +12,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-            console.warn(database.get("100000").name)
+            console.warn(database.get("Hello World").name)
             return;
         }
 

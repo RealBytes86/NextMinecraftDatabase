@@ -8,11 +8,16 @@ export class NextMDB {
 
     Entity(object, database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
-        return new Entity(object, database);
+        return new EEntity(object, database);
+    }
+
+    ClearAllDatabase() {
+        world.clearDynamicProperties();
+        return { succes: true };
     }
 }
 
-class EEntiy {
+class EEntity {
     /**
      * @param {Entity} object 
      * @param {string} database 
