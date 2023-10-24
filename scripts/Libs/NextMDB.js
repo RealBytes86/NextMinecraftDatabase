@@ -33,7 +33,7 @@ class EEntity {
             if(get == undefined) return { error: "property not found" };
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
-                world.setDynamicProperty(get, undefined);
+                this.entity.setDynamicProperty(get, undefined);
                 return { error: "invalid Json" }
             }
             return J.json;
@@ -73,7 +73,10 @@ class World {
             const get = world.getDynamicProperty(`${this.database}:${property}`);
             if(get == undefined) return { error: "property not found" };
             const J = JParse(unescapeQuotes(get));
-            if(J.isValid == false) throw new Error("invalid Json");
+            if(J.isValid == false) {
+                world.setDynamicProperty(get, undefined);
+                return { error: "invalid Json" }
+            }
             return J.json;
         } else {
             throw new Error("property must be a string");
