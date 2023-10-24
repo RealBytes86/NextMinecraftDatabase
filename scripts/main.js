@@ -1,9 +1,10 @@
 import { world } from "@minecraft/server"
-import "./Example/Database";
-
+import { database } from "./Example/Database";
 console.warn("Loading world...");
 
 const setPrefix = ".";
+
+world.setDynamicProperty("HelloWorld", undefined)
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
@@ -13,6 +14,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
+            console.warn(database.get("100000").name)
             return;
         }
 

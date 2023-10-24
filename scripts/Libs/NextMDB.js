@@ -1,8 +1,20 @@
 import { world } from "@minecraft/server";
 
 export class NextMDB {
+    Server(database) {
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
+        return new server(database);
+    }
+    Entity(object, database) {
+        
+    }
+}
+
+
+class server {
+
     constructor(database) {
-        this.database = database;
+        this.database = database.toLowerCase();
     }
 
     get(property) {
@@ -35,7 +47,6 @@ export class NextMDB {
         return { succes: true };
     }
 }
-
 
 function escapeQuotes(jsonString) {
     return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
