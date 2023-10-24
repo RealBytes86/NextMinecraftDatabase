@@ -31,6 +31,9 @@ export class NextMDB {
 }
 
 class EEntity {
+
+    #onChangeCallback = () => {};
+
     /**
      * @param {Entity} object 
      * @param {string} database 
@@ -46,6 +49,7 @@ class EEntity {
             if(get == undefined) return { error: "property not found" };
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
+                this.#onChangeCallback("get", property)
                 this.entity.setDynamicProperty(get, undefined);
                 return { error: "invalid Json" }
             }
@@ -60,6 +64,7 @@ class EEntity {
         if(typeof json != "object") throw new Error("json must be a object");
         const J = JParse(json, false);
         if(J.isValid) {
+            this.#onChangeCallback("set", property, json);
             this.entity.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
             return { succes: true };
         } else {
@@ -69,16 +74,27 @@ class EEntity {
 
     delete(property) {
         if(typeof property != "string") throw new Error("property must be a string");
+        this.#onChangeCallback("delete", property);
         this.entity.setDynamicProperty(`${this.database}:${property}`, undefined);
         return { succes: true };
+    }
+
+    on(callback) {
+        this.#onChangeCallback = callback;
     }
 
 }
 
 class World {
 
+    #onChangeCallback = () => {};
+
     constructor(database) {
         this.database = database.toLowerCase();
+    }
+
+    on(callback) {
+        this.#onChangeCallback = callback;
     }
 
     get(property) {
@@ -87,6 +103,7 @@ class World {
             if(get == undefined) return { error: "property not found" };
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
+                this.#onChangeCallback("get", property)
                 world.setDynamicProperty(get, undefined);
                 return { error: "invalid Json" }
             }
@@ -101,6 +118,7 @@ class World {
         if(typeof json != "object") throw new Error("json must be a object");
         const J = JParse(json, false);
         if(J.isValid) {
+            this.#onChangeCallback("set", property, json);
             world.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
             return { succes: true };
         } else {
@@ -110,6 +128,7 @@ class World {
 
     delete(property) {
         if(typeof property != "string") throw new Error("property must be a string");
+        this.#onChangeCallback("delete", property);
         world.setDynamicProperty(`${this.database}:${property}`, undefined);
         return { succes: true };
     }
