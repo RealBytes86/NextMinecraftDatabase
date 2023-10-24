@@ -12,7 +12,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-            console.warn(database.get("Hello World").name)
+            console.warn(database.get("25000").name)
             return;
         }
 
