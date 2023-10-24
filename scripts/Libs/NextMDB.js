@@ -1,6 +1,15 @@
 import { world, Entity } from "@minecraft/server";
 
 export class NextMDB {
+
+    constructor () {
+        this.utils = {
+            JParse,
+            escapeQuotes,
+            unescapeQuotes,
+        }        
+    }
+
     World(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
         return new World(database);
@@ -14,6 +23,10 @@ export class NextMDB {
     ClearAllDatabases() {
         world.clearDynamicProperties();
         return { succes: true };
+    }
+
+    XOR() {
+        return new XOR();
     }
 }
 
