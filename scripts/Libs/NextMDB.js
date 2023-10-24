@@ -1,7 +1,27 @@
 import { world } from "@minecraft/server";
 
 
+export class NextMDB {
+    constructor(database) {
+        this.database = database;
+    }
 
+    get() {
+
+    }
+
+    set() {
+
+    }
+
+    update() {
+        
+    }
+
+    delete() {
+
+    }
+}
 
 
 function escapeQuotes(jsonString) {
