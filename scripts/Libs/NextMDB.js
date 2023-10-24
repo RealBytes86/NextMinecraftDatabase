@@ -6,16 +6,32 @@ export class NextMDB {
         this.database = database;
     }
 
-    get() {
-
+    get(property) {
+        if(typeof property == "string") {
+            const get = world.getDynamicProperty(property);
+            if(get == undefined) return { error: "property not found" };
+            const J = JParse(unescapeQuotes(get));
+            if(J.isValid == false) throw new Error("invalid Json");
+            return J.json;
+        } else {
+            throw new Error("property must be a string");
+        }
     }
 
-    set() {
-
+    set(property, json) {
+        if(typeof property != "string") throw new Error("property must be a string");
+        if(typeof json != "object") throw new Error("json must be a object");
+        const J = JParse(json, false);
+        if(J.isValid) {
+            world.setDynamicProperty(property, escapeQuotes(J.json));
+            return { succes: true };
+        } else {
+            throw new Error("invalid Json");
+        }
     }
 
     update() {
-        
+
     }
 
     delete() {
