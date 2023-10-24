@@ -19,7 +19,7 @@ class EEntiy {
      */
     constructor(object, database) {
         this.entity = object;
-        this.database = database;
+        this.database = database.toLowerCase();
     }
 
     get(property) {
@@ -47,7 +47,7 @@ class EEntiy {
     }
 
     delete(property) {
-        if(typeof property != "string") throw new Error("property must be a string");)
+        if(typeof property != "string") throw new Error("property must be a string");
         this.entity.setDynamicProperty(`${this.database}:${property}`, undefined);
         return { succes: true };
     }
