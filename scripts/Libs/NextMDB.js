@@ -36,7 +36,7 @@ export class NextMDB {
 
 
 class Collection {
-
+    
 }
 
 class EEntity {
