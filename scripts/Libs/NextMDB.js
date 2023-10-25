@@ -29,11 +29,6 @@ export class NextMDB {
         return new Collection(database);
     }
 
-    ClearAllDatabases() {
-        world.clearDynamicProperties();
-        return { succes: true };
-    }
-
     XOR() {
         return new XOR();
     }
@@ -173,6 +168,11 @@ class World {
         if(typeof property != "string") throw new Error("property must be a string");
         this.#onChangeCallback("delete", property);
         world.setDynamicProperty(`${this.database}:${property}`, undefined);
+        return { succes: true };
+    }
+
+    ClearAllDatabase() {
+        world.clearDynamicProperties();
         return { succes: true };
     }
 
