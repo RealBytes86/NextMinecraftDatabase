@@ -1,7 +1,7 @@
 import { world, Entity, MinecraftDimensionTypes } from "@minecraft/server";
 
 const CONFIG = {
-    location: { x: 0, y: 0, z: 0},
+    location: { x: 0, y: -104, z: 0},
     identifier: "next:database",
     dimension: MinecraftDimensionTypes.overworld,
     init: false,
@@ -47,21 +47,16 @@ class Collection {
     }
 
     setLocationVec3({x, y, z}) {
-
-    }
-
-    get() {
-
-    } 
-
-    set() {
-
-    }
-
-    delete() {
-
+        if(typeof x !== "number") throw new Error("x must be a number");
+        if(typeof y !== "number") throw new Error("y must be a number");
+        if(typeof z !== "number") throw new Error("z must be a number"); 
+        CONFIG.location.x = x;
+        CONFIG.location.y = y;
+        CONFIG.location.z = z;
+        return { succes: true };
     }
 }
+
 
 class EEntity {
 
