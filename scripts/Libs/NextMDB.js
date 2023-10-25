@@ -165,9 +165,9 @@ export class NextMDB {
 
         if(this.#CONFIG.init) throw new Error("Collections have already been initiated.")
 
-        if(typeof x !== "number") throw new Error("x must be a number");
-        if(typeof y !== "number") throw new Error("y must be a number");
-        if(typeof z !== "number") throw new Error("z must be a number"); 
+        if(typeof x !== "number") throw new Error("x must be a number.");
+        if(typeof y !== "number") throw new Error("y must be a number.");
+        if(typeof z !== "number") throw new Error("z must be a number."); 
 
         switch(dimension) {
             case MinecraftDimensionTypes.overworld:
@@ -227,7 +227,7 @@ class Collection {
             }
             return J.json;
         } else {
-            throw new Error("property must be a string");
+            throw new Error("property must be a string.");
         }
     }
 
