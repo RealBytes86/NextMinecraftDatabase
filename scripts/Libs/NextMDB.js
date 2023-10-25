@@ -139,6 +139,7 @@ export class NextMDB {
     }
 
     initCollection() {
+        
         const dimension = world.getDimension(this.#CONFIG.dimension);
         const getBlock = dimension.getBlock(this.#CONFIG.location);
 
