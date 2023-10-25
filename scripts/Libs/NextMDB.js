@@ -65,15 +65,16 @@ export class NextMDB {
         if(getBlock.typeId != "minecraft:air") dimension.fillBlocks(this.#CONFIG.location, this.#CONFIG.location, "minecraft:air");
 
         const location = this.#CONFIG.location;
-        const response = dimension.runCommand(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`);
+        dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`).then((response) => {
+            if(response.successCount == 0) {
+                dimension.runCommandAsync(`tickingarea remove NEXT:DATABASE`).then((response) => {
+                    if(response.successCount == 1) {
+                        dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`);
+                    }
+                })
+            }
+        })
 
-        if(response.successCount == 0) {
-            dimension.runCommandAsync(`tickingarea remove NEXT:DATABASE`).then((response) => {
-                if(response.successCount == 1) {
-                    dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`);
-                }
-            })
-        }
     }
 
     setLocationCollection({x, y, z}, dimension) {
