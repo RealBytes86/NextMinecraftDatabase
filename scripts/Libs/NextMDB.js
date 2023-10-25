@@ -70,9 +70,6 @@ class Collection {
             case 3:
                 dimension = MinecraftDimensionTypes.theEnd;
                 break;
-            default:
-                dimension = MinecraftDimensionTypes.overworld;
-                break;
         }
 
         CONFIG.location.x = x;
