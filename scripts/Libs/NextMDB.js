@@ -1,5 +1,10 @@
 import { world, Entity } from "@minecraft/server";
 
+const CONFIG = {
+    location: { x: 0, y: 0, z: 0},
+    identifier: "next:database"
+}
+
 export class NextMDB {
 
     constructor () {
@@ -38,6 +43,14 @@ export class NextMDB {
 class Collection {
     constructor(database) {
         this.database = database;
+    }
+
+    init() {
+
+    }
+
+    setLocationVec3({x, y, z}) {
+
     }
 }
 
