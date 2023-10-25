@@ -40,13 +40,13 @@ class EEntity {
      */
     constructor(object, database) {
         this.entity = object;
-        this.database = database.toLowerCase();
+        this.database = database;
     }
 
     get(property) {
         if(typeof property == "string") {
             const get = this.entity.getDynamicProperty(`${this.database}:${property}`);
-            if(get == undefined) return { error: "property not found" };
+            if(get == undefined) return null;
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
                 this.#onChangeCallback("get", property)
@@ -56,6 +56,14 @@ class EEntity {
             return J.json;
         } else {
             throw new Error("property must be a string");
+        }
+    }
+
+    has(property) {
+        if(this.entity.getDynamicProperty(`${this.database}:${property}`)) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -83,6 +91,9 @@ class EEntity {
         this.#onChangeCallback = callback;
     }
 
+    size() {
+        return this.entity.getDynamicPropertyIds().filter((item) => item.startsWith(this.database)).length;
+    }
 }
 
 class World {
@@ -90,7 +101,7 @@ class World {
     #onChangeCallback = () => {};
 
     constructor(database) {
-        this.database = database.toLowerCase();
+        this.database = database;
     }
 
     on(callback) {
@@ -100,7 +111,7 @@ class World {
     get(property) {
         if(typeof property == "string") {
             const get = world.getDynamicProperty(`${this.database}:${property}`);
-            if(get == undefined) return { error: "property not found" };
+            if(get == undefined) return null;
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
                 this.#onChangeCallback("get", property)
@@ -110,6 +121,14 @@ class World {
             return J.json;
         } else {
             throw new Error("property must be a string");
+        }
+    }
+
+    has(property) {
+        if(world.getDynamicProperty(`${this.database}:${property}`)) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -131,6 +150,10 @@ class World {
         this.#onChangeCallback("delete", property);
         world.setDynamicProperty(`${this.database}:${property}`, undefined);
         return { succes: true };
+    }
+
+    size() {
+        return world.getDynamicPropertyIds().filter((item) => item.startsWith(this.database)).length;
     }
 }
 
