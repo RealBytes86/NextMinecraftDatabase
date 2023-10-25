@@ -32,6 +32,14 @@ export class NextMDB {
     }
 
     createCollection(database) {
+
+    }
+
+    resetCollection(database) {
+
+    }
+
+    resetALLCollection(database) {
         
     }
 
