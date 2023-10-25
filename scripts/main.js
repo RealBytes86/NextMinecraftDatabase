@@ -1,4 +1,4 @@
-import { system, world } from "@minecraft/server"
+import { system, world  } from "@minecraft/server"
 import "./Example/Database"
 console.warn("Loading world...");
 

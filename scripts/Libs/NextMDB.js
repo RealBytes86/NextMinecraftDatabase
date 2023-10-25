@@ -3,6 +3,13 @@ import { world, Entity, MinecraftDimensionTypes } from "@minecraft/server";
 
 export class NextMDB {
 
+    #isInit = () => {
+        if(this.#CONFIG.init == false) {
+            throw new Error("Collection is not initialized.");
+        }
+
+    }
+
     #CONFIG = {
         location: { x: 0, y: 0, z: 0},
         identifier: "next:database",
@@ -29,35 +36,33 @@ export class NextMDB {
     }
 
     Collection(database) {
+        this.#isInit();
         return new Collection(database);
     }
 
     createCollection(database) {
-
+        this.#isInit();
     }
 
     resetCollection(database) {
-
+        this.#isInit();
     }
 
     resetALLCollection(database) {
-
+        this.#isInit();
     }
 
     deleteCollection(database) {
-
+        this.#isInit();
     }
 
     initCollection() {
         this.#CONFIG.init = true;
-        const getBlock = world.getDimension(this.#CONFIG.dimension).getBlock(this.#CONFIG.location);
-        if(getBlock == undefined) {
-
-        } else if(getBlock.typeId == "minecraft:air") {
-
-        } else {
-            
-        }
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const getBlock = dimension.getBlock(this.#CONFIG.location);
+        if(getBlock == undefined) throw new Error("Chunk not found");
+        
+        if(getBlock.typeId != "minecraft:air") dimension.fillBlocks(this.#CONFIG.location, this.#CONFIG.location, "minecraft:air");
     }
 
     setLocationCollection({x, y, z}, dimension) {
