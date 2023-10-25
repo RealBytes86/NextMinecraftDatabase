@@ -31,22 +31,22 @@ export class NextMDB {
         return new Collection(database);
     }
 
-    XOR() {
-        return new XOR();
-    }
-}
-
-
-class Collection {
-    constructor(database) {
-        this.database = database;
-    }
-
-    init() {
+    createCollection(database) {
         
     }
 
-    setLocation({x, y, z}, dimension) {
+    deleteCollection(database) {
+
+    }
+
+    initCollection() {
+        CONFIG.init = true;
+    }
+
+    setLocationCollection({x, y, z}, dimension) {
+
+        if(CONFIG.init) throw new Error("")
+
         if(typeof x !== "number") throw new Error("x must be a number");
         if(typeof y !== "number") throw new Error("y must be a number");
         if(typeof z !== "number") throw new Error("z must be a number"); 
@@ -75,8 +75,22 @@ class Collection {
         CONFIG.location.x = x;
         CONFIG.location.y = y;
         CONFIG.location.z = z;
+        CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
+
         return { succes: true };
     }
+
+    XOR() {
+        return new XOR();
+    }
+}
+
+
+class Collection {
+    constructor(database) {
+        this.database = database;
+    }
+
 }
 
 
