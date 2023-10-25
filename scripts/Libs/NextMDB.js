@@ -51,8 +51,7 @@ export class NextMDB {
             }
         }
 
-        const e = dimension.spawnEntity(this.#CONFIG.identifier, this.#CONFIG.location);
-        e.nameTag = database;
+        dimension.spawnEntity(this.#CONFIG.identifier, this.#CONFIG.location).nameTag = database
 
         return { succes: true };
     }
