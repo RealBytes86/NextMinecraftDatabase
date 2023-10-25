@@ -1,5 +1,5 @@
 import { system, world } from "@minecraft/server"
-import { database } from "./Example/Database";
+import "./Example/Database"
 console.warn("Loading world...");
 
 const setPrefix = ".";

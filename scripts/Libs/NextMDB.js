@@ -1,13 +1,14 @@
 import { world, Entity, MinecraftDimensionTypes } from "@minecraft/server";
 
-const CONFIG = {
-    location: { x: 0, y: 255, z: 0},
-    identifier: "next:database",
-    dimension: MinecraftDimensionTypes.overworld,
-    init: false,
-}
 
 export class NextMDB {
+
+    #CONFIG = {
+        location: { x: 0, y: 0, z: 0},
+        identifier: "next:database",
+        dimension: MinecraftDimensionTypes.overworld,
+        init: false,
+    }
 
     constructor () {
         this.utils = {
@@ -40,7 +41,7 @@ export class NextMDB {
     }
 
     resetALLCollection(database) {
-        
+
     }
 
     deleteCollection(database) {
@@ -48,12 +49,20 @@ export class NextMDB {
     }
 
     initCollection() {
-        CONFIG.init = true;
+        this.#CONFIG.init = true;
+        const getBlock = world.getDimension(this.#CONFIG.dimension).getBlock(this.#CONFIG.location);
+        if(getBlock == undefined) {
+
+        } else if(getBlock.typeId == "minecraft:air") {
+
+        } else {
+            
+        }
     }
 
     setLocationCollection({x, y, z}, dimension) {
 
-        if(CONFIG.init) throw new Error("")
+        if(this.#CONFIG.init) throw new Error("Collections have already been initiated.")
 
         if(typeof x !== "number") throw new Error("x must be a number");
         if(typeof y !== "number") throw new Error("y must be a number");
@@ -80,10 +89,10 @@ export class NextMDB {
                 break;
         }
 
-        CONFIG.location.x = x;
-        CONFIG.location.y = y;
-        CONFIG.location.z = z;
-        CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
+        this.#CONFIG.location.x = x;
+        this.#CONFIG.location.y = y;
+        this.#CONFIG.location.z = z;
+        this.#CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
 
         return { succes: true };
     }
