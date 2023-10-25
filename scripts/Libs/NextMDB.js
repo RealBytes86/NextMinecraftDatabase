@@ -20,6 +20,10 @@ export class NextMDB {
         return new EEntity(object, database);
     }
 
+    Collection() {
+        return new Collection();
+    }
+
     ClearAllDatabases() {
         world.clearDynamicProperties();
         return { succes: true };
@@ -28,6 +32,11 @@ export class NextMDB {
     XOR() {
         return new XOR();
     }
+}
+
+
+class Collection {
+
 }
 
 class EEntity {

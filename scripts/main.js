@@ -12,8 +12,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
         const commandName = args.shift().toLowerCase() 
 
         if(commandName == "test") {
-            console.warn(database.get("25000").name)
-            return;
+            
         }
 
         ctx.sender.sendMessage("§7[§6Command§7]§r §c" + commandName + " not exist.");
