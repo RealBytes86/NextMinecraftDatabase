@@ -52,7 +52,7 @@ export class NextMDB {
         this.#isInit();
         const dimension = world.getDimension(this.#CONFIG.dimension);
         const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
-        for(let i = 0; i < Collection.length; i++) {
+        for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
             if(collection.typeId == this.#CONFIG.identifier) {
                 collection.clearDynamicProperties();
@@ -62,8 +62,36 @@ export class NextMDB {
         return { succes: true };
     }
 
+    deleteAllCollection() {
+        this.#isInit();
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == this.#CONFIG.identifier) {
+                collection.clearDynamicProperties();
+                collection.triggerEvent("despawn");
+            }
+        }
+
+        return { succes: true };
+    }
+
+
     deleteCollection(database) {
         this.#isInit();
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+                collection.clearDynamicProperties();
+                collection.triggerEvent("despawn");
+                return { succes: true };
+            }
+        }
+
+        return { succes: false };
     }
 
     initCollection() {
