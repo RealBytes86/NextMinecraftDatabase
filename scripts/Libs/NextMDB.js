@@ -42,6 +42,19 @@ export class NextMDB {
 
     createCollection(database) {
         this.#isInit();
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+                return { succes: false }
+            }
+        }
+
+        const e = dimension.spawnEntity(this.#CONFIG.identifier, this.#CONFIG.location);
+        e.nameTag = database;
+
+        return { succes: true };
     }
 
     resetCollection(database) {
