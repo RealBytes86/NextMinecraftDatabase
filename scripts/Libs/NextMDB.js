@@ -37,13 +37,12 @@ export class NextMDB {
 
     Collection(database) {
         this.#isInit();
-
         const dimension = world.getDimension(this.#CONFIG.dimension);
         const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
             if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
-                return new Collection(database);
+                return new Collection(collection);
             }
         }
 
@@ -205,8 +204,11 @@ export class NextMDB {
 
 
 class Collection {
-    constructor(database) {
-        this.database = database;
+    /**
+     * @param {Entity} collection 
+     */
+    constructor(collection) {
+        this.collection = collection;
     }
 
 }
