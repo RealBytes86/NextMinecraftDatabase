@@ -204,11 +204,75 @@ export class NextMDB {
 
 
 class Collection {
+
+    #onChangeCallback = () => {};
+
     /**
      * @param {Entity} collection 
      */
     constructor(collection) {
         this.collection = collection;
+    }
+
+    get(property) {
+        if(typeof property == "string") {
+            const get = this.collection.getDynamicProperty(property);
+            if(get == undefined) return null;
+            const J = JParse(unescapeQuotes(get));
+            if(J.isValid == false) {
+                this.#onChangeCallback("get", property)
+                this.collection.setDynamicProperty(get, undefined);
+                return { error: "invalid Json" }
+            }
+            return J.json;
+        } else {
+            throw new Error("property must be a string");
+        }
+    }
+
+    has(property) {
+        if(this.collection.getDynamicProperty(property)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    set(property, json) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        if(typeof json != "object") throw new Error("json must be a object.");
+        const J = JParse(json, false);
+        if(J.isValid) {
+            this.#onChangeCallback("set", property, json);
+            this.collection.setDynamicProperty(property, escapeQuotes(J.json));
+            return { succes: true };
+        } else {
+            throw new Error("invalid Json.");
+        }
+    }
+
+    ClearDatabaseEntity() {
+        this.collection.clearDynamicProperties();
+        return { succes: true };
+    }
+
+    delete(property) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        this.#onChangeCallback("delete", property);
+        this.entity.setDynamicProperty(property, undefined);
+        return { succes: true };
+    }
+
+    on(callback) {
+        this.#onChangeCallback = callback;
+    }
+
+    size() {
+        return this.collection.getDynamicPropertyIds().length;
+    }
+
+    getByte() {
+        return this.collection.getDynamicPropertyTotalByteCount();
     }
 
 }
