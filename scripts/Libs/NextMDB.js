@@ -20,8 +20,8 @@ export class NextMDB {
         return new EEntity(object, database);
     }
 
-    Collection() {
-        return new Collection();
+    Collection(database) {
+        return new Collection(database);
     }
 
     ClearAllDatabases() {
@@ -36,7 +36,9 @@ export class NextMDB {
 
 
 class Collection {
-    
+    constructor(database) {
+        this.database = database;
+    }
 }
 
 class EEntity {
