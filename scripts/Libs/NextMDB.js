@@ -1,7 +1,7 @@
 import { world, Entity, MinecraftDimensionTypes } from "@minecraft/server";
 
 const CONFIG = {
-    location: { x: 0, y: -104, z: 0},
+    location: { x: 0, y: 255, z: 0},
     identifier: "next:database",
     dimension: MinecraftDimensionTypes.overworld,
     init: false,

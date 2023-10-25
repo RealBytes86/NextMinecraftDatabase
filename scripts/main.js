@@ -13,9 +13,9 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
 
         if(commandName == "test") {
 
-            let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: -64, z: 0})
-            console.warn(test.length)
-            //system.run(() => ctx.sender.dimension.spawnEntity("next:database", {x: 0, y: -64, z: 0}))
+            //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
+            //console.warn(test.length)
+            system.run(() => ctx.sender.dimension.spawnEntity("next:database", {x: 0, y: 1000, z: 0}))
             return;
         }
 
