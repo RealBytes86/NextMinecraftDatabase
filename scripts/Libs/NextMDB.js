@@ -251,7 +251,7 @@ class Collection {
         }
     }
 
-    ClearDatabaseEntity() {
+    clear() {
         this.collection.clearDynamicProperties();
         return { succes: true };
     }
