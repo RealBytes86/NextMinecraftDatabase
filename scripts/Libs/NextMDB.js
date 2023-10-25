@@ -1,8 +1,10 @@
-import { world, Entity } from "@minecraft/server";
+import { world, Entity, MinecraftDimensionTypes } from "@minecraft/server";
 
 const CONFIG = {
     location: { x: 0, y: 0, z: 0},
-    identifier: "next:database"
+    identifier: "next:database",
+    dimension: MinecraftDimensionTypes.overworld,
+    init: false,
 }
 
 export class NextMDB {
@@ -41,10 +43,22 @@ class Collection {
     }
 
     init() {
-
+        
     }
 
     setLocationVec3({x, y, z}) {
+
+    }
+
+    get() {
+
+    } 
+
+    set() {
+
+    }
+
+    delete() {
 
     }
 }
@@ -97,6 +111,11 @@ class EEntity {
         } else {
             throw new Error("invalid Json");
         }
+    }
+
+    ClearDatabaseEntity() {
+        this.entity.clearDynamicProperties();
+        return { succes: true };
     }
 
     delete(property) {
