@@ -40,6 +40,19 @@ export class NextMDB {
         return new Collection(database);
     }
 
+    existsCollection(database) {
+        this.#isInit();
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     createCollection(database) {
         this.#isInit();
         const dimension = world.getDimension(this.#CONFIG.dimension);
