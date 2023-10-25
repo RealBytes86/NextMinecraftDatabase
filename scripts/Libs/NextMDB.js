@@ -48,8 +48,18 @@ export class NextMDB {
         this.#isInit();
     }
 
-    resetALLCollection(database) {
+    resetALLCollection() {
         this.#isInit();
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        for(let i = 0; i < Collection.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == this.#CONFIG.identifier) {
+                collection.clearDynamicProperties();
+            }
+        }
+
+        return { succes: true };
     }
 
     deleteCollection(database) {
