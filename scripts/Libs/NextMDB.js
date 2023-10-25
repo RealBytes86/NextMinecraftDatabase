@@ -46,10 +46,35 @@ class Collection {
         
     }
 
-    setLocationVec3({x, y, z}) {
+    setLocation({x, y, z}, dimension) {
         if(typeof x !== "number") throw new Error("x must be a number");
         if(typeof y !== "number") throw new Error("y must be a number");
         if(typeof z !== "number") throw new Error("z must be a number"); 
+
+        switch(dimension) {
+            case MinecraftDimensionTypes.overworld:
+            case "overworld":
+            case "normal":
+            case 1:
+                dimension = MinecraftDimensionTypes.overworld;
+                break;
+            case MinecraftDimensionTypes.nether:
+            case "nether":
+            case "hell":
+            case 2:
+                dimension = MinecraftDimensionTypes.nether;
+                break;
+            case MinecraftDimensionTypes.theEnd:
+            case "theend":
+            case "end":
+            case 3:
+                dimension = MinecraftDimensionTypes.theEnd;
+                break;
+            default:
+                dimension = MinecraftDimensionTypes.overworld;
+                break;
+        }
+
         CONFIG.location.x = x;
         CONFIG.location.y = y;
         CONFIG.location.z = z;
