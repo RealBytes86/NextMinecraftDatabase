@@ -26,18 +26,28 @@ export class NextMDB {
     }
 
     World(database) {
-        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new World(database);
     }
 
     Entity(object, database) {
-        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string");
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new EEntity(object, database);
     }
 
     Collection(database) {
         this.#isInit();
-        return new Collection(database);
+
+        const dimension = world.getDimension(this.#CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+                return new Collection(database);
+            }
+        }
+
+        throw new Error("Collection not found.")
     }
 
     existsCollection(database) {
@@ -133,7 +143,7 @@ export class NextMDB {
         const dimension = world.getDimension(this.#CONFIG.dimension);
         const getBlock = dimension.getBlock(this.#CONFIG.location);
 
-        if(getBlock == undefined) throw new Error("Chunk not found");
+        if(getBlock == undefined) throw new Error("Chunk not found.");
         if(getBlock.typeId != "minecraft:air") dimension.fillBlocks(this.#CONFIG.location, this.#CONFIG.location, "minecraft:air");
 
         const location = this.#CONFIG.location;
@@ -240,15 +250,15 @@ class EEntity {
     }
 
     set(property, json) {
-        if(typeof property != "string") throw new Error("property must be a string");
-        if(typeof json != "object") throw new Error("json must be a object");
+        if(typeof property != "string") throw new Error("property must be a string.");
+        if(typeof json != "object") throw new Error("json must be a object.");
         const J = JParse(json, false);
         if(J.isValid) {
             this.#onChangeCallback("set", property, json);
             this.entity.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
             return { succes: true };
         } else {
-            throw new Error("invalid Json");
+            throw new Error("invalid Json.");
         }
     }
 
@@ -258,7 +268,7 @@ class EEntity {
     }
 
     delete(property) {
-        if(typeof property != "string") throw new Error("property must be a string");
+        if(typeof property != "string") throw new Error("property must be a string.");
         this.#onChangeCallback("delete", property);
         this.entity.setDynamicProperty(`${this.database}:${property}`, undefined);
         return { succes: true };
@@ -297,7 +307,7 @@ class World {
             }
             return J.json;
         } else {
-            throw new Error("property must be a string");
+            throw new Error("property must be a string.");
         }
     }
 
@@ -310,20 +320,20 @@ class World {
     }
 
     set(property, json) {
-        if(typeof property != "string") throw new Error("property must be a string");
-        if(typeof json != "object") throw new Error("json must be a object");
+        if(typeof property != "string") throw new Error("property must be a string.");
+        if(typeof json != "object") throw new Error("json must be a object.");
         const J = JParse(json, false);
         if(J.isValid) {
             this.#onChangeCallback("set", property, json);
             world.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
             return { succes: true };
         } else {
-            throw new Error("invalid Json");
+            throw new Error("invalid Json.");
         }
     }
 
     delete(property) {
-        if(typeof property != "string") throw new Error("property must be a string");
+        if(typeof property != "string") throw new Error("property must be a string.");
         this.#onChangeCallback("delete", property);
         world.setDynamicProperty(`${this.database}:${property}`, undefined);
         return { succes: true };
@@ -388,10 +398,10 @@ export class XOR {
             if(key.length == 16) {
                 this.#key = key
             } else {
-                throw new Error("Invalid key. Only key length 16");
+                throw new Error("Invalid key. Only key length 16.");
             }
         } else {
-            throw new Error("Invalid string");
+            throw new Error("Invalid string.");
         }
     }
 
