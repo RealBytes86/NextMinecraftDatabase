@@ -347,6 +347,10 @@ class EEntity {
     size() {
         return this.entity.getDynamicPropertyIds().filter((item) => item.startsWith(this.database)).length;
     }
+
+    getByte() {
+        return this.entity.getDynamicPropertyTotalByteCount();
+    }
 }
 
 class World {
@@ -412,6 +416,10 @@ class World {
 
     size() {
         return world.getDynamicPropertyIds().filter((item) => item.startsWith(this.database)).length;
+    }
+
+    getByte() {
+        return world.getDynamicPropertyTotalByteCount();
     }
 }
 
