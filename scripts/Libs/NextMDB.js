@@ -502,7 +502,7 @@ class XOREncryption {
     }
 
     Encrypt(plaintext) {
-        if(this.key.length != 16) throw new Error("Der Schlüssel muss 16 Bytes lang sein.");
+        if(this.key.length !== 16) throw new Error("The key must be 16 bytes long.");
         const plaintextBytes = this.stringToBytes(plaintext)
         const keyBytes = this.stringToBytes(this.key);
         for(let j = 0; j < 16; j++) plaintextBytes[j] ^= keyBytes[j];
@@ -510,7 +510,7 @@ class XOREncryption {
     }
 
     Decrypt(ciphertext) {
-        if(this.key.length !== 16) throw new Error("Der Schlüssel muss 16 Bytes lang sein.");
+        if(this.key.length !== 16) throw new Error("The key must be 16 bytes long.");
         const ciphertextBytes = this.hexStringToBytes(ciphertext);
         const keyBytes = this.stringToBytes(this.key);
         for(let j = 0; j < 16; j++) ciphertextBytes[j] ^= keyBytes[j]
