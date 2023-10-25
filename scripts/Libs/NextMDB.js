@@ -1,5 +1,4 @@
-import { world, Entity, MinecraftDimensionTypes } from "@minecraft/server";
-
+import { world, Entity, MinecraftDimensionTypes, system } from "@minecraft/server";
 
 export class NextMDB {
 
@@ -141,11 +140,6 @@ export class NextMDB {
     initCollection() {
         
         const dimension = world.getDimension(this.#CONFIG.dimension);
-        const getBlock = dimension.getBlock(this.#CONFIG.location);
-
-        if(getBlock == undefined) throw new Error("Chunk not found.");
-        if(getBlock.typeId != "minecraft:air") dimension.fillBlocks(this.#CONFIG.location, this.#CONFIG.location, "minecraft:air");
-
         const location = this.#CONFIG.location;
 
         dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`).then((response) => {
@@ -157,6 +151,19 @@ export class NextMDB {
                 })
             }
         })
+
+        const runner = system.runInterval(() => {
+            try {
+                dimension.fillBlocks(this.#CONFIG.location, this.#CONFIG.location, "minecraft:air");
+                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y - 1, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y - 1, z: this.#CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z - 1}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y , z: this.#CONFIG.location.z - 1}, "minecraft:barrier");
+                dimension.fillBlocks({x: this.#CONFIG.location.x - 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x - 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z + 1}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z + 1}, "minecraft:barrier");
+                dimension.fillBlocks({x: this.#CONFIG.location.x + 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x + 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y + 1, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y + 1, z: this.#CONFIG.location.z}, "minecraft:barrier");
+                system.clearRun(runner);
+            } catch { }
+        }, 10)
 
         this.#CONFIG.init = true;
     }
