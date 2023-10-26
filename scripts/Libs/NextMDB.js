@@ -35,13 +35,11 @@ export class NextMDB {
     }
 
     StringCollection(database) {
-        this.#isInit();
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new StringCollection(database);
     }
 
     JSONCollection(database) {
-        this.#isInit();
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new JSONCollection(database);
     }
@@ -219,6 +217,10 @@ export class NextMDB {
 
     XOR() {
         return new XOR();
+    }
+
+    sizeCollection() {
+        return world.getDimension(CONFIG.dimension).getEntitiesAtBlockLocation(CONFIG.location).filter((collection) => collection.typeId == CONFIG.identifier).length;
     }
 }
 
