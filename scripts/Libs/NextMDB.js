@@ -246,12 +246,14 @@ class StringCollection {
         if(typeof property != "string") throw new Error("property must be a string.");
         const get = this.#collection(this.database).getDynamicProperty(property);
         if(get == undefined) return null;
+        this.#onChangeCallback("get", property);
         return get
     }
 
     set(property, value) {
         if(typeof property != "string") throw new Error("property must be a string.");
         if(typeof value != "string") throw new Error("value must be a string.");
+        this.#onChangeCallback("set", property, value);
         this.#collection(this.database).setDynamicProperty(property, value);
         return { succes: true };
     }
