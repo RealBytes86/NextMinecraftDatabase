@@ -226,6 +226,63 @@ class StringCollection {
     constructor(database) {
         this.database = database;
     }
+
+    #collection = (database) => {
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == CONFIG.identifier && collection.nameTag == database) {
+                return collection;
+            }
+        }
+
+        throw new Error("Collection not found.")
+    }
+
+    #onChangeCallback = () => {};
+
+    get(property) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        const get = this.#collection(this.database).getDynamicProperty(property);
+        if(get == undefined) return null;
+        return get
+    }
+
+    set(property, value) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        if(typeof value != "string") throw new Error("value must be a string.");
+        this.#collection(this.database).setDynamicProperty(property, value);
+        return { succes: true };
+    }
+
+    has(property) {
+        if(this.#collection(this.database).getDynamicProperty(property)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    clear() {
+        this.#collection(this.database).clearDynamicProperties();
+        return { succes: true };
+    }
+
+    size() {
+        return this.#collection(this.database).getDynamicPropertyIds().length;
+    }
+
+    getByte() {
+        return this.#collection(this.database).getDynamicPropertyTotalByteCount();
+    }
+
+    delete(property) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        this.#onChangeCallback("delete", property);
+        this.#collection(this.database).setDynamicProperty(property, undefined);
+        return { succes: true };
+    }
 }
 
 class JSONCollection {
