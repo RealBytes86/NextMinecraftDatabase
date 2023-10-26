@@ -1,19 +1,19 @@
 import { world, Entity, MinecraftDimensionTypes, system } from "@minecraft/server";
 
+const CONFIG = {
+    location: { x: 0, y: 0, z: 0},
+    identifier: "next:database",
+    dimension: MinecraftDimensionTypes.overworld,
+    init: false,
+}
+
 export class NextMDB {
 
     #isInit = () => {
-        if(this.#CONFIG.init == false) {
+        if(CONFIG.init == false) {
             throw new Error("Collection is not initialized.");
         }
 
-    }
-
-    #CONFIG = {
-        location: { x: 0, y: 0, z: 0},
-        identifier: "next:database",
-        dimension: MinecraftDimensionTypes.overworld,
-        init: false,
     }
 
     constructor () {
@@ -34,55 +34,60 @@ export class NextMDB {
         return new EEntity(object, database);
     }
 
-    Collection(database) {
+    StringCollection(database) {
         this.#isInit();
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
-        for(let i = 0; i < Collections.length; i++) {
-            const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
-                return new Collection(collection);
-            }
-        }
-
-        throw new Error("Collection not found.")
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
+        return new StringCollection(database);
     }
 
-    existsCollection(database) {
+    JSONCollection(database) {
         this.#isInit();
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
+        return new JSONCollection(database);
+    }
+
+    existsCollection(database, type = "JSON") {
+        this.#isInit();
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
+        database = `${getType(type)}:${database}`;
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+            if(collection.typeId == CONFIG.identifier && collection.nameTag == database) {
                 return true;
             }
         }
         return false;
     }
 
-    createCollection(database) {
+    createCollection(database, type = "JSON") {
         this.#isInit();
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
+        database = `${getType(type)}:${database}`;
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+            if(collection.typeId == CONFIG.identifier && collection.nameTag == database) {
                 return { succes: false }
             }
         }
 
-        dimension.spawnEntity(this.#CONFIG.identifier, this.#CONFIG.location).nameTag = database
+        dimension.spawnEntity(CONFIG.identifier, CONFIG.location).nameTag = database
 
         return { succes: true };
     }
 
-    resetCollection(database) {
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+    resetCollection(database, type = "JSON") {
+        this.#isInit();
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
+        database = `${getType(type)}:${database}`;
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+            if(collection.typeId == CONFIG.identifier && collection.nameTag == database) {
                 collection.clearDynamicProperties();
                 return { succes: true };
             }
@@ -93,11 +98,11 @@ export class NextMDB {
 
     resetALLCollection() {
         this.#isInit();
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier) {
+            if(collection.typeId == CONFIG.identifier) {
                 collection.clearDynamicProperties();
             }
         }
@@ -107,11 +112,11 @@ export class NextMDB {
 
     deleteAllCollection() {
         this.#isInit();
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier) {
+            if(collection.typeId == CONFIG.identifier) {
                 collection.clearDynamicProperties();
                 collection.triggerEvent("despawn");
             }
@@ -121,13 +126,15 @@ export class NextMDB {
     }
 
 
-    deleteCollection(database) {
+    deleteCollection(database, type = "JSON") {
         this.#isInit();
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const Collections = dimension.getEntitiesAtBlockLocation(this.#CONFIG.location);
+        if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
+        database = `${getType(type)}:${database}`;
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
         for(let i = 0; i < Collections.length; i++) {
             const collection = Collections[i];
-            if(collection.typeId == this.#CONFIG.identifier && collection.nameTag == database) {
+            if(collection.typeId == CONFIG.identifier && collection.nameTag == database) {
                 collection.clearDynamicProperties();
                 collection.triggerEvent("despawn");
                 return { succes: true };
@@ -139,8 +146,8 @@ export class NextMDB {
 
     initCollection() {
         
-        const dimension = world.getDimension(this.#CONFIG.dimension);
-        const location = this.#CONFIG.location;
+        const dimension = world.getDimension(CONFIG.dimension);
+        const location = CONFIG.location;
 
         dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`).then((response) => {
             if(response.successCount == 0) {
@@ -154,23 +161,23 @@ export class NextMDB {
 
         const runner = system.runInterval(() => {
             try {
-                dimension.fillBlocks(this.#CONFIG.location, this.#CONFIG.location, "minecraft:air");
-                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y - 1, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y - 1, z: this.#CONFIG.location.z}, "minecraft:barrier");
-                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z - 1}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y , z: this.#CONFIG.location.z - 1}, "minecraft:barrier");
-                dimension.fillBlocks({x: this.#CONFIG.location.x - 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x - 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, "minecraft:barrier");
-                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z + 1}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z + 1}, "minecraft:barrier");
-                dimension.fillBlocks({x: this.#CONFIG.location.x + 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x + 1, y: this.#CONFIG.location.y, z: this.#CONFIG.location.z}, "minecraft:barrier");
-                dimension.fillBlocks({x: this.#CONFIG.location.x, y: this.#CONFIG.location.y + 1, z: this.#CONFIG.location.z}, {x: this.#CONFIG.location.x, y: this.#CONFIG.location.y + 1, z: this.#CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks(CONFIG.location, CONFIG.location, "minecraft:air");
+                dimension.fillBlocks({x: CONFIG.location.x, y: CONFIG.location.y - 1, z: CONFIG.location.z}, {x: CONFIG.location.x, y: CONFIG.location.y - 1, z: CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks({x: CONFIG.location.x, y: CONFIG.location.y, z: CONFIG.location.z - 1}, {x: CONFIG.location.x, y: CONFIG.location.y , z: CONFIG.location.z - 1}, "minecraft:barrier");
+                dimension.fillBlocks({x: CONFIG.location.x - 1, y: CONFIG.location.y, z: CONFIG.location.z}, {x: CONFIG.location.x - 1, y: CONFIG.location.y, z: CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks({x: CONFIG.location.x, y: CONFIG.location.y, z: CONFIG.location.z + 1}, {x: CONFIG.location.x, y: CONFIG.location.y, z: CONFIG.location.z + 1}, "minecraft:barrier");
+                dimension.fillBlocks({x: CONFIG.location.x + 1, y: CONFIG.location.y, z: CONFIG.location.z}, {x: CONFIG.location.x + 1, y: CONFIG.location.y, z: CONFIG.location.z}, "minecraft:barrier");
+                dimension.fillBlocks({x: CONFIG.location.x, y: CONFIG.location.y + 1, z: CONFIG.location.z}, {x: CONFIG.location.x, y: CONFIG.location.y + 1, z: CONFIG.location.z}, "minecraft:barrier");
                 system.clearRun(runner);
             } catch { }
         }, 10)
 
-        this.#CONFIG.init = true;
+        CONFIG.init = true;
     }
 
     setLocationCollection({x, y, z}, dimension) {
 
-        if(this.#CONFIG.init) throw new Error("Collections have already been initiated.")
+        if(CONFIG.init) throw new Error("Collections have already been initiated.")
 
         if(typeof x !== "number") throw new Error("x must be a number.");
         if(typeof y !== "number") throw new Error("y must be a number.");
@@ -197,11 +204,16 @@ export class NextMDB {
                 break;
         }
 
-        this.#CONFIG.location.x = x;
-        this.#CONFIG.location.y = y;
-        this.#CONFIG.location.z = z;
-        this.#CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
+        CONFIG.location.x = x;
+        CONFIG.location.y = y;
+        CONFIG.location.z = z;
+        CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
 
+        return { succes: true };
+    }
+
+    resetALLWorldData() {
+        world.clearDynamicProperties();
         return { succes: true };
     }
 
@@ -210,28 +222,46 @@ export class NextMDB {
     }
 }
 
+class StringCollection {
+    constructor(database) {
+        this.database = database;
+    }
+}
 
-class Collection {
+class JSONCollection {
+
+    #collection = (database) => {
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == CONFIG.identifier && collection.nameTag == database) {
+                return collection;
+            }
+        }
+
+        throw new Error("Collection not found.")
+    }
 
     #onChangeCallback = () => {};
 
     /**
      * @param {Entity} collection 
      */
-    constructor(collection) {
-        this.collection = collection;
+    constructor(database) {
+        this.database = database;
     }
 
     get(property) {
         if(typeof property == "string") {
-            const get = this.collection.getDynamicProperty(property);
+            const get = this.#collection(this.database).getDynamicProperty(property);
             if(get == undefined) return null;
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
-                this.#onChangeCallback("get", property)
-                this.collection.setDynamicProperty(get, undefined);
+                this.#collection(this.database).setDynamicProperty(get, undefined);
                 return { error: "invalid Json" }
             }
+            this.#onChangeCallback("get", property)
             return J.json;
         } else {
             throw new Error("property must be a string.");
@@ -239,7 +269,7 @@ class Collection {
     }
 
     has(property) {
-        if(this.collection.getDynamicProperty(property)) {
+        if(this.#collection(this.database).getDynamicProperty(property)) {
             return true;
         } else {
             return false;
@@ -252,7 +282,7 @@ class Collection {
         const J = JParse(json, false);
         if(J.isValid) {
             this.#onChangeCallback("set", property, json);
-            this.collection.setDynamicProperty(property, escapeQuotes(J.json));
+            this.#collection(this.database).setDynamicProperty(property, escapeQuotes(J.json));
             return { succes: true };
         } else {
             throw new Error("invalid Json.");
@@ -260,14 +290,14 @@ class Collection {
     }
 
     clear() {
-        this.collection.clearDynamicProperties();
+        this.#collection(this.database).clearDynamicProperties();
         return { succes: true };
     }
 
     delete(property) {
         if(typeof property != "string") throw new Error("property must be a string.");
         this.#onChangeCallback("delete", property);
-        this.entity.setDynamicProperty(property, undefined);
+        this.#collection(this.database).setDynamicProperty(property, undefined);
         return { succes: true };
     }
 
@@ -276,11 +306,11 @@ class Collection {
     }
 
     size() {
-        return this.collection.getDynamicPropertyIds().length;
+        return this.#collection(this.database).getDynamicPropertyIds().length;
     }
 
     getByte() {
-        return this.collection.getDynamicPropertyTotalByteCount();
+        return this.#collection(this.database).getDynamicPropertyTotalByteCount();
     }
 
 }
@@ -305,10 +335,10 @@ class EEntity {
             if(get == undefined) return null;
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
-                this.#onChangeCallback("get", property)
                 this.entity.setDynamicProperty(get, undefined);
                 return { error: "invalid Json" }
             }
+            this.#onChangeCallback("get", property)
             return J.json;
         } else {
             throw new Error("property must be a string");
@@ -379,10 +409,10 @@ class World {
             if(get == undefined) return null;
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
-                this.#onChangeCallback("get", property)
                 world.setDynamicProperty(get, undefined);
                 return { error: "invalid Json" }
             }
+            this.#onChangeCallback("get", property)
             return J.json;
         } else {
             throw new Error("property must be a string.");
@@ -543,5 +573,22 @@ class XOREncryption {
 
     bytesToString(bytes) {
         return decodeURIComponent(String.fromCharCode.apply(null, bytes));
+    }
+}
+
+function getType(type = "JSON") {
+
+    if(typeof type != "string") {
+        throw new Error("Type must be a string.");
+    }
+
+    type = type.toUpperCase();
+
+    if(type == "STRING") {
+        return "STRING";
+    } else if(type == "JSON") {
+        return "JSON";
+    } else {
+        throw new Error("Type is not supported.");
     }
 }
