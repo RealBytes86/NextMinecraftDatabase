@@ -36,12 +36,12 @@ export class NextMDB {
 
     StringCollection(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
-        return new StringCollection(database);
+        return new StringCollection(`STRING:${database}`);
     }
 
     JSONCollection(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
-        return new JSONCollection(database);
+        return new JSONCollection(`JSON:${database}`);
     }
 
     existsCollection(database, type = "JSON") {
