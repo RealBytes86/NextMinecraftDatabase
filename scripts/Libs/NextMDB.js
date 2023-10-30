@@ -72,7 +72,8 @@ export class NextMDB {
             }
         }
 
-        dimension.spawnEntity(CONFIG.identifier, CONFIG.location).nameTag = database
+        const entityDB = dimension.spawnEntity(CONFIG.identifier, CONFIG.location)
+        entityDB.nameTag = database
 
         return { succes: true };
     }
