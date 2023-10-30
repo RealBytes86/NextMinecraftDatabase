@@ -59,7 +59,7 @@ export class NextMDB {
         return false;
     }
 
-    createCollection(database, type = "JSON") {
+    async createCollection(database, type = "JSON") {
         this.#isInit();
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         database = `${getType(type)}:${database}`;
@@ -77,7 +77,7 @@ export class NextMDB {
         return { succes: true };
     }
 
-    resetCollection(database, type = "JSON") {
+    async resetCollection(database, type = "JSON") {
         this.#isInit();
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         database = `${getType(type)}:${database}`;
@@ -94,7 +94,7 @@ export class NextMDB {
         return { succes: false };
     }
 
-    resetALLCollection() {
+    async resetALLCollection() {
         this.#isInit();
         const dimension = world.getDimension(CONFIG.dimension);
         const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
@@ -108,7 +108,7 @@ export class NextMDB {
         return { succes: true };
     }
 
-    deleteAllCollection() {
+    async deleteAllCollection() {
         this.#isInit();
         const dimension = world.getDimension(CONFIG.dimension);
         const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
@@ -124,7 +124,7 @@ export class NextMDB {
     }
 
 
-    deleteCollection(database, type = "JSON") {
+    async deleteCollection(database, type = "JSON") {
         this.#isInit();
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         database = `${getType(type)}:${database}`;
@@ -142,7 +142,7 @@ export class NextMDB {
         return { succes: false };
     }
 
-    initCollection() {
+    async initCollection() {
         
         const dimension = world.getDimension(CONFIG.dimension);
         const location = CONFIG.location;
