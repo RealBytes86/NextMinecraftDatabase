@@ -181,11 +181,11 @@ export class NextMDB {
             } else {
                 await dimension.runCommandAsync(TICKING_AREA_DELETE);
             }
-
-            await dimension.runCommandAsync(TICKING_AREA_DELETE);
-            await dimension.runCommandAsync(TICKING_AREA);
-            trySpawnBarrier();
         }
+
+        await dimension.runCommandAsync(TICKING_AREA_DELETE);
+        await dimension.runCommandAsync(TICKING_AREA);
+        trySpawnBarrier();
 
         CONFIG.init = true;
     }
