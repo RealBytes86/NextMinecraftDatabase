@@ -165,7 +165,7 @@ export class NextMDB {
                                     collection.triggerEvent("despawn");
                                 } else if(resetAllCollection) {
                                     collection.clearDynamicProperties();
-                                    collection.teleport(CONFIG.location, world.getDimension(CONFIG.dimension));
+                                    collection.teleport(CONFIG.location, {dimension: world.getDimension(CONFIG.dimension)});
                                 }
 
                             }
