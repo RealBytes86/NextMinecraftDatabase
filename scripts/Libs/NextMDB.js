@@ -629,7 +629,7 @@ function trySpawnBarrier() {
     return true;
 }
 
-async function existTickingArea(name) {
+async function existTickingAreaNextDATABASE() {
     const dimension = world.getDimension(CONFIG.dimension);
     const one = await dimension.runCommandAsync("tickingarea add circle 0 0 0 2 NEXT:DATABASE");
     const count = one.successCount;
