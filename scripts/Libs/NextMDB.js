@@ -142,7 +142,7 @@ export class NextMDB {
         return { succes: false };
     }
 
-    async initCollection() {
+    async initCollection({resetAllCollection, deleteAllCollection} = {}) {
 
         const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
         const TICKING_AREA = `tickingarea add circle ${CONFIG.location.x} ${CONFIG.location.y} ${CONFIG.location.z} 3 NEXT:DATABASE`
@@ -152,12 +152,23 @@ export class NextMDB {
             dimension = world.getDimension(dimensions[i]);
             const tickingArea = await dimension.runCommandAsync(TICKING_AREA);
             if(tickingArea.successCount == 0) {
+                const entities = dimension.getEntities();
+                for(let e = 0; e < entities.length; e++) {
+                    const entity = entities[e];
+                    if(entity.typeId == CONFIG.identifier) {
+                        const getAllCollection = dimension.getEntitiesAtBlockLocation(entity.location);
+                        for(let c = 0; c < getAllCollection.length; c++) {
+                            const collection = getAllCollection[c];
+                            if(collection.typeId == CONFIG.identifier) {
+                            }
+                        }
+                    }
+                }
 
             } else {
                 await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
             }
         }
-
 
         CONFIG.init = true;
     }
