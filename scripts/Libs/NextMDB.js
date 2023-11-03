@@ -145,8 +145,11 @@ export class NextMDB {
     async initCollection() {
 
         const dimension = world.getDimension(CONFIG.dimension);
+        const bool = await existTickingAreaNextDATABASE();
+    
+        if(bool) {
 
-
+        }
 
 
         CONFIG.init = true;
@@ -634,9 +637,9 @@ async function existTickingAreaNextDATABASE() {
     const one = await dimension.runCommandAsync("tickingarea add circle 0 0 0 2 NEXT:DATABASE");
     const count = one.successCount;
     if(count == 0) {
-        await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
         return true;
     } else {
+        await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
         return false;
     }
 }
