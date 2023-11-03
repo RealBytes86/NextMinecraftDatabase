@@ -655,27 +655,24 @@ class XOREncryption {
 }
 
 export class Thread {
-
     #id = null;
-
-    constructor(func, second) {
-        this.function = func;       
-        if(typeof second == "number") {
-            this.second = second * 20;
-        } else {
-            this.second = 0;
-        }
+    constructor(func, seconds = 0) {
+        this.func = func;
+        this.second = seconds;
     }
 
     start() {
-        this.#id = system.runInterval(() => this.function, this.second);
+        if(this.#id !== null) throw new Error("Thread is already running.");
+        this.#id = system.runInterval(() => this.func, this.second * 20); // Ändern Sie Sekunden in Millisekunden
     }
-    
+
     stop() {
-        if(this.#id == null) throw new Error("Thread is not Running.");
+        if(this.#id === null) throw new Error("Thread is not running.");
         system.clearRun(this.#id);
+        this.#id = null;
     }
 }
+
 
 function trySpawnBarrier() {
     const dimension = world.getDimension(CONFIG.dimension);
