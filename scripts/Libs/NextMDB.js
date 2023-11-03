@@ -143,19 +143,11 @@ export class NextMDB {
     }
 
     async initCollection() {
-        
-        const dimension = world.getDimension(CONFIG.dimension);
-        const location = CONFIG.location;
 
-        dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`).then((response) => {
-            if(response.successCount == 0) {
-                dimension.runCommandAsync(`tickingarea remove NEXT:DATABASE`).then((response) => {
-                    if(response.successCount == 1) {
-                        dimension.runCommandAsync(`tickingarea add ${location.x} ${location.y} ${location.z} ${location.x} ${location.y} ${location.z} NEXT:DATABASE`);
-                    }
-                })
-            }
-        })
+        const dimension = world.getDimension(CONFIG.dimension);
+
+
+
 
         CONFIG.init = true;
     }
@@ -637,6 +629,18 @@ function trySpawnBarrier() {
     return true;
 }
 
+async function existTickingArea(name) {
+    const dimension = world.getDimension(CONFIG.dimension);
+    const one = await dimension.runCommandAsync("tickingarea add circle 0 0 0 2 NEXT:DATABASE");
+    const count = one.successCount;
+    if(count == 0) {
+        await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
+        return true;
+    } else {
+        return false;
+    }
+}
+ 
 function getType(type = "JSON") {
 
     if(typeof type != "string") {
