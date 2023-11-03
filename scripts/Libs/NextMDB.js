@@ -144,11 +144,18 @@ export class NextMDB {
 
     async initCollection() {
 
-        const dimension = world.getDimension(CONFIG.dimension);
-        const bool = await existTickingAreaNextDATABASE();
-    
-        if(bool) {
+        const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
+        const TICKING_AREA = `tickingarea add circle ${CONFIG.location.x} ${CONFIG.location.y} ${CONFIG.location.z} 3 NEXT:DATABASE`
+        let dimension = null;
 
+        for(let i = 0; i < dimensions.length; i++) {
+            dimension = world.getDimension(dimensions[i]);
+            const tickingArea = await dimension.runCommandAsync(TICKING_AREA);
+            if(tickingArea.successCount == 0) {
+                
+            } else {
+                await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
+            }
         }
 
 
@@ -632,18 +639,6 @@ function trySpawnBarrier() {
     return true;
 }
 
-async function existTickingAreaNextDATABASE() {
-    const dimension = world.getDimension(CONFIG.dimension);
-    const one = await dimension.runCommandAsync("tickingarea add circle 0 0 0 2 NEXT:DATABASE");
-    const count = one.successCount;
-    if(count == 0) {
-        return true;
-    } else {
-        await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
-        return false;
-    }
-}
- 
 function getType(type = "JSON") {
 
     if(typeof type != "string") {
