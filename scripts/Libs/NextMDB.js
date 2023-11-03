@@ -146,6 +146,7 @@ export class NextMDB {
 
         const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
         const TICKING_AREA = `tickingarea add circle ${CONFIG.location.x} ${CONFIG.location.y} ${CONFIG.location.z} 3 NEXT:DATABASE`
+        const TICKING_AREA_DELETE = "tickingarea remove NEXT:DATABASE";
         let dimension = world.getDimension(CONFIG.dimension);
 
         for(let i = 0; i < dimensions.length; i++) {
@@ -156,25 +157,33 @@ export class NextMDB {
                 for(let e = 0; e < entities.length; e++) {
                     const entity = entities[e];
                     if(entity.typeId == CONFIG.identifier) {
-                        const getAllCollection = dimension.getEntitiesAtBlockLocation(entity.location);
+                        const eLocation = entity.location;
+                        const getAllCollection = dimension.getEntitiesAtBlockLocation(eLocation);
+
                         for(let c = 0; c < getAllCollection.length; c++) {
                             const collection = getAllCollection[c];
                             if(collection.typeId == CONFIG.identifier) {
                                 if(deleteAllCollection) {
                                     collection.clearDynamicProperties();
                                     collection.triggerEvent("despawn");
+                                    continue;
                                 } else if(resetAllCollection) {
                                     collection.clearDynamicProperties();
-                                    collection.teleport(CONFIG.location, {dimension: world.getDimension(CONFIG.dimension)});
                                 }
-
+                                collection.teleport(CONFIG.location, {dimension: dimension});
                             }
                         }
+                        break;
                     }
+                    break;
                 }
 
+                await dimension.runCommandAsync(TICKING_AREA_DELETE);
+                await dimension.runCommandAsync(TICKING_AREA);
+                trySpawnBarrier();
+
             } else {
-                await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
+                await dimension.runCommandAsync(TICKING_AREA_DELETE);
             }
         }
 
