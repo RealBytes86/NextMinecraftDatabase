@@ -146,13 +146,13 @@ export class NextMDB {
 
         const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
         const TICKING_AREA = `tickingarea add circle ${CONFIG.location.x} ${CONFIG.location.y} ${CONFIG.location.z} 3 NEXT:DATABASE`
-        let dimension = null;
+        let dimension = world.getDimension(CONFIG.dimension);
 
         for(let i = 0; i < dimensions.length; i++) {
             dimension = world.getDimension(dimensions[i]);
             const tickingArea = await dimension.runCommandAsync(TICKING_AREA);
             if(tickingArea.successCount == 0) {
-                
+
             } else {
                 await dimension.runCommandAsync("tickingarea remove NEXT:DATABASE");
             }
