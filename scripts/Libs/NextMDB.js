@@ -654,6 +654,29 @@ class XOREncryption {
     }
 }
 
+export class Thread {
+
+    #id = null;
+
+    constructor(func, second) {
+        this.function = func;       
+        if(typeof second == "number") {
+            this.second = second * 20;
+        } else {
+            this.second = 0;
+        }
+    }
+
+    start() {
+        this.#id = system.runInterval(() => this.function, this.second);
+    }
+    
+    stop() {
+        if(this.#id == null) throw new Error("Thread is not Running.");
+        system.clearRun(this.#id);
+    }
+}
+
 function trySpawnBarrier() {
     const dimension = world.getDimension(CONFIG.dimension);
     try { dimension.fillBlocks(CONFIG.location, CONFIG.location, "minecraft:air"); } catch {}
