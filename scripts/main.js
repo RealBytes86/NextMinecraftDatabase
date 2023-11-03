@@ -24,4 +24,5 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
 })
 
 
+
 console.warn("Addon is Ready!");

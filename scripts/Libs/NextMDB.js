@@ -13,7 +13,6 @@ export class NextMDB {
         if(CONFIG.init == false) {
             throw new Error("Collection is not initialized.");
         }
-
     }
 
     constructor () {
