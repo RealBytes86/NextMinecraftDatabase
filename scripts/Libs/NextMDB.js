@@ -142,7 +142,7 @@ export class NextMDB {
         return { succes: false };
     }
 
-    async initCollection({resetAllCollection, deleteAllCollection} = {}) {
+    async initCollection({resetAllCollection = false, deleteAllCollection = false} = {}) {
 
         const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
         const TICKING_AREA = `tickingarea add circle ${CONFIG.location.x} ${CONFIG.location.y} ${CONFIG.location.z} 3 NEXT:DATABASE`
@@ -160,6 +160,14 @@ export class NextMDB {
                         for(let c = 0; c < getAllCollection.length; c++) {
                             const collection = getAllCollection[c];
                             if(collection.typeId == CONFIG.identifier) {
+                                if(deleteAllCollection) {
+                                    collection.clearDynamicProperties();
+                                    collection.triggerEvent("despawn");
+                                } else if(resetAllCollection) {
+                                    collection.clearDynamicProperties();
+                                    collection.teleport(CONFIG.location, world.getDimension(CONFIG.dimension));
+                                }
+
                             }
                         }
                     }
