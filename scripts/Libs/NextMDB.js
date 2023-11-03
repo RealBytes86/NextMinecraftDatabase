@@ -177,14 +177,14 @@ export class NextMDB {
                     }
                     break;
                 }
-
-                await dimension.runCommandAsync(TICKING_AREA_DELETE);
-                await dimension.runCommandAsync(TICKING_AREA);
-                trySpawnBarrier();
-
+                break;
             } else {
                 await dimension.runCommandAsync(TICKING_AREA_DELETE);
             }
+
+            await dimension.runCommandAsync(TICKING_AREA_DELETE);
+            await dimension.runCommandAsync(TICKING_AREA);
+            trySpawnBarrier();
         }
 
         CONFIG.init = true;
