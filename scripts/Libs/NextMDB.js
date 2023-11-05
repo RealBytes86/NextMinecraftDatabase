@@ -20,7 +20,12 @@ export class NextMDB {
             JParse,
             escapeQuotes,
             unescapeQuotes,
-        }        
+            calculateByteLength,
+        }
+
+        this.beforInit = {
+            setLocationCollection   
+        }
     }
 
     World(database) {
@@ -144,6 +149,8 @@ export class NextMDB {
 
     async initCollection({resetAllCollection = false, deleteAllCollection = false} = {}) {
 
+        if(CONFIG.init) throw new Error("Collection is already initialized.");
+
         const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
         const TICKING_AREA = `tickingarea add circle ${CONFIG.location.x} ${CONFIG.location.y} ${CONFIG.location.z} 3 NEXT:DATABASE`
         const TICKING_AREA_DELETE = "tickingarea remove NEXT:DATABASE";
@@ -188,43 +195,6 @@ export class NextMDB {
         trySpawnBarrier();
 
         CONFIG.init = true;
-    }
-
-    setLocationCollection({x, y, z}, dimension) {
-
-        if(CONFIG.init) throw new Error("Collections have already been initiated.")
-
-        if(typeof x !== "number") throw new Error("x must be a number.");
-        if(typeof y !== "number") throw new Error("y must be a number.");
-        if(typeof z !== "number") throw new Error("z must be a number."); 
-
-        switch(dimension) {
-            case MinecraftDimensionTypes.overworld:
-            case "overworld":
-            case "normal":
-            case 1:
-                dimension = MinecraftDimensionTypes.overworld;
-                break;
-            case MinecraftDimensionTypes.nether:
-            case "nether":
-            case "hell":
-            case 2:
-                dimension = MinecraftDimensionTypes.nether;
-                break;
-            case MinecraftDimensionTypes.theEnd:
-            case "theend":
-            case "end":
-            case 3:
-                dimension = MinecraftDimensionTypes.theEnd;
-                break;
-        }
-
-        CONFIG.location.x = x;
-        CONFIG.location.y = y;
-        CONFIG.location.z = z;
-        CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
-
-        return { succes: true };
     }
 
     resetALLWorldData() {
@@ -702,4 +672,64 @@ function getType(type = "JSON") {
     } else {
         throw new Error("Type is not supported.");
     }
+}
+
+function calculateByteLength(str) {
+
+    if(typeof str != "string") throw new Error("Type must be a string.");
+
+    let length = 0;
+
+    for (let i = 0; i < str.length; i++) {
+        const charCode = str.charCodeAt(i);
+
+        if(charCode <= 0x007F) {} else if (charCode <= 0x07FF) {
+            length += 2;
+        } else {
+            length += 4;
+        }
+
+        if(length > 32767) {
+            throw new Error('String zu lang');
+        }
+    }
+
+    return length;
+}
+
+function setLocationCollection({x, y, z}, dimension) {
+
+    if(CONFIG.init) throw new Error("Collections have already been initiated.")
+
+    if(typeof x !== "number") throw new Error("x must be a number.");
+    if(typeof y !== "number") throw new Error("y must be a number.");
+    if(typeof z !== "number") throw new Error("z must be a number."); 
+
+    switch(dimension) {
+        case MinecraftDimensionTypes.overworld:
+        case "overworld":
+        case "normal":
+        case 1:
+            dimension = MinecraftDimensionTypes.overworld;
+            break;
+        case MinecraftDimensionTypes.nether:
+        case "nether":
+        case "hell":
+        case 2:
+            dimension = MinecraftDimensionTypes.nether;
+            break;
+        case MinecraftDimensionTypes.theEnd:
+        case "theend":
+        case "end":
+        case 3:
+            dimension = MinecraftDimensionTypes.theEnd;
+            break;
+    }
+
+    CONFIG.location.x = x;
+    CONFIG.location.y = y;
+    CONFIG.location.z = z;
+    CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
+
+    return { succes: true };
 }

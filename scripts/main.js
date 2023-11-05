@@ -4,6 +4,7 @@ console.warn("Loading world...");
 
 const setPrefix = ".";
 
+
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
     if(messsage.startsWith(setPrefix)) {
