@@ -1,4 +1,4 @@
-import { world, Entity, MinecraftDimensionTypes, system } from "@minecraft/server";
+import { world, Entity, MinecraftDimensionTypes, system, System } from "@minecraft/server";
 
 const CONFIG = {
     location: { x: 0, y: 0, z: 0},
@@ -15,6 +15,8 @@ export class NextMDB {
         }
     }
 
+    #events = new Events();
+
     constructor () {
         this.utils = {
             JParse,
@@ -25,6 +27,12 @@ export class NextMDB {
 
         this.beforeInit = {
             setLocationCollection   
+        }
+
+        this.events = {
+            initWithPlayer: (callback) => {
+                return this.#events.initWithPlayer(callback);
+            }
         }
     }
 
@@ -436,6 +444,18 @@ class EEntity {
 
     getByte() {
         return this.entity.getDynamicPropertyTotalByteCount();
+    }
+}
+
+class Events {
+    initWithPlayer(event) {
+        const interval = system.runInterval(() => {
+            try {
+                world.getAllPlayers()[0].isValid();
+                event({isReady: true});
+                system.clearRun(interval);
+            } catch{}
+        }, 0)
     }
 }
 
