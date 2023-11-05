@@ -23,7 +23,7 @@ export class NextMDB {
             calculateByteLength,
         }
 
-        this.beforInit = {
+        this.beforeInit = {
             setLocationCollection   
         }
     }

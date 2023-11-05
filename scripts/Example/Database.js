@@ -4,7 +4,7 @@ import { NextMDB } from "../Libs/NextMDB";
 const client = new NextMDB();
 
 world.afterEvents.worldInitialize.subscribe((ctx) => {
-    client.beforInit.setLocationCollection({x: 0, y: 40, z: 0});
+    client.beforeInit.setLocationCollection({x: 0, y: 40, z: 0});
     client.initCollection().then(() => {
         client.createCollection("Hello World")
         client.createCollection("Hello World1")
