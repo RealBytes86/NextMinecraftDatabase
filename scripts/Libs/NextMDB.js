@@ -1,4 +1,4 @@
-import { world, Entity, MinecraftDimensionTypes, system, System } from "@minecraft/server";
+import { world, Entity, MinecraftDimensionTypes, system } from "@minecraft/server";
 
 const CONFIG = {
     location: { x: 0, y: 0, z: 0},
@@ -22,7 +22,7 @@ export class NextMDB {
             JParse,
             escapeQuotes,
             unescapeQuotes,
-            calculateByteLength,
+            calculateByteLength
         }
 
         this.beforeInit = {
@@ -32,8 +32,27 @@ export class NextMDB {
         this.events = {
             initWithPlayer: (callback) => {
                 return this.#events.initWithPlayer(callback);
+            },
+            initWithEntities: (callback) => { 
+                return this.#events.initWithEntities(callback);
             }
         }
+    }
+
+    getLocationX() {
+        return CONFIG.location.x;
+    }
+
+    getLocationY() {
+        return CONFIG.location.y;
+    }
+
+    getLocationZ() {
+        return CONFIG.location.z;
+    }
+
+    getLocation() {
+        return CONFIG.location;
     }
 
     World(database) {
@@ -155,7 +174,7 @@ export class NextMDB {
         return { succes: false };
     }
 
-    async initCollection({resetAllCollection = false, deleteAllCollection = false} = {}) {
+    async initCollection({resetAllCollection = false, deleteAllCollection = false, killAllCollection = false} = {}) {
 
         if(CONFIG.init) throw new Error("Collection is already initialized.");
 
@@ -172,6 +191,11 @@ export class NextMDB {
                 for(let e = 0; e < entities.length; e++) {
                     const entity = entities[e];
                     if(entity.typeId == CONFIG.identifier) {
+                        if(killAllCollection) {
+                            entity.clearDynamicProperties();
+                            entity.triggerEvent("despawn");
+                            continue;
+                        }
                         const eLocation = entity.location;
                         const getAllCollection = dimension.getEntitiesAtBlockLocation(eLocation);
 
@@ -203,6 +227,38 @@ export class NextMDB {
         trySpawnBarrier();
 
         CONFIG.init = true;
+    }
+
+    async killAllCollection() {
+        const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
+        for(let i = 0; i < dimensions.length; i++) {
+            const dimension = world.getDimension(dimensions[i]);
+            const entities = dimension.getEntities();
+            for(let e = 0; e < entities.length; e++) { 
+                const entity = entities[e];
+                if(entity.typeId == CONFIG.identifier) {
+                    entity.clearDynamicProperties();
+                    entity.triggerEvent("despawn");
+                }
+            }
+        }
+
+        return true;
+    }
+
+    getAllCollection() {
+        this.#isInit();
+        const listCollections = [];
+        const dimension = world.getDimension(CONFIG.dimension);
+        const Collections = dimension.getEntitiesAtBlockLocation(CONFIG.location);
+        for(let i = 0; i < Collections.length; i++) {
+            const collection = Collections[i];
+            if(collection.typeId == CONFIG.identifier) {
+                listCollections.push(collection.nameTag);
+            }
+        }
+
+        return listCollections;
     }
 
     resetALLWorldData() {
@@ -457,6 +513,21 @@ class Events {
             } catch{}
         }, 0)
     }
+
+    initWithEntities(event) {
+        const interval = system.runInterval(() => {
+            try {
+                const dimensions = [MinecraftDimensionTypes.overworld, MinecraftDimensionTypes.nether, MinecraftDimensionTypes.theEnd];
+                for(let i = 0; i < dimensions.length; i++) {
+                    const dimension = world.getDimension(dimensions[i]);
+                    dimension.getEntities()[0].isValid();
+                    event({isReady: true});
+                    system.clearRun(interval);
+                    break;
+                }
+            } catch{}
+        }, 0)
+    }
 }
 
 class World {
@@ -653,7 +724,11 @@ export class Thread {
 
     start() {
         if(this.#id !== null) throw new Error("Thread is already running.");
-        this.#id = system.runInterval(() => this.func, this.second * 20); // Ändern Sie Sekunden in Millisekunden
+        if(typeof this.func == "function") {
+            this.#id = system.runInterval(() => this.func(), this.second * 20);
+        } else {
+            throw new Error("Thread cannot be started");
+        }
     }
 
     stop() {
