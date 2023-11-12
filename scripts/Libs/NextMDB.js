@@ -1,4 +1,4 @@
-import { world, Entity, MinecraftDimensionTypes, system } from "@minecraft/server";
+import { world, Entity, MinecraftDimensionTypes, system, Player } from "@minecraft/server";
 
 const CONFIG = {
     location: { x: 0, y: 0, z: 0},
@@ -58,6 +58,10 @@ export class NextMDB {
     World(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new World(database);
+    }
+
+    Player(playerObject) {
+        return new playerDynamic(playerObject);
     }
 
     Entity(object, database) {
@@ -275,6 +279,148 @@ export class NextMDB {
     }
 }
 
+class playerDynamic {
+    constructor(player) {
+        this.string = new playerString(player);
+        this.json = new playerJSON(player);
+    }
+}
+
+
+class playerString {
+    /**
+     * @param {Player} player 
+     */
+    constructor(player) {
+        this.player = player;
+    }
+
+    #onChangeCallback = () => {};
+
+    get(property) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        const get = this.player.getDynamicProperty(property);
+        if(get == undefined) return null;
+        this.#onChangeCallback("get", property);
+        return get
+    }
+
+    set(property, value) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        if(typeof value != "string") throw new Error("value must be a string.");
+        this.#onChangeCallback("set", property, value);
+        this.player.setDynamicProperty(property, value);
+        return { succes: true };
+    }
+
+    has(property) {
+        if(this.player.getDynamicProperty(property)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    clear() {
+        this.player.clearDynamicProperties();
+        return { succes: true };
+    }
+
+    size() {
+        return this.player.getDynamicPropertyIds().length;
+    }
+
+    getByte() {
+        return this.player.getDynamicPropertyTotalByteCount();
+    }
+
+    getProperties() {
+        return this.player.getDynamicPropertyIds();
+    }
+
+    delete(property) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        this.#onChangeCallback("delete", property);
+        this.player.setDynamicProperty(property, undefined);
+        return { succes: true };
+    }
+}
+
+class playerJSON {
+    /**
+     * @param {Player} player 
+     */
+    constructor(player) {
+        this.player = player;
+    }
+
+    #onChangeCallback = () => {};
+
+    get(property) {
+        if(typeof property == "string") {
+            const get = this.player.getDynamicProperty(property);
+            if(get == undefined) return null;
+            const J = JParse(unescapeQuotes(get));
+            if(J.isValid == false) {
+                return { error: "invalid Json" }
+            }
+            this.#onChangeCallback("get", property)
+            return J.json;
+        } else {
+            throw new Error("property must be a string.");
+        }
+    }
+
+    has(property) {
+        if(this.player.getDynamicProperty(property)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    set(property, json) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        if(typeof json != "object") throw new Error("json must be a object.");
+        const J = JParse(json, false);
+        if(J.isValid) {
+            this.#onChangeCallback("set", property, json);
+            this.player.setDynamicProperty(property, escapeQuotes(J.json));
+            return { succes: true };
+        } else {
+            throw new Error("invalid Json.");
+        }
+    }
+
+    clear() {
+        this.player.clearDynamicProperties();
+        return { succes: true };
+    }
+
+    delete(property) {
+        if(typeof property != "string") throw new Error("property must be a string.");
+        this.#onChangeCallback("delete", property);
+        this.player.setDynamicProperty(property, undefined);
+        return { succes: true };
+    }
+
+    on(callback) {
+        this.#onChangeCallback = callback;
+    }
+
+    size() {
+        return this.player.getDynamicPropertyIds().length;
+    }
+
+    getByte() {
+        return this.player.getDynamicPropertyTotalByteCount();
+    }
+
+    getProperties() {
+        return this.player.getDynamicPropertyIds();
+    }
+}
+
 class StringCollection {
     constructor(database) {
         this.database = database;
@@ -330,6 +476,10 @@ class StringCollection {
 
     getByte() {
         return this.#collection(this.database).getDynamicPropertyTotalByteCount();
+    }
+
+    getProperties() {
+        return this.#collection(this.database).getDynamicPropertyIds();
     }
 
     delete(property) {
@@ -423,6 +573,10 @@ class JSONCollection {
 
     getByte() {
         return this.#collection(this.database).getDynamicPropertyTotalByteCount();
+    }
+
+    getProperties() {
+        return this.#collection(this.database).getDynamicPropertyIds();
     }
 
 }
