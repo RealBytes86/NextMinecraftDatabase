@@ -4,7 +4,7 @@ const CONFIG = {
     location: { x: 0, y: 0, z: 0},
     identifier: "next:database",
     dimension: MinecraftDimensionTypes.overworld,
-    init: false,
+    dynamic_init: false,
 }
 
 export class NextMDB {
@@ -62,11 +62,11 @@ class Dynamic {
     }
 
     #isInit = () => {
-        if(CONFIG.init == false) {
+        if(CONFIG.dynamic_init == false) {
             throw new Error("Collection is not initialized.");
         }
     }
-    
+
     StringCollection(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new StringCollection(`STRING:${database}`);
@@ -245,7 +245,7 @@ class Dynamic {
         await dimension.runCommandAsync(TICKING_AREA);
         trySpawnBarrier();
 
-        CONFIG.init = true;
+        CONFIG.dynamic_init = true;
     }
 
     async killAllCollection() {
