@@ -9,12 +9,6 @@ const CONFIG = {
 
 export class NextMDB {
 
-    #isInit = () => {
-        if(CONFIG.init == false) {
-            throw new Error("Collection is not initialized.");
-        }
-    }
-
     #events = new Events();
 
     constructor () {
@@ -25,10 +19,6 @@ export class NextMDB {
             calculateByteLength
         }
 
-        this.beforeInit = {
-            setLocationCollection   
-        }
-
         this.events = {
             initWithPlayer: (callback) => {
                 return this.#events.initWithPlayer(callback);
@@ -37,22 +27,6 @@ export class NextMDB {
                 return this.#events.initWithEntities(callback);
             }
         }
-    }
-
-    getLocationX() {
-        return CONFIG.location.x;
-    }
-
-    getLocationY() {
-        return CONFIG.location.y;
-    }
-
-    getLocationZ() {
-        return CONFIG.location.z;
-    }
-
-    getLocation() {
-        return CONFIG.location;
     }
 
     World(database) {
@@ -69,6 +43,30 @@ export class NextMDB {
         return new EEntity(object, database);
     }
 
+    Dynamic() {
+        return new Dynamic();
+    }
+
+    XOR() {
+        return new XOR();
+    }
+
+}
+
+class Dynamic {
+
+    constructor() {
+        this.beforeInit = {
+            setLocationCollection   
+        }
+    }
+
+    #isInit = () => {
+        if(CONFIG.init == false) {
+            throw new Error("Collection is not initialized.");
+        }
+    }
+    
     StringCollection(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new StringCollection(`STRING:${database}`);
@@ -77,6 +75,23 @@ export class NextMDB {
     JSONCollection(database) {
         if(typeof database != "string" || database.length == 0) throw new Error("Database must be a string.");
         return new JSONCollection(`JSON:${database}`);
+    }
+
+
+    getLocationX() {
+        return CONFIG.location.x;
+    }
+
+    getLocationY() {
+        return CONFIG.location.y;
+    }
+
+    getLocationZ() {
+        return CONFIG.location.z;
+    }
+
+    getLocation() {
+        return CONFIG.location;
     }
 
     existsCollection(database, type = "JSON") {
@@ -264,19 +279,11 @@ export class NextMDB {
 
         return listCollections;
     }
-
-    resetALLWorldData() {
-        world.clearDynamicProperties();
-        return { succes: true };
-    }
-
-    XOR() {
-        return new XOR();
-    }
-
+    
     sizeCollection() {
         return world.getDimension(CONFIG.dimension).getEntitiesAtBlockLocation(CONFIG.location).filter((collection) => collection.typeId == CONFIG.identifier).length;
     }
+
 }
 
 class playerDynamic {
