@@ -43,6 +43,10 @@ export class NextMDB {
         return new EEntity(object, database);
     }
 
+    Scoreboard() {
+        return new ScoreboardDB();
+    }
+
     Dynamic() {
         return new Dynamic();
     }
@@ -50,6 +54,10 @@ export class NextMDB {
     XOR() {
         return new XOR();
     }
+
+}
+
+class ScoreboardDB {
 
 }
 
@@ -988,4 +996,49 @@ function setLocationCollection({x, y, z}, dimension) {
     CONFIG.dimension = dimension ?? MinecraftDimensionTypes.overworld;
 
     return { succes: true };
+}
+
+
+class Base64 {
+
+    #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+    encode(str) {
+        let encoded = '';
+        let padding = '';
+    
+        for(let i = 0; i < str.length % 3; i++) {
+            padding += '=';
+            str += '\0';
+        }
+
+        this.#chars
+    
+        for(let i = 0; i < str.length; i += 3) {
+            const n = (str.charCodeAt(i) << 16) + (str.charCodeAt(i + 1) << 8) + str.charCodeAt(i + 2);
+            encoded += this.#chars.charAt((n >>> 18) & 63) + this.#chars.charAt((n >>> 12) & 63) + this.#chars.charAt((n >>> 6) & 63) + this.#chars.charAt(n & 63);
+        }
+    
+        return encoded.substring(0, encoded.length - padding.length) + padding;
+    }
+
+    decode(encoded) {
+        
+        let decoded = '';
+    
+        encoded = encoded.replace(/=+$/, '');
+    
+        for (let i = 0; i < encoded.length; i += 4) {
+            const n = (this.#chars.indexOf(encoded.charAt(i)) << 18) |
+                      (this.#chars.indexOf(encoded.charAt(i + 1)) << 12) |
+                      (this.#chars.indexOf(encoded.charAt(i + 2)) << 6) |
+                      this.#chars.indexOf(encoded.charAt(i + 3));
+    
+            decoded += String.fromCharCode((n >>> 16) & 255) +
+                       String.fromCharCode((n >>> 8) & 255) +
+                       String.fromCharCode(n & 255);
+        }
+    
+        return decoded.replace(/\0+$/, '');
+    }
 }
