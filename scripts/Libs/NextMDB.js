@@ -63,6 +63,44 @@ export class NextMDB {
 
 class ScoreboardDB {
 
+    Collection(collection) {
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string.");
+        return new ScoreboardCollections(collection);
+    }
+
+    createCollection(collection) {
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+    }
+
+    deleteCollection(collection) {
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+    }
+
+    resetCollection(collection) { 
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+    }
+
+    resetALLCollections() { 
+
+    }
+
+    getCollection(collection) {
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+        
+    }
+
+    getCollections() { 
+
+    }
+
+    existsCollection() {
+
+    }
+
+}
+
+class ScoreboardCollections {
+
 }
 
 class Dynamic {
