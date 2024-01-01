@@ -999,7 +999,7 @@ function setLocationCollection({x, y, z}, dimension) {
 }
 
 
-class Base64 {
+export class Base64 {
 
     #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
@@ -1023,7 +1023,7 @@ class Base64 {
     }
 
     decode(encoded) {
-        
+
         let decoded = '';
     
         encoded = encoded.replace(/=+$/, '');
