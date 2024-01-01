@@ -1004,15 +1004,13 @@ export class Base64 {
     #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
     encode(str) {
-        let encoded = '';
-        let padding = '';
+        let encoded = "";
+        let padding = "";
     
         for(let i = 0; i < str.length % 3; i++) {
-            padding += '=';
-            str += '\0';
+            padding += "=";
+            str += "\0";
         }
-
-        this.#chars
     
         for(let i = 0; i < str.length; i += 3) {
             const n = (str.charCodeAt(i) << 16) + (str.charCodeAt(i + 1) << 8) + str.charCodeAt(i + 2);
@@ -1024,9 +1022,9 @@ export class Base64 {
 
     decode(encoded) {
 
-        let decoded = '';
+        let decoded = "";
     
-        encoded = encoded.replace(/=+$/, '');
+        encoded = encoded.replace(/=+$/, "");
     
         for (let i = 0; i < encoded.length; i += 4) {
             const n = (this.#chars.indexOf(encoded.charAt(i)) << 18) |
