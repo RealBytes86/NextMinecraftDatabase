@@ -64,8 +64,8 @@ export class NextMDB {
 class ScoreboardDB {
 
     Collection(collection) {
-        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string.");
-        return new ScoreboardCollections(collection);
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+        return new ScoreboardCollection(collection);
     }
 
     createCollection(collection) {
@@ -80,13 +80,13 @@ class ScoreboardDB {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
     }
 
-    resetALLCollections() { 
-
-    }
-
     getCollection(collection) {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
         
+    }
+
+    resetALLCollections() { 
+
     }
 
     getCollections() { 
@@ -99,7 +99,31 @@ class ScoreboardDB {
 
 }
 
-class ScoreboardCollections {
+class ScoreboardCollection {
+
+    #base64 = new Base64();
+
+    constructor(collection, format = "json") {
+        this.collection = collection;
+        this.format = format;
+        this.id = this.#base64.encode(collection);
+    }
+
+    set(property, value) {
+        
+    }
+
+    get(property) {
+
+    }
+
+    delete(property) { 
+
+    }
+
+    has(property) {
+
+    }
 
 }
 
