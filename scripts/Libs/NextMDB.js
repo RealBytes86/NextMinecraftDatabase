@@ -55,6 +55,10 @@ export class NextMDB {
         return new XOR();
     }
 
+    Base64() {
+        return new Base64();
+    }
+
 }
 
 class ScoreboardDB {

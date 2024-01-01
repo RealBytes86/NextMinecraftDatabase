@@ -18,10 +18,6 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
             //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
             //console.warn(test.length)
 
-            const base = new Base64();
-
-            console.warn(base.encode("Hello World!"));
-
             return;
         }
 
