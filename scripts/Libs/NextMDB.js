@@ -1006,17 +1006,17 @@ export class Base64 {
     encode(str) {
         let encoded = "";
         let padding = "";
-    
+
         for(let i = 0; i < str.length % 3; i++) {
             padding += "=";
             str += "\0";
         }
-    
+
         for(let i = 0; i < str.length; i += 3) {
             const n = (str.charCodeAt(i) << 16) + (str.charCodeAt(i + 1) << 8) + str.charCodeAt(i + 2);
             encoded += this.#chars.charAt((n >>> 18) & 63) + this.#chars.charAt((n >>> 12) & 63) + this.#chars.charAt((n >>> 6) & 63) + this.#chars.charAt(n & 63);
         }
-    
+
         return encoded.substring(0, encoded.length - padding.length) + padding;
     }
 

@@ -1,5 +1,6 @@
 import { system, world  } from "@minecraft/server"
 import "./Example/Database"
+import { Base64 } from "./Libs/NextMDB";
 console.warn("Loading world...");
 
 const setPrefix = ".";
@@ -16,7 +17,11 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
 
             //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
             //console.warn(test.length)
-            system.run(() => ctx.sender.dimension.spawnEntity("next:database", {x: 0, y: 1000, z: 0}))
+
+            const base = new Base64();
+
+            console.warn(base.encode("Hello World!"));
+
             return;
         }
 
