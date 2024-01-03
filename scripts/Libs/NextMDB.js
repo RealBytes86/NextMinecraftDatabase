@@ -116,13 +116,14 @@ class ScoreboardDB {
             if(objective.id.startsWith(id)) { 
 
                 world.scoreboard.removeObjective(objective.id);
-                resetCount++;
+                const decodeID = this.#base64.decode(objective.id);
 
-                if(resetCount == 1) {
+                if(decodeID.endsWith("#1")) {
                     world.scoreboard.addObjective(objective.id, objective.displayName);
+                    resetCount++;
                     continue
                 }
-
+                resetCount++;
                 continue;
             }
         }
@@ -130,19 +131,43 @@ class ScoreboardDB {
     }
 
     deleteAllCollections() {
+        let deleteCount = 0;
+        const id = this.#base64.encode("NEXTDATABASE:");
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(id)) {
+                world.scoreboard.removeObjective(objective.id);
+                deleteCount++;
+                continue;
+            }
+        }
+        return { deleteCount: deleteCount };
 
     }
 
     resetALLCollections() {
         const objectives = world.scoreboard.getObjectives();
+        let resetCount = 0;
+        const id = this.#base64.encode("NEXTDATABASE:");
         for(let i = 0; i < objectives.length; i++) {
             const objective = objectives[i];
             if(objective.id.startsWith(id)) { 
-                
+
+                world.scoreboard.removeObjective(objective.id);
+                const decodeID = this.#base64.decode(objective.id);
+
+                if(decodeID.endsWith("#1")) { 
+                    world.scoreboard.addObjective(objective.id, objective.displayName);
+                    resetCount++;
+                    continue;
+                }
+
+                resetCount++;
+                continue;
             }
         }
-
-        return collections;
+        return;
     }
 
     getCollections() {
@@ -178,7 +203,6 @@ class ScoreboardDB {
 
         return false
     }
-
 }
 
 class ScoreboardCollection {
@@ -1179,8 +1203,15 @@ export class Base64 {
         }
 
         for(let i = 0; i < str.length; i += 3) {
-            const n = (str.charCodeAt(i) << 16) + (str.charCodeAt(i + 1) << 8) + str.charCodeAt(i + 2);
-            encoded += this.#chars.charAt((n >>> 18) & 63) + this.#chars.charAt((n >>> 12) & 63) + this.#chars.charAt((n >>> 6) & 63) + this.#chars.charAt(n & 63);
+            
+            const n = (str.charCodeAt(i) << 16) 
+            + (str.charCodeAt(i + 1) << 8)
+            + str.charCodeAt(i + 2);
+
+            encoded += this.#chars.charAt((n >>> 18) & 63) 
+            + this.#chars.charAt((n >>> 12) & 63) 
+            + this.#chars.charAt((n >>> 6) & 63) 
+            + this.#chars.charAt(n & 63);
         }
 
         return encoded.substring(0, encoded.length - padding.length) + padding;
