@@ -1,10 +1,14 @@
 import { system, world  } from "@minecraft/server"
 import "./Example/Database"
-import { Base64 } from "./Libs/NextMDB";
+import { Base64, NextMDB } from "./Libs/NextMDB";
 console.warn("Loading world...");
 
 const setPrefix = ".";
 
+const client = new NextMDB();
+
+const database = client.Scoreboard();
+database.createCollection("Kevin");
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
@@ -19,6 +23,14 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
             //console.warn(test.length)
 
             return;
+        } else if(commandName == "encode") {
+            try {
+                ctx.sender.sendMessage("Encode: "+ client.Base64().encode(args.join(" ")))
+                return;
+            } catch{
+                ctx.sender.sendMessage("ERROR ENCODE")
+                return;
+            }
         }
 
         ctx.sender.sendMessage("§7[§6Command§7]§r §c" + commandName + " not exist.");

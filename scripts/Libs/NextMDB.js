@@ -34,6 +34,10 @@ export class NextMDB {
         return new World(database);
     }
 
+    WorldFullDelete() {
+        return world.clearDynamicProperties();
+    }
+
     Player(playerObject) {
         return new playerDynamic(playerObject);
     }
@@ -63,38 +67,116 @@ export class NextMDB {
 
 class ScoreboardDB {
 
+    #base64 = new Base64();
+
     Collection(collection) {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
-        return new ScoreboardCollection(collection);
+        return new ScoreboardCollection("NEXTDATABASE:" + collection);
     }
 
     createCollection(collection) {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+        const id = this.#base64.encode("NEXTDATABASE:" + collection + "#1");
+        const displayName = collection + "#1";
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id == id) {
+                return { succes: false };
+            }
+        } 
+
+        world.scoreboard.addObjective(id, displayName);
+        return { succes: true };
     }
 
     deleteCollection(collection) {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+        let deleteCount = 0;
+        const id = this.#base64.encode("NEXTDATABASE:" + collection);
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(id)) {
+                world.scoreboard.removeObjective(objective.id);
+                deleteCount++;
+                continue;
+            }
+        }
+        return { deleteCount: deleteCount };
     }
 
     resetCollection(collection) { 
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+        let resetCount = 0;
+        const id = this.#base64.encode("NEXTDATABASE:" + collection);
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(id)) { 
+
+                world.scoreboard.removeObjective(objective.id);
+                resetCount++;
+
+                if(resetCount == 1) {
+                    world.scoreboard.addObjective(objective.id, objective.displayName);
+                    continue
+                }
+
+                continue;
+            }
+        }
+        return { resetCount: resetCount };
     }
 
-    getCollection(collection) {
+    deleteAllCollections() {
+
+    }
+
+    resetALLCollections() {
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) {
+            const objective = objectives[i];
+            if(objective.id.startsWith(id)) { 
+                
+            }
+        }
+
+        return collections;
+    }
+
+    getCollections() {
+        const objectives = world.scoreboard.getObjectives();
+        const id = this.#base64.encode("NEXTDATABASE:");
+        const collections = []; 
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(id)) { 
+                collections.push(
+                    {
+                        displayName: objective.displayName,
+                        id: objective.id,
+                        documentSize: objective.getParticipants().length,
+                        
+                    }
+                )
+            }
+        }
+        return collections;
+    }
+
+    existsCollection(collection) {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
-        
-    }
+        const id = this.#base64.encode("NEXTDATABASE:" + collection + "#1");
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id == id) {
+                return true;
+            }
+        } 
 
-    resetALLCollections() { 
-
-    }
-
-    getCollections() { 
-
-    }
-
-    existsCollection() {
-
+        return false
     }
 
 }
@@ -104,9 +186,18 @@ class ScoreboardCollection {
     #base64 = new Base64();
 
     constructor(collection, format = "json") {
-        this.collection = collection;
+        this.displayName = collection;
         this.format = format;
         this.id = this.#base64.encode(collection);
+    }
+
+
+    getByScore(property, score) {
+
+    }
+
+    setByScore(property, value, score) { 
+
     }
 
     set(property, value) {
@@ -779,7 +870,7 @@ class World {
 
     get(property) {
         if(typeof property == "string") {
-            const get = world.getDynamicProperty(`${this.database}:${property}`);
+            const get = world.getDynamicProperty(`DATABASE:${this.database}:${property}`);
             if(get == undefined) return null;
             const J = JParse(unescapeQuotes(get));
             if(J.isValid == false) {
@@ -794,7 +885,7 @@ class World {
     }
 
     has(property) {
-        if(world.getDynamicProperty(`${this.database}:${property}`)) {
+        if(world.getDynamicProperty(`DATABASE:${this.database}:${property}`)) {
             return true;
         } else {
             return false;
@@ -807,7 +898,7 @@ class World {
         const J = JParse(json, false);
         if(J.isValid) {
             this.#onChangeCallback("set", property, json);
-            world.setDynamicProperty(`${this.database}:${property}`, escapeQuotes(J.json));
+            world.setDynamicProperty(`DATABASE:${this.database}:${property}`, escapeQuotes(J.json));
             return { succes: true };
         } else {
             throw new Error("invalid Json.");
@@ -817,12 +908,21 @@ class World {
     delete(property) {
         if(typeof property != "string") throw new Error("property must be a string.");
         this.#onChangeCallback("delete", property);
-        world.setDynamicProperty(`${this.database}:${property}`, undefined);
+        world.setDynamicProperty(`DATABASE:${this.database}:${property}`, undefined);
         return { succes: true };
     }
 
     ClearAllDatabase() {
-        world.clearDynamicProperties();
+
+        const dynamics = world.getDynamicPropertyIds();
+
+        for(let i = 0; i < dynamics.length; i++) { 
+            const dynamic = dynamics[i];
+            if(dynamic.startsWith("DATABASE:")) {
+                world.setDynamicProperty(dynamic, undefined);
+            }
+        }
+
         return { succes: true };
     }
 
