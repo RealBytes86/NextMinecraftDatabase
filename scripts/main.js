@@ -24,9 +24,17 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
             //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
             //console.warn(test.length)
 
+            for(let i = 0; i <= 5001; i++) { 
+                cl.set(i.toString(), {id: i})
+            }
 
             return;
-        } else if(commandName == "encode") {
+        } else if(commandName == "test2") {
+            console.warn(JSON.stringify(cl.get("5000").data));
+            return;
+        } 
+        
+        else if(commandName == "encode") {
             try {
                 ctx.sender.sendMessage("Encode: "+ client.Base64().encode(args.join(" ")))
                 return;

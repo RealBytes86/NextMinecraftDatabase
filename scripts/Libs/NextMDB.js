@@ -5,6 +5,7 @@ const CONFIG = {
     identifier: "next:database",
     dimension: MinecraftDimensionTypes.overworld,
     dynamic_init: false,
+    maxDocuments: 5000,
 }
 
 export class NextMDB {
@@ -279,47 +280,63 @@ class ScoreboardCollection {
     set(property, value) {
         if(typeof property!= "string") return { response: "Property must be a string", status: "no" };
         const objectives = world.scoreboard.getObjectives();
+
+        let objectivCount = 0;
+        let boolean = true;
+
         for(let i = 0; i < objectives.length; i++) { 
             const objective = objectives[i];
-            if(objective.id.startsWith(this.id)) { 
+            if(objective.id.startsWith(this.id)) {
+
+                objectivCount++;
+
                 let documents = objective.getParticipants();
-                for(let d = 0; d < documents.length; d++) { 
+                let documentsLength = documents.length;
+
+                if(documentsLength <= CONFIG.maxDocuments) {
+                    boolean = true;
+                }
+            
+                for(let d = 0; d < documentsLength; d++) { 
                     let document = documents[d].displayName;
                     if(document.startsWith(property)) {
                         if(this.format == "json") {
                             const json = JParse(value, false);
                             if(json.isValid) {
-                                objective.removeParticipant(document);
-                                objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0);
+                                system.run(() => objective.removeParticipant(document));
+                                system.run(() => objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0));
                                 return { response: "updated", status: "ok" }
                             } else {
                                 return { response: "Invalid JSON", status: "no" };
                             }
                             
                         } else {
-                            objective.removeParticipant(document);
-                            objective.setScore(`${property}:${value}`, 0);
+                            system.run(() => objective.removeParticipant(document));
+                            system.run(() => objective.setScore(`${property}:${value}`, 0));
                             return { response: "updated", status: "ok" }
                         }
                     }
                 }
 
-                if(this.format == "json") {
-                    const json = JParse(value, false);
-                    if(json.isValid) {
-                        objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0);
-                        return { response: "added", status: "ok" }
-                    } else {
-                        return { response: "Invalid JSON", status: "no" };
-                    }
-                    
-                } else {
-                    objective.setScore(`${property}:${value}`, 0);
-                    return { response: "added.", status: "ok" }
-                }
-
             }
         }
+        
+
+        /*
+        if(this.format == "json") {
+            const json = JParse(value, false);
+            if(json.isValid) {
+                system.run(() => objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0));
+                return { response: "added", status: "ok" }
+            } else {
+                return { response: "Invalid JSON", status: "no" };
+            }
+            
+        } else {
+            system.run(() => objective.setScore(`${property}:${value}`, 0));
+            return { response: "added.", status: "ok" }
+        }*/
+
     }
 
     get(property) {
