@@ -306,7 +306,7 @@ class ScoreboardCollection {
                         }
                     }
                 }
-                
+
                 if(this.format == "json") {
                     const json = JParse(value, false);
                     if(json.isValid) {
@@ -351,11 +351,42 @@ class ScoreboardCollection {
     }
 
     delete(property) { 
+        if(typeof property != "string") return { response: "Property must be a string", status: "no" };
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(this.id)) {
+                const documents = objective.getParticipants();
+                for(let d = 0; d < documents.length; d++) { 
+                    const document = documents[d].displayName;
+                    if(document.startsWith(property)) { 
+                        system.run(() => objective.removeParticipant(document));
+                        return { response: "deleted", status: "ok" }
+                    } 
+                }
+
+                return { response: "Property not found", status: "no" };
+            }
+        }
 
     }
 
     has(property) {
-
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(this.id)) { 
+                const documents = objective.getParticipants();
+                for(let d = 0; d < documents.length; d++) { 
+                    let document = documents[d].displayName;
+                    if(document.startsWith(property)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        return false;
     }
 
 }
