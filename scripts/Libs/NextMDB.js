@@ -74,6 +74,11 @@ class ScoreboardDB {
         return new ScoreboardCollection("NEXTDATABASE:" + collection);
     }
 
+    ClusterCollection(collection) { 
+        if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
+        return new ScoreboardCollectionCluster("NEXTDATABASE:" + collection);
+    }
+
     createCollection(collection) {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
         const id = this.#base64.encode("NEXTDATABASE:" + collection + "#1");
@@ -205,6 +210,33 @@ class ScoreboardDB {
     }
 }
 
+class ScoreboardCollectionCluster {
+
+    #base64 = new Base64();
+
+    constructor(collection, format = "json") {
+        this.displayName = collection;
+        this.format = format;
+        this.id = this.#base64.encode(collection);
+    }
+
+    set(score, value) {
+
+    }
+
+    get(score) {
+
+    }
+
+    delete(score) { 
+
+    }
+
+    has(score) {
+
+    }
+}
+
 class ScoreboardCollection {
 
     #base64 = new Base64();
@@ -215,21 +247,33 @@ class ScoreboardCollection {
         this.id = this.#base64.encode(collection);
     }
 
-
-    getByScore(property, score) {
-
-    }
-
-    setByScore(property, value, score) { 
-
-    }
-
     set(property, value) {
         
     }
 
     get(property) {
+        if(typeof property != "string") return { response: "Property must be a string", status: "no" };
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(this.id)) { 
+                const documents = objective.getParticipants();
+                for(let d = 0; d < documents.length; d++) { 
+                    let document = documents[d].displayName;
+                    if(document.startsWith(property)) {
+                        document = document.slice(property.length + 1);
+                        if(this.format == "json") {
+                            const json = JParse(unescapeQuotes(document));
+                            return { response: "found", status: "ok", data: json.json};
+                        } else {
+                            return { response: "found", status: "ok", data: document};
+                        }
+                    }
+                }
+            }
+        }
 
+        return { response: "not found", status: "no" };
     }
 
     delete(property) { 
