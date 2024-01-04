@@ -8,7 +8,9 @@ const setPrefix = ".";
 const client = new NextMDB();
 
 const database = client.Scoreboard();
+database.deleteAllCollections();
 database.createCollection("Kevin");
+const cl = database.Collection("Kevin");
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
@@ -21,6 +23,7 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
 
             //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
             //console.warn(test.length)
+
 
             return;
         } else if(commandName == "encode") {

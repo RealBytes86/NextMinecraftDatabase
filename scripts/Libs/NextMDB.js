@@ -69,14 +69,16 @@ class ScoreboardDB {
 
     #base64 = new Base64();
 
-    Collection(collection) {
+    Collection(collection, format = "json") {
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
-        return new ScoreboardCollection("NEXTDATABASE:" + collection);
+        if(typeof format!= "string" || format.length == 0) throw new Error("Format must be a string");
+        return new ScoreboardCollection("NEXTDATABASE:" + collection, format);
     }
 
-    ClusterCollection(collection) { 
+    ClusterCollection(collection, format = "json") { 
         if(typeof collection!= "string" || collection.length == 0) throw new Error("Collection must be a string");
-        return new ScoreboardCollectionCluster("NEXTDATABASE:" + collection);
+        if(typeof format!= "string" || format.length == 0) throw new Error("Format must be a string");
+        return new ScoreboardCollectionCluster("NEXTDATABASE:" + collection, format);
     }
 
     createCollection(collection) {
@@ -137,7 +139,7 @@ class ScoreboardDB {
 
     deleteAllCollections() {
         let deleteCount = 0;
-        const id = this.#base64.encode("NEXTDATABASE:");
+        const id = this.#base64.encode("NEXTDATABASE");
         const objectives = world.scoreboard.getObjectives();
         for(let i = 0; i < objectives.length; i++) { 
             const objective = objectives[i];
@@ -154,7 +156,7 @@ class ScoreboardDB {
     resetALLCollections() {
         const objectives = world.scoreboard.getObjectives();
         let resetCount = 0;
-        const id = this.#base64.encode("NEXTDATABASE:");
+        const id = this.#base64.encode("NEXTDATABASE");
         for(let i = 0; i < objectives.length; i++) {
             const objective = objectives[i];
             if(objective.id.startsWith(id)) { 
@@ -177,7 +179,7 @@ class ScoreboardDB {
 
     getCollections() {
         const objectives = world.scoreboard.getObjectives();
-        const id = this.#base64.encode("NEXTDATABASE:");
+        const id = this.#base64.encode("NEXTDATABASE");
         const collections = []; 
         for(let i = 0; i < objectives.length; i++) { 
             const objective = objectives[i];
@@ -237,6 +239,33 @@ class ScoreboardCollectionCluster {
     }
 }
 
+class Edits {
+
+    constructor(objective, data, format, property) {
+        this.objective = objective;
+        this.data = data;
+        this.format = format;
+        this.property = property;
+    }
+
+    set(value) {
+        if(this.format == "json") {
+            const json = JParse(unescapeQuotes(value), false);
+            if(json.isValid) {
+                this.objective.removeParticipant(this.data);
+                this.objective.setScore(`${this.property}:${escapeQuotes(json.json)}`, 0);
+                return { response: "Succesfully", status: "ok" };
+            } else {
+                return { response: "Invalid JSON", status: "no" };
+            }
+        } else {
+            this.objective.removeParticipant(this.data);
+            this.objective.setScore(`${this.property}:${value}`, 0);
+            return { response: "Succesfully", status: "ok" };
+        }
+    }
+}
+
 class ScoreboardCollection {
 
     #base64 = new Base64();
@@ -248,7 +277,49 @@ class ScoreboardCollection {
     }
 
     set(property, value) {
-        
+        if(typeof property!= "string") return { response: "Property must be a string", status: "no" };
+        const objectives = world.scoreboard.getObjectives();
+        for(let i = 0; i < objectives.length; i++) { 
+            const objective = objectives[i];
+            if(objective.id.startsWith(this.id)) { 
+                let documents = objective.getParticipants();
+                for(let d = 0; d < documents.length; d++) { 
+                    let document = documents[d].displayName;
+                    if(document.startsWith(property)) {
+                        if(this.format == "json") {
+                            const json = JParse(value, false);
+                            if(json.isValid) {
+                                objective.removeParticipant(document);
+                                objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0);
+                                return { response: "updated", status: "ok" }
+                            } else {
+                                return { response: "Invalid JSON", status: "no" };
+                            }
+                            
+                        } else {
+                            objective.removeParticipant(document);
+                            objective.setScore(`${property}:${value}`, 0);
+                            return { response: "updated", status: "ok" }
+                        }
+                    }
+                }
+
+                if(this.format == "json") {
+                    const json = JParse(value, false);
+                    if(json.isValid) {
+                        objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0);
+                        return { response: "added", status: "ok" }
+                    } else {
+                        return { response: "Invalid JSON", status: "no" };
+                    }
+                    
+                } else {
+                    objective.setScore(`${property}:${value}`, 0);
+                    return { response: "added.", status: "ok" }
+                }
+
+            }
+        }
     }
 
     get(property) {
@@ -264,9 +335,9 @@ class ScoreboardCollection {
                         document = document.slice(property.length + 1);
                         if(this.format == "json") {
                             const json = JParse(unescapeQuotes(document));
-                            return { response: "found", status: "ok", data: json.json};
+                            return { response: "found", status: "ok", data: json.json, edit: new Edits(objective, documents[d].displayName, this.format, property) };
                         } else {
-                            return { response: "found", status: "ok", data: document};
+                            return { response: "found", status: "ok", data: document, edit: new Edits(objective, documents[d].displayName, this.format, property) };
                         }
                     }
                 }
