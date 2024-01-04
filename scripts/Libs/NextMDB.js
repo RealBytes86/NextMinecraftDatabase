@@ -280,22 +280,11 @@ class ScoreboardCollection {
     set(property, value) {
         if(typeof property!= "string") return { response: "Property must be a string", status: "no" };
         const objectives = world.scoreboard.getObjectives();
-
-        let objectivCount = 0;
-        let boolean = true;
-
         for(let i = 0; i < objectives.length; i++) { 
             const objective = objectives[i];
             if(objective.id.startsWith(this.id)) {
-
-                objectivCount++;
-
                 let documents = objective.getParticipants();
                 let documentsLength = documents.length;
-
-                if(documentsLength <= CONFIG.maxDocuments) {
-                    boolean = true;
-                }
             
                 for(let d = 0; d < documentsLength; d++) { 
                     let document = documents[d].displayName;
@@ -317,25 +306,22 @@ class ScoreboardCollection {
                         }
                     }
                 }
-
+                
+                if(this.format == "json") {
+                    const json = JParse(value, false);
+                    if(json.isValid) {
+                        system.run(() => objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0));
+                        return { response: "added", status: "ok" }
+                    } else {
+                        return { response: "Invalid JSON", status: "no" };
+                    }
+                    
+                } else {
+                    system.run(() => objective.setScore(`${property}:${value}`, 0));
+                    return { response: "added.", status: "ok" }
+                }
             }
         }
-        
-
-        /*
-        if(this.format == "json") {
-            const json = JParse(value, false);
-            if(json.isValid) {
-                system.run(() => objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0));
-                return { response: "added", status: "ok" }
-            } else {
-                return { response: "Invalid JSON", status: "no" };
-            }
-            
-        } else {
-            system.run(() => objective.setScore(`${property}:${value}`, 0));
-            return { response: "added.", status: "ok" }
-        }*/
 
     }
 
