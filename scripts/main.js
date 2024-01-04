@@ -24,13 +24,14 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
             //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
             //console.warn(test.length)
 
-            for(let i = 0; i <= 5001; i++) { 
+            for(let i = 0; i <= 1; i++) { 
                 cl.set(i.toString(), {id: i})
             }
 
             return;
         } else if(commandName == "test2") {
-            console.warn(JSON.stringify(cl.get("5000").data));
+            const data = cl.get("1");
+            data.edit.set({name: "Kevin"})
             return;
         } 
         

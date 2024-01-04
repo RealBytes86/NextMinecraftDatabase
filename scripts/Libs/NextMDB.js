@@ -215,12 +215,24 @@ class ScoreboardDB {
 
 class ScoreboardCollectionCluster {
 
+    constructor(collection, format = "json") {
+        this.format = format;
+        this.collection = collection;
+    }
+
     #base64 = new Base64();
 
-    constructor(collection, format = "json") {
-        this.displayName = collection;
-        this.format = format;
-        this.id = this.#base64.encode(collection);
+    #cluster = (score) => {
+
+        const clusterID = Math.ceil(score / CONFIG.maxDocuments);
+        const name = this.#base64.encode(this.collection + "#" + clusterID.toString());
+        const objective = world.scoreboard.getObjective(name);
+        
+        if(objective == undefined) {
+            world.scoreboard.addObjective(name, this.collection + "#" + clusterID.toString());
+        }
+
+        return world.scoreboard.getObjective(name);
     }
 
     set(score, value) {
@@ -249,19 +261,24 @@ class Edits {
         this.property = property;
     }
 
+    delete() {
+        system.run(() => this.objective.removeParticipant(this.data));
+        return { response: "Succesfully", status: "ok" };
+    }
+
     set(value) {
         if(this.format == "json") {
-            const json = JParse(unescapeQuotes(value), false);
+            const json = JParse(value, false);
             if(json.isValid) {
-                this.objective.removeParticipant(this.data);
-                this.objective.setScore(`${this.property}:${escapeQuotes(json.json)}`, 0);
+                system.run(() => this.objective.removeParticipant(this.data));
+                system.run(() => this.objective.setScore(`${this.property}:${escapeQuotes(json.json)}`, 0));
                 return { response: "Succesfully", status: "ok" };
             } else {
                 return { response: "Invalid JSON", status: "no" };
             }
         } else {
-            this.objective.removeParticipant(this.data);
-            this.objective.setScore(`${this.property}:${value}`, 0);
+            system.run(() => this.objective.removeParticipant(this.data));
+            system.run(() => this.objective.setScore(`${this.property}:${value}`, 0));
             return { response: "Succesfully", status: "ok" };
         }
     }
