@@ -213,6 +213,10 @@ class ScoreboardDB {
     }
 }
 
+class ClusterEdits {
+    
+}
+
 class ScoreboardCollectionCluster {
 
     constructor(collection, format = "json") {
@@ -1391,7 +1395,6 @@ export class Base64 {
         }
 
         for(let i = 0; i < str.length; i += 3) {
-            
             const n = (str.charCodeAt(i) << 16) 
             + (str.charCodeAt(i + 1) << 8)
             + str.charCodeAt(i + 2);
