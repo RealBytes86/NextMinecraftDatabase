@@ -237,10 +237,32 @@ class ScoreboardCollectionCluster {
 
     set(score, value) {
 
+        if(this.format == "json") { 
+            const json = JParse(value, false);
+            if(json.isValid) {
+
+            } else {
+
+            }
+        } else {
+
+        }
     }
 
     get(score) {
-
+        if(typeof score != "number") throw new Error("Score must be a number");
+        const documentIDs = this.#cluster(score).getScores();
+        for(let i = 0; i < documentIDs.length; i++) {
+            const documentID = documentIDs[i];
+            if(documentID.score == score) {
+                if(this.format == "json") { 
+                    const json = JParse(unescapeQuotes(documentID.participant.displayName));
+                    return { response: "found", status: "ok", data: json.json };
+                } else {
+                    return { response: "found", status: "ok", data: documentID.participant.displayName };
+                }
+            }
+        }
     }
 
     delete(score) { 
