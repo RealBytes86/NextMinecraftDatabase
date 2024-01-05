@@ -1,4 +1,4 @@
-import { system, world  } from "@minecraft/server"
+import { Entity, ScoreboardIdentity, system, world  } from "@minecraft/server"
 import "./Example/Database"
 import { Base64, NextMDB } from "./Libs/NextMDB";
 console.warn("Loading world...");
@@ -30,8 +30,8 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
 
             return;
         } else if(commandName == "test2") {
-            const data = cl.get("1");
-            data.edit.set({name: "Kevin"})
+            const data = world.scoreboard.getObjective("ID").
+            console.warn(data)
             return;
         } 
         

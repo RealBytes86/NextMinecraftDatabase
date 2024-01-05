@@ -214,7 +214,22 @@ class ScoreboardDB {
 }
 
 class ClusterEdits {
-    
+    constructor(objective, data, format, score) {
+        this.objective = objective;
+        this.data = data;
+        this.format = format;
+        this.score = score;
+    }
+
+    delete() {
+
+        
+    }
+
+    set(value) {
+
+    }
+
 }
 
 class ScoreboardCollectionCluster {
@@ -238,7 +253,7 @@ class ScoreboardCollectionCluster {
 
         return world.scoreboard.getObjective(name);
     }
-
+    
     set(score, value) {
 
         if(this.format == "json") { 
@@ -255,18 +270,21 @@ class ScoreboardCollectionCluster {
 
     get(score) {
         if(typeof score != "number") throw new Error("Score must be a number");
-        const documentIDs = this.#cluster(score).getScores();
+        const cluster = this.#cluster(score);
+        const documentIDs = cluster.getScores();
         for(let i = 0; i < documentIDs.length; i++) {
             const documentID = documentIDs[i];
             if(documentID.score == score) {
                 if(this.format == "json") { 
                     const json = JParse(unescapeQuotes(documentID.participant.displayName));
-                    return { response: "found", status: "ok", data: json.json };
+                    return { response: "found", status: "ok", data: json.json, document: new ClusterEdits(cluster, documentID, this.format, documentID.score) };
                 } else {
                     return { response: "found", status: "ok", data: documentID.participant.displayName };
                 }
             }
         }
+
+        return { response: "not found", status: "no" };
     }
 
     delete(score) { 
@@ -289,7 +307,7 @@ class Edits {
 
     delete() {
         system.run(() => this.objective.removeParticipant(this.data));
-        return { response: "Succesfully", status: "ok" };
+        return { response: "deleted", status: "ok" };
     }
 
     set(value) {
@@ -298,14 +316,14 @@ class Edits {
             if(json.isValid) {
                 system.run(() => this.objective.removeParticipant(this.data));
                 system.run(() => this.objective.setScore(`${this.property}:${escapeQuotes(json.json)}`, 0));
-                return { response: "Succesfully", status: "ok" };
+                return { response: "updated", status: "ok" };
             } else {
                 return { response: "Invalid JSON", status: "no" };
             }
         } else {
             system.run(() => this.objective.removeParticipant(this.data));
             system.run(() => this.objective.setScore(`${this.property}:${value}`, 0));
-            return { response: "Succesfully", status: "ok" };
+            return { response: "updated", status: "ok" };
         }
     }
 }
@@ -381,9 +399,9 @@ class ScoreboardCollection {
                         document = document.slice(property.length + 1);
                         if(this.format == "json") {
                             const json = JParse(unescapeQuotes(document));
-                            return { response: "found", status: "ok", data: json.json, edit: new Edits(objective, documents[d].displayName, this.format, property) };
+                            return { response: "found", status: "ok", data: json.json, document: new Edits(objective, documents[d].displayName, this.format, property) };
                         } else {
-                            return { response: "found", status: "ok", data: document, edit: new Edits(objective, documents[d].displayName, this.format, property) };
+                            return { response: "found", status: "ok", data: document, document: new Edits(objective, documents[d].displayName, this.format, property) };
                         }
                     }
                 }
