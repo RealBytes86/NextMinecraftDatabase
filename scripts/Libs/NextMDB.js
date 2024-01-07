@@ -268,16 +268,42 @@ class ScoreboardCollectionCluster {
     }
     
     set(score, value) {
+        if (typeof score != "number") throw new Error("Score must be a number");
+        const cluster = this.#cluster(score);
+        const documentIDs = cluster.getScores();
+        for(let i = 0; i < documentIDs.length; i++) {
+            const documentID = documentIDs[i];
+            if(documentID.score == score) {
+                if(this.format == "json") {
+                    const j = JParse(value, false);
+                    if(j.isValid) {
+                        system.run(() => cluster.removeParticipant(documentID.participant.displayName));
+                        system.run(() => cluster.setScore(escapeQuotes(j.json), score));
+                        return { response: "updated", status: "ok" };
+                    } else {
+                        return { response: "invalid json", status: "no" };
+                    }
 
-        if(this.format == "json") { 
-            const json = JParse(value, false);
-            if(json.isValid) {
+                } else {
+                    if (typeof value != "string") throw new Error("Value must be a string");
+                    system.run(() => cluster.setScore(value, score));
+                    return { response: "updated", status: "ok" };
+                }
+            }
+        }
 
+        if(this.format == "json") {
+            const j = JParse(value, false);
+            if (j.isValid) {
+                system.run(() => cluster.setScore(escapeQuotes(j.json), score));
+                return { response: "added", status: "ok"};
             } else {
-
+                return { response: "invalid json", status: "no" };
             }
         } else {
-
+            if (typeof value != "string") throw new Error("Value must be a string");
+            system.run(() => cluster.setScore(value, score));
+            return { response: "added", status: "ok" };
         }
     }
 
@@ -391,7 +417,7 @@ class ScoreboardCollection {
                                 system.run(() => objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0));
                                 return { response: "updated", status: "ok" }
                             } else {
-                                return { response: "Invalid JSON", status: "no" };
+                                return { response: "invalid JSON", status: "no" };
                             }
                             
                         } else {
@@ -408,7 +434,7 @@ class ScoreboardCollection {
                         system.run(() => objective.setScore(`${property}:${escapeQuotes(json.json)}`, 0));
                         return { response: "added", status: "ok" }
                     } else {
-                        return { response: "Invalid JSON", status: "no" };
+                        return { response: "invalid JSON", status: "no" };
                     }
                     
                 } else {
