@@ -228,9 +228,21 @@ class ClusterEdits {
     }
 
     set(value) {
+        if(this.format == "json") {
+            const j = JParse(value, false);
+            if(j.isValid) {
+                this.objective.setScore(escapeQuotes(j.json), this.score);
+                return { response: "updated", status: "ok" };
+            } else {
+                return { response: "invalid json", status: "no" };
+            }
 
+        } else {
+            this.objective.removeParticipant(this.data);
+            this.objective.setScore(value, this.score);
+            return { response: "updated", status: "ok" };
+        }
     }
-
 }
 
 class ScoreboardCollectionCluster {
