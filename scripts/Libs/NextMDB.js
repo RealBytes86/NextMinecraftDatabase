@@ -1458,7 +1458,6 @@ function setLocationCollection({x, y, z}, dimension) {
     return { succes: true };
 }
 
-
 export class Base64 {
 
     #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
