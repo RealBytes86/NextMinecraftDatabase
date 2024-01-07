@@ -261,7 +261,7 @@ class ScoreboardCollectionCluster {
         const objective = world.scoreboard.getObjective(name);
         
         if(objective == undefined) {
-            world.scoreboard.addObjective(name, this.collection + "#" + clusterID.toString());
+            system.run(() => world.scoreboard.addObjective(name, this.collection.slice("NEXTDATABASE:".length) + "#" + clusterID.toString()));
         }
 
         return world.scoreboard.getObjective(name);

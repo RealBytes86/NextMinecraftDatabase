@@ -9,8 +9,8 @@ const client = new NextMDB();
 
 const database = client.Scoreboard();
 database.deleteAllCollections();
-database.createCollection("Kevin");
-const cl = database.Collection("Kevin");
+database.createCollection("PlayerID");
+const player = database.ClusterCollection("PlayerID");
 
 world.beforeEvents.chatSend.subscribe((ctx) => {
     const messsage = ctx.message;
@@ -24,16 +24,30 @@ world.beforeEvents.chatSend.subscribe((ctx) => {
             //let test = ctx.sender.dimension.getEntitiesAtBlockLocation({x: 0, y: 255, z: 0})
             //console.warn(test.length)
 
-            for(let i = 0; i <= 1; i++) { 
-                cl.set(i.toString(), {id: i})
-            }
+            const data = player.get(7381);
+
+            world.sendMessage(JSON.stringify(data.data, null, 2));
 
             return;
         } else if(commandName == "test2") {
-            const data = world.scoreboard.getObjective("ID").
-            console.warn(data)
+            player.set(5001, {name: "kevin"})
             return;
         } 
+
+        else if(commandName == "test3") {
+
+            for(let i = 1; i <= 5000; i++) { 
+                player.set(i, {name: i});
+            }
+
+            
+            for(let i = 5000; i <= 10000; i++) { 
+                player.set(i, {name: i});
+            }
+
+            return;
+        } 
+        
         
         else if(commandName == "encode") {
             try {
