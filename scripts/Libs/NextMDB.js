@@ -222,8 +222,9 @@ class ClusterEdits {
     }
 
     delete() {
-
-        
+        this.objective.removeParticipant(this.data);
+        this.objective.setScore(`Null#${this.score}`, this.score);
+        return { response: "deleted", status: "ok" };
     }
 
     set(value) {
@@ -287,12 +288,33 @@ class ScoreboardCollectionCluster {
         return { response: "not found", status: "no" };
     }
 
-    delete(score) { 
+    delete(score) {
+        if(typeof score!= "number") throw new Error("Score must be a number");
+        const cluster = this.#cluster(score);
+        const documentIDs = cluster.getScores();
+        for(let i = 0; i < documentIDs.length; i++) {
+            const documentID = documentIDs[i];
+            if(documentID.score == score) {
+                system.run(() => cluster.removeParticipant(documentID.participant.displayName));
+                system.run(() => cluster.setScore(`Null#${documentID.score}`));
+                return { response: "deleted", status: "ok" };
+            }
+        }
 
+        return { response: "not found", status: "no" };
     }
 
     has(score) {
-
+        if(typeof score!= "number") throw new Error("Score must be a number");
+        const cluster = this.#cluster(score);
+        const documentIDs = cluster.getScores();
+        for(let i = 0; i < documentIDs.length; i++) {
+            const documentID = documentIDs[i];
+            if(documentID.score == score) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
